@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { db, configured } from './firebase';
+import { ref as fbRef, set as fbSet, onValue } from 'firebase/database';
 
 /* ─── PALETTE ──────────────────────────────────────────── */
 const C = {
@@ -328,39 +330,51 @@ const INIT = {
 
 /* ─── STORAGE HOOK ──────────────────────────────────────── */
 function useSharedStorage(key, fallback) {
-  const [data, setData] = useState(fallback);
-  const storeRef = useRef(null);
-  const readyRef = useRef(false);
+  // null = still loading; real data once hydrated
+  const [data, setData] = useState(null);
 
   useEffect(() => {
-    let unsub;
-    try {
-      storeRef.current = window.storage({ shared: true });
-      const stored = storeRef.current.get(key);
-      if (stored !== null && stored !== undefined) setData(stored);
-      readyRef.current = true;
-      unsub = storeRef.current.subscribe(key, (val) => {
-        if (val !== null && val !== undefined) setData(val);
-      });
-    } catch {
+    if (!configured) {
+      // localStorage fallback (single-device)
       try {
         const raw = localStorage.getItem(key);
-        if (raw) setData(JSON.parse(raw));
-      } catch {}
+        setData(raw ? JSON.parse(raw) : fallback);
+      } catch {
+        setData(fallback);
+      }
+      return;
     }
-    return () => { try { unsub?.(); } catch {} };
-  }, [key]);
+
+    // Firebase Realtime Database — live sync across all devices
+    const r = fbRef(db, key);
+    const unsub = onValue(
+      r,
+      (snap) => {
+        if (snap.exists()) {
+          setData(snap.val());
+        } else {
+          // First run: seed with default data
+          fbSet(r, fallback).catch(() => {});
+          setData(fallback);
+        }
+      },
+      () => setData(fallback), // error fallback
+    );
+    return unsub;
+  }, [key]); // eslint-disable-line
 
   const save = useCallback((updater) => {
     setData((prev) => {
-      const next = typeof updater === 'function' ? updater(prev) : updater;
-      try {
-        if (storeRef.current && readyRef.current) storeRef.current.set(key, next);
-        else localStorage.setItem(key, JSON.stringify(next));
-      } catch {}
+      const base = prev ?? fallback;
+      const next = typeof updater === 'function' ? updater(base) : updater;
+      if (configured) {
+        fbSet(fbRef(db, key), next).catch(() => {});
+      } else {
+        try { localStorage.setItem(key, JSON.stringify(next)); } catch {}
+      }
       return next;
     });
-  }, [key]);
+  }, [key]); // eslint-disable-line
 
   return [data, save];
 }
@@ -688,6 +702,17 @@ function DailyView({ data, onUpdate }) {
     }),
   }));
 
+  const moveEvt = (dayIdx, evtIdx, dir) => {
+    const newIdx = evtIdx + dir;
+    onUpdate(d => {
+      const days = d.days.map(day => ({ ...day, events: [...day.events] }));
+      const evts = days[dayIdx].events;
+      if (newIdx < 0 || newIdx >= evts.length) return d;
+      [evts[evtIdx], evts[newIdx]] = [evts[newIdx], evts[evtIdx]];
+      return { ...d, days, lastUpdated: new Date().toISOString() };
+    });
+  };
+
   const onDrop = (toDayIdx, toEvtIdx) => {
     if (!dragSrc) return;
     if (dragSrc.dayIdx === toDayIdx && dragSrc.evtIdx === toEvtIdx) { setDragSrc(null); setDragOver(null); return; }
@@ -727,6 +752,8 @@ function DailyView({ data, onUpdate }) {
                 {day.events.map((evt, evtIdx) => (
                   <EventCard
                     key={evt.id} evt={evt}
+                    isFirst={evtIdx === 0}
+                    isLast={evtIdx === day.events.length - 1}
                     isDragging={dragSrc?.dayIdx === dayIdx && dragSrc?.evtIdx === evtIdx}
                     isOver={dragOver?.dayIdx === dayIdx && dragOver?.evtIdx === evtIdx}
                     onDragStart={() => setDragSrc({ dayIdx, evtIdx })}
@@ -736,6 +763,8 @@ function DailyView({ data, onUpdate }) {
                     onEdit={() => setEditEvt({ dayIdx, event: evt })}
                     onDelete={() => delEvt(dayIdx, evt.id)}
                     onCycle={() => cycleEvt(dayIdx, evt.id)}
+                    onMoveUp={() => moveEvt(dayIdx, evtIdx, -1)}
+                    onMoveDown={() => moveEvt(dayIdx, evtIdx, 1)}
                   />
                 ))}
                 {/* drop zone at end */}
@@ -763,7 +792,7 @@ function DailyView({ data, onUpdate }) {
   );
 }
 
-function EventCard({ evt, isDragging, isOver, onDragStart, onDragOver, onDragLeave, onDrop, onEdit, onDelete, onCycle }) {
+function EventCard({ evt, isFirst, isLast, isDragging, isOver, onDragStart, onDragOver, onDragLeave, onDrop, onEdit, onDelete, onCycle, onMoveUp, onMoveDown }) {
   const statusColor = STATUS[evt.status]?.color || C.ivoryDark;
   return (
     <div
@@ -797,6 +826,19 @@ function EventCard({ evt, isDragging, isOver, onDragStart, onDragOver, onDragLea
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
           <StatusBadge status={evt.status} onClick={onCycle} />
+          {/* ↑↓ reorder — works on touch (iPad) where drag-and-drop doesn't fire */}
+          <div style={{ display: 'flex', gap: 2 }}>
+            <button onClick={onMoveUp} disabled={isFirst} title="Move up" style={{
+              background: isFirst ? C.ivoryDark : C.ivoryMid, border: 'none',
+              borderRadius: 6, width: 28, height: 28, cursor: isFirst ? 'default' : 'pointer',
+              fontSize: 14, color: isFirst ? C.textLight : C.navy, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>↑</button>
+            <button onClick={onMoveDown} disabled={isLast} title="Move down" style={{
+              background: isLast ? C.ivoryDark : C.ivoryMid, border: 'none',
+              borderRadius: 6, width: 28, height: 28, cursor: isLast ? 'default' : 'pointer',
+              fontSize: 14, color: isLast ? C.textLight : C.navy, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>↓</button>
+          </div>
           <div style={{ display: 'flex', gap: 4 }}>
             <Btn small variant="ghost" onClick={onEdit}>Edit</Btn>
             <Btn small variant="danger" onClick={onDelete}>Del</Btn>
@@ -1228,10 +1270,29 @@ export default function App() {
     };
   }, []);
 
+  // Show loading screen while Firebase hydrates
+  if (!data) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', background: C.ivory, gap: 16 }}>
+        <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 26, color: C.navy, fontWeight: 700 }}>✦ Girls Trip 2026</div>
+        <div style={{ fontFamily: 'Lato,sans-serif', color: C.textLight, fontSize: 14 }}>Loading your itinerary…</div>
+        <div style={{ width: 48, height: 4, borderRadius: 2, background: `linear-gradient(90deg, ${C.terracotta}, ${C.gold})`, animation: 'pulse 1.2s ease-in-out infinite' }} />
+        <style>{`@keyframes pulse { 0%,100% { opacity:.3 } 50% { opacity:1 } }`}</style>
+      </div>
+    );
+  }
+
   const lu = data.lastUpdated ? new Date(data.lastUpdated).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : null;
 
   return (
     <div style={{ minHeight: '100vh', background: C.ivory }}>
+
+      {/* local-mode warning — hidden once Firebase is configured */}
+      {!configured && (
+        <div style={{ background: C.gold, color: C.navy, padding: '8px 20px', fontFamily: 'Lato,sans-serif', fontSize: 13, textAlign: 'center', fontWeight: 600 }}>
+          ⚠️ Running in local mode — changes are only saved on this device. See README for Firebase setup.
+        </div>
+      )}
 
       {/* ── HEADER ── */}
       <header style={{
@@ -1257,7 +1318,7 @@ export default function App() {
                 </span>
               ))}
             </div>
-            {lu && <div style={{ fontSize: 10, color: C.white + '66', fontFamily: 'Lato,sans-serif' }}>synced {lu}</div>}
+            {lu && <div style={{ fontSize: 10, color: C.white + '66', fontFamily: 'Lato,sans-serif' }}>{configured ? '🔄 synced' : '💾 saved'} {lu}</div>}
           </div>
         </div>
 
