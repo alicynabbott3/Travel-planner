@@ -1,0 +1,1297 @@
+import { useState, useEffect, useRef, useCallback } from 'react';
+
+/* ─── PALETTE ──────────────────────────────────────────── */
+const C = {
+  terracotta: '#C1704A',
+  terracottaL: '#D98B68',
+  terracottaD: '#9A5337',
+  ivory: '#F8F3EB',
+  ivoryMid: '#EDE4D3',
+  ivoryDark: '#DDD0BA',
+  navy: '#1C2D50',
+  navyMid: '#2D4472',
+  gold: '#C9A547',
+  goldL: '#DDBC6E',
+  text: '#2A2218',
+  textMid: '#5C4E3C',
+  textLight: '#8A7B68',
+  white: '#FFFFFF',
+  green: '#3D7A55',
+  orange: '#D07830',
+  purple: '#7059A0',
+  red: '#C03030',
+};
+
+const FONT_URL =
+  'https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Lato:wght@300;400;600&display=swap';
+
+/* ─── STATUS & TYPE ─────────────────────────────────────── */
+const STATUS = {
+  confirmed:     { icon: '✅', label: 'Confirmed',       color: C.green },
+  pending:       { icon: '⏳', label: 'Pending',         color: C.orange },
+  payAtLocation: { icon: '💳', label: 'Pay at Location', color: C.purple },
+};
+const STATUSES = ['confirmed', 'pending', 'payAtLocation'];
+
+const TYPE = {
+  flight:    { icon: '✈️',  label: 'Flight' },
+  hotel:     { icon: '🏨',  label: 'Hotel' },
+  activity:  { icon: '🎯',  label: 'Activity' },
+  food:      { icon: '🍽️', label: 'Dining' },
+  transport: { icon: '🚗',  label: 'Transport' },
+  cruise:    { icon: '🚢',  label: 'Cruise' },
+  beach:     { icon: '🏖️', label: 'Beach' },
+  other:     { icon: '📌',  label: 'Other' },
+};
+
+/* ─── UTILS ─────────────────────────────────────────────── */
+const uid = () => Math.random().toString(36).substr(2, 9);
+const nextStatus = (s) => STATUSES[(STATUSES.indexOf(s) + 1) % STATUSES.length];
+
+/* ─── INITIAL DATA ──────────────────────────────────────── */
+const INIT = {
+  meta: {
+    tripName: 'Girls Trip 2026',
+    tagline: 'Barcelona · Palma · Mediterranean Cruise',
+    dates: 'June 15–28, 2026',
+    travelers: ['Alicyn Kitamura', 'Felicia Mapa', 'Sabrina Hammou'],
+  },
+
+  flights: [
+    { id: 'fl1', airline: 'Air Canada', numbers: 'AC774 / AC822', route: 'LAX → YUL → BCN',
+      date: 'June 16', departure: '8:15 AM LAX', arrival: '8:00 AM BCN (June 17)',
+      confirmation: 'CBWO8M', passengers: 'Alicyn, Felicia, Sabrina',
+      status: 'confirmed', notes: 'Layover in Montreal (YUL)' },
+    { id: 'fl2', airline: 'Air Europa', numbers: 'UX6037', route: 'BCN → PMI',
+      date: 'June 17', departure: '11:55 AM', arrival: '12:40 PM',
+      confirmation: '8U8KBK', passengers: 'Alicyn, Felicia, Sabrina',
+      status: 'confirmed', notes: 'Barcelona → Palma de Mallorca' },
+    { id: 'fl3', airline: 'Ryanair', numbers: 'FR6379', route: 'PMI → BCN',
+      date: 'June 19', departure: '12:10 PM', arrival: '~1:10 PM',
+      confirmation: 'C7253B', passengers: 'Alicyn, Felicia, Sabrina',
+      status: 'confirmed', notes: 'Palma → Barcelona. Gate closes 30 min early!' },
+    { id: 'fl4', airline: 'Air Canada', numbers: 'AC821 / AC795', route: 'BCN → YYZ → LAX',
+      date: 'June 28', departure: '1:15 PM BCN', arrival: '9:00 PM LAX',
+      confirmation: 'CBWO8M', passengers: 'Alicyn, Felicia, Sabrina',
+      status: 'confirmed', notes: 'Layover in Toronto (YYZ)' },
+  ],
+
+  hotels: [
+    { id: 'ht1', name: 'Dog Admiral Urban Guest House',
+      address: 'Carrer del Conquistador 2, Palma de Mallorca',
+      checkIn: 'June 17, 2026', checkOut: 'June 19, 2026', nights: 2,
+      room: 'Flamingo Suite', guests: 3,
+      confirmation: 'BB26031720350199', status: 'payAtLocation',
+      notes: 'Pay at location upon arrival' },
+    { id: 'ht2', name: 'H10 Art Gallery Hotel',
+      address: 'Enric Granados 62–64, Barcelona',
+      checkIn: 'June 19, 2026', checkOut: 'June 21, 2026', nights: 2,
+      room: 'Atrium Room', guests: 3,
+      confirmation: "See Alicyn's email", status: 'confirmed',
+      notes: 'Paid by Alicyn' },
+    { id: 'ht3', name: 'Virgin Voyages — Valiant Lady 🚢',
+      address: 'Port of Barcelona, Moll Adossat Terminal A/B',
+      checkIn: 'June 21, 2026 (3:15 PM)', checkOut: 'June 28, 2026 (6–8 AM)', nights: 7,
+      room: 'Seaview Cabin (3 pax)', guests: 3,
+      confirmation: '2478994', status: 'confirmed',
+      notes: '"Italian Vistas to Spanish Sunsets" — Ports: Rome, Cinque Terre, Cannes, Ibiza' },
+  ],
+
+  days: [
+    {
+      date: '2026-06-15', label: 'Monday, June 15',
+      location: 'Los Angeles', subtitle: 'Pre-Departure',
+      events: [
+        { id: 'e0615a', time: '3:00 AM', title: 'Online Check-in for Air Europa UX6037', description: 'Check-in opens for June 17 BCN→PMI flight', location: 'Online', type: 'flight', status: 'confirmed', notes: '' },
+        { id: 'e0615b', time: 'Evening', title: 'Final Pack & Prep', description: 'Passport · adapter · euros · print confirmations', location: 'Home', type: 'activity', status: 'confirmed', notes: '' },
+      ],
+    },
+    {
+      date: '2026-06-16', label: 'Tuesday, June 16',
+      location: 'Los Angeles → (In Air)', subtitle: '✈️ Travel Day',
+      events: [
+        { id: 'e0616a', time: '8:15 AM', title: 'Depart LAX — Air Canada AC774', description: 'LAX → YUL (Montreal)', location: 'LAX Terminal B', type: 'flight', status: 'confirmed', notes: 'Conf: CBWO8M · 3 pax' },
+        { id: 'e0616b', time: 'Afternoon', title: 'Connection in Montreal (YUL)', description: 'Connect to AC822 → Barcelona', location: 'Montreal YUL', type: 'flight', status: 'confirmed', notes: 'Check connection time' },
+        { id: 'e0616c', time: 'Evening', title: 'Overnight Flight to Barcelona', description: 'AC822 YUL → BCN · Arrives 8 AM June 17', location: 'In Air', type: 'flight', status: 'confirmed', notes: 'Sleep 💤' },
+      ],
+    },
+    {
+      date: '2026-06-17', label: 'Wednesday, June 17',
+      location: 'Barcelona → Palma de Mallorca', subtitle: '🌴 Palma Arrival',
+      events: [
+        { id: 'e0617a', time: '8:00 AM', title: 'Arrive Barcelona El Prat (BCN)', description: 'Arrive from Montreal. Freshen up & breakfast at airport.', location: 'BCN Airport', type: 'flight', status: 'confirmed', notes: '' },
+        { id: 'e0617b', time: '11:55 AM', title: 'Fly BCN → PMI — Air Europa UX6037', description: 'Barcelona to Palma de Mallorca', location: 'BCN Terminal 1', type: 'flight', status: 'confirmed', notes: 'Conf: 8U8KBK' },
+        { id: 'e0617c', time: '12:40 PM', title: 'Arrive Palma (PMI)', description: 'Land in Mallorca 🌞', location: 'Palma Airport PMI', type: 'flight', status: 'confirmed', notes: '' },
+        { id: 'e0617d', time: '1:00 PM', title: 'Taxi to Dog Admiral', description: '~25 min · ~€25 from airport', location: 'Carrer del Conquistador 2', type: 'transport', status: 'confirmed', notes: '' },
+        { id: 'e0617e', time: '1:30 PM', title: 'Check In — Dog Admiral Urban Guest House', description: 'Flamingo Suite · Pay at location', location: 'Carrer del Conquistador 2, Palma', type: 'hotel', status: 'payAtLocation', notes: 'Conf: BB26031720350199' },
+        { id: 'e0617f', time: '5:30 PM', title: 'Hammam Al Andalus', description: 'Traditional Arab bath experience', location: 'Hammam Al Andalus, Palma', type: 'activity', status: 'confirmed', notes: 'Pre-booked · Allow 1.5–2 hrs' },
+        { id: 'e0617g', time: '8:00 PM', title: 'Dinner — Pink Agave', description: 'Mexican restaurant in Palma', location: 'Pink Agave, Palma', type: 'food', status: 'confirmed', notes: 'Reservation' },
+      ],
+    },
+    {
+      date: '2026-06-18', label: 'Thursday, June 18',
+      location: 'Palma de Mallorca', subtitle: '🏔️ Valldemossa · Deià · Sóller',
+      events: [
+        { id: 'e0618a', time: '9:30 AM', title: 'Valldemossa / Deià / Sóller VIP Tour', description: 'Full-day scenic tour — meet at Cathedral Basilica', location: 'Cathedral Basilica de Mallorca', type: 'activity', status: 'confirmed', notes: '⚠️ Bring €10 cash for tram in Sóller!' },
+        { id: 'e0618b', time: '5:00 PM', title: 'Return to Palma', description: 'Tour ends ~5 PM', location: 'Palma', type: 'transport', status: 'confirmed', notes: '' },
+        { id: 'e0618c', time: 'Evening', title: 'Free Evening in Palma', description: 'Old town, tapas, sunset walks', location: 'Palma Old Town', type: 'food', status: 'pending', notes: 'No reservation' },
+      ],
+    },
+    {
+      date: '2026-06-19', label: 'Friday, June 19',
+      location: 'Palma → Barcelona', subtitle: '🌆 Barcelona Bound',
+      events: [
+        { id: 'e0619a', time: 'Morning', title: 'Check Out — Dog Admiral', description: 'Pack up, settle bill', location: 'Dog Admiral, Palma', type: 'hotel', status: 'confirmed', notes: '' },
+        { id: 'e0619b', time: '12:10 PM', title: 'Fly PMI → BCN — Ryanair FR6379', description: 'Palma to Barcelona', location: 'Palma Airport', type: 'flight', status: 'confirmed', notes: 'Conf: C7253B · Gate closes 30 min early!' },
+        { id: 'e0619c', time: '~1:10 PM', title: 'Arrive Barcelona BCN', description: 'Land at El Prat', location: 'Barcelona Airport', type: 'flight', status: 'confirmed', notes: '' },
+        { id: 'e0619d', time: '~2:00 PM', title: 'Uber to H10 Art Gallery', description: '~30 min rideshare from airport', location: 'Enric Granados 62–64', type: 'transport', status: 'confirmed', notes: '' },
+        { id: 'e0619e', time: '3:00 PM', title: 'Check In — H10 Art Gallery Hotel', description: 'Atrium Room · pre-paid by Alicyn', location: 'Enric Granados 62–64, Barcelona', type: 'hotel', status: 'confirmed', notes: 'Paid by Alicyn' },
+        { id: 'e0619f', time: '6:45 PM', title: 'Dinner — Extra Virgin', description: 'Restaurant in Eixample, Barcelona', location: 'Extra Virgin, Barcelona', type: 'food', status: 'confirmed', notes: 'Reservation 6:45 PM' },
+      ],
+    },
+    {
+      date: '2026-06-20', label: 'Saturday, June 20',
+      location: 'Barcelona → Cruise', subtitle: '🚢 Embarkation Day!',
+      events: [
+        { id: 'e0620a', time: '11:00 AM', title: 'Parc Güell', description: "Gaudí's iconic park — pre-booked timed entry", location: 'Parc Güell, Barcelona', type: 'activity', status: 'confirmed', notes: 'Book tickets in advance!' },
+        { id: 'e0620b', time: '12:00 PM', title: 'Check Out — H10 Art Gallery', description: 'Check out or store luggage', location: 'H10 Art Gallery, Barcelona', type: 'hotel', status: 'confirmed', notes: '' },
+        { id: 'e0620c', time: '~1:30 PM', title: 'Uber to Cruise Port', description: 'Moll Adossat Terminal A/B · ~€30', location: 'Port of Barcelona', type: 'transport', status: 'confirmed', notes: '' },
+        { id: 'e0620d', time: '3:15 PM', title: 'Board Valiant Lady 🚢', description: 'Virgin Voyages — Italian Vistas to Spanish Sunsets', location: 'Moll Adossat Terminal A/B, Barcelona', type: 'cruise', status: 'confirmed', notes: 'Conf: 2478994 · Seaview Cabin ×3' },
+        { id: 'e0620e', time: 'Evening', title: 'Dinner — Gunbae (Scarlet Night 🌹)', description: 'Korean BBQ onboard — Scarlet Night theme!', location: 'Gunbae, Valiant Lady', type: 'food', status: 'confirmed', notes: 'Dress code: SCARLET / RED' },
+        { id: 'e0620f', time: '9:00 PM', title: 'The Wake Show', description: 'Show & dining at The Wake', location: 'The Wake, Valiant Lady', type: 'activity', status: 'confirmed', notes: '' },
+      ],
+    },
+    {
+      date: '2026-06-21', label: 'Sunday, June 21',
+      location: 'At Sea', subtitle: '⚓ Sailing Day',
+      events: [
+        { id: 'e0621a', time: '8:15 AM', title: 'Breakfast — Razzle Dazzle', description: 'Vegetarian-forward breakfast restaurant', location: 'Razzle Dazzle, Valiant Lady', type: 'food', status: 'confirmed', notes: 'Reservation 8:15 AM' },
+        { id: 'e0621b', time: '11:45 AM', title: 'Brunch — The Wake', description: 'Brunch on the ship', location: 'The Wake, Valiant Lady', type: 'food', status: 'confirmed', notes: 'Reservation 11:45 AM' },
+        { id: 'e0621c', time: 'Afternoon', title: 'Pool Deck & Richard\'s Rooftop', description: 'Relax at The Perch or upper decks', location: 'Upper Deck, Valiant Lady', type: 'activity', status: 'confirmed', notes: '' },
+        { id: 'e0621d', time: '8:30 PM', title: 'Dinner — Ariya', description: 'Pan-Asian restaurant onboard', location: 'Ariya, Valiant Lady', type: 'food', status: 'confirmed', notes: 'Reservation 8:30 PM' },
+      ],
+    },
+    {
+      date: '2026-06-22', label: 'Monday, June 22',
+      location: 'Civitavecchia / Rome, Italy', subtitle: '🏛️ Eternal City',
+      events: [
+        { id: 'e0622a', time: '7:00 AM', title: 'Arrive Civitavecchia', description: 'Train/shuttle to Rome ~45 min · ~€8 each way', location: 'Civitavecchia Port, Italy', type: 'cruise', status: 'confirmed', notes: 'Train to Roma Termini' },
+        { id: 'e0622b', time: '9:00 AM', title: 'Explore Rome', description: 'Colosseum, Roman Forum, Trevi Fountain, Vatican', location: 'Rome, Italy', type: 'activity', status: 'pending', notes: 'Book Colosseum tickets in advance!' },
+        { id: 'e0622c', time: 'Afternoon', title: 'Lunch & Gelato', description: 'Piazza Navona, Campo de\' Fiori, shopping', location: 'Rome, Italy', type: 'food', status: 'pending', notes: '' },
+        { id: 'e0622d', time: 'Evening', title: 'Return to Civitavecchia', description: 'Back to port — check all-aboard time!', location: 'Civitavecchia Port', type: 'transport', status: 'confirmed', notes: 'All-aboard time TBD' },
+      ],
+    },
+    {
+      date: '2026-06-23', label: 'Tuesday, June 23',
+      location: 'Cinque Terre, Italy', subtitle: '🌊 Italian Riviera',
+      events: [
+        { id: 'e0623a', time: '8:30 AM', title: 'Arrive Cinque Terre (Tender Port)', description: 'Take ship tender to shore — line up early!', location: 'Cinque Terre, Italy', type: 'cruise', status: 'confirmed', notes: '' },
+        { id: 'e0623b', time: 'Morning', title: 'Explore the Five Villages', description: 'Vernazza, Monterosso, Riomaggiore — hike or ferry', location: 'Cinque Terre, Italy', type: 'activity', status: 'pending', notes: 'Ferry between villages ~€10' },
+        { id: 'e0623c', time: 'Afternoon', title: 'Beach & Lunch', description: 'Swim in the Ligurian Sea · cliffside lunch', location: 'Cinque Terre, Italy', type: 'food', status: 'pending', notes: '' },
+        { id: 'e0623d', time: '9:15 PM', title: 'Dinner — Test Kitchen', description: 'Experimental dining on the ship', location: 'Test Kitchen, Valiant Lady', type: 'food', status: 'confirmed', notes: 'Reservation 9:15 PM' },
+      ],
+    },
+    {
+      date: '2026-06-24', label: 'Wednesday, June 24',
+      location: 'Cannes, France', subtitle: '🎬 French Riviera',
+      events: [
+        { id: 'e0624a', time: '8:00 AM', title: 'Arrive Cannes', description: 'Tender to shore', location: 'Cannes, France', type: 'cruise', status: 'confirmed', notes: '' },
+        { id: 'e0624b', time: 'Morning', title: 'La Croisette & Old Port', description: 'Promenade, Palais des Festivals, luxury boutiques', location: 'Cannes, France', type: 'activity', status: 'pending', notes: '' },
+        { id: 'e0624c', time: 'Afternoon', title: 'Île Sainte-Marguerite (optional)', description: 'Boat to island, swim, walk', location: 'Cannes Islands', type: 'activity', status: 'pending', notes: 'Ferry from old port' },
+        { id: 'e0624d', time: 'Evening', title: 'Dinner on Ship', description: 'Onboard dining of choice', location: 'Valiant Lady', type: 'food', status: 'pending', notes: '' },
+      ],
+    },
+    {
+      date: '2026-06-25', label: 'Thursday, June 25',
+      location: 'At Sea', subtitle: '⚓ Sea Day',
+      events: [
+        { id: 'e0625a', time: 'Morning', title: 'Redemption Spa', description: 'Onboard spa — book in advance', location: 'Redemption Spa, Valiant Lady', type: 'activity', status: 'pending', notes: '' },
+        { id: 'e0625b', time: 'Afternoon', title: "Richard's Rooftop & Pool", description: 'Soak up the sun', location: 'Top Deck, Valiant Lady', type: 'activity', status: 'confirmed', notes: '' },
+        { id: 'e0625c', time: '8:45 PM', title: 'Dinner — The Wake', description: 'Dinner at The Wake', location: 'The Wake, Valiant Lady', type: 'food', status: 'confirmed', notes: 'Reservation 8:45 PM' },
+      ],
+    },
+    {
+      date: '2026-06-26', label: 'Friday, June 26',
+      location: 'Ibiza, Spain', subtitle: '🌅 Ibiza Night',
+      events: [
+        { id: 'e0626a', time: '8:00 PM', title: 'Arrive Ibiza (Evening Port)', description: 'Evening arrival — Ibiza Town at night is magical', location: 'Ibiza Port', type: 'cruise', status: 'confirmed', notes: '' },
+        { id: 'e0626b', time: 'Evening', title: 'Dalt Vila — UNESCO Old Town', description: 'Historic walled city, sunset views, tapas', location: 'Dalt Vila, Ibiza', type: 'activity', status: 'pending', notes: '' },
+        { id: 'e0626c', time: 'Night', title: 'PJ Night — Onboard Party 🎉', description: 'Themed party on Valiant Lady — PAJAMAS!', location: 'Valiant Lady', type: 'activity', status: 'confirmed', notes: 'Dress code: PAJAMAS 😴' },
+      ],
+    },
+    {
+      date: '2026-06-27', label: 'Saturday, June 27',
+      location: 'Ibiza — Cala Bassa', subtitle: '🏖️ Beach Club Day',
+      events: [
+        { id: 'e0627a', time: 'Morning', title: 'Cala Bassa Beach Club ⭐ PREPAID', description: '3 sunbeds + champagne, all prepaid! Taxi ~€15', location: 'Cala Bassa Beach Club, Ibiza', type: 'beach', status: 'confirmed', notes: 'PREPAID: 3 sunbeds + champagne 🥂' },
+        { id: 'e0627b', time: 'All Day', title: 'Sun, Sea & Vibes at CBBC', description: 'Crystal-clear Ibiza waters, live music', location: 'Cala Bassa, Ibiza', type: 'beach', status: 'confirmed', notes: '' },
+        { id: 'e0627c', time: 'Evening', title: 'Last Night on Valiant Lady 🥂', description: 'Final evening at sea!', location: 'Ibiza Port → Valiant Lady', type: 'transport', status: 'confirmed', notes: "Don't miss all-aboard time!" },
+      ],
+    },
+    {
+      date: '2026-06-28', label: 'Sunday, June 28',
+      location: 'Barcelona → Los Angeles', subtitle: '✈️ Homeward Bound',
+      events: [
+        { id: 'e0628a', time: '6:00–8:00 AM', title: 'Dock & Disembark — Barcelona', description: 'Have luggage outside cabin the night before!', location: 'Moll Adossat Terminal A/B, Barcelona', type: 'cruise', status: 'confirmed', notes: 'Luggage outside cabin night before' },
+        { id: 'e0628b', time: '9:00 AM', title: 'Breakfast near Port / Barceloneta', description: 'Coffee & breakfast while waiting', location: 'Barceloneta, Barcelona', type: 'food', status: 'pending', notes: '' },
+        { id: 'e0628c', time: '11:00 AM', title: 'Transfer to Barcelona Airport', description: 'Allow 2+ hours for check-in · ~30 min Uber', location: 'Barcelona El Prat Airport', type: 'transport', status: 'confirmed', notes: '' },
+        { id: 'e0628d', time: '1:15 PM', title: 'Depart BCN — Air Canada AC821', description: 'Barcelona → Toronto (YYZ) → LAX', location: 'Barcelona Airport', type: 'flight', status: 'confirmed', notes: 'Conf: CBWO8M' },
+        { id: 'e0628e', time: '9:00 PM', title: 'Arrive LAX 🏠', description: 'Home sweet home!', location: 'LAX Airport', type: 'flight', status: 'confirmed', notes: 'Connection in Toronto YYZ' },
+      ],
+    },
+  ],
+
+  restaurants: [
+    { id: 'r1',  name: 'Pink Agave',             cuisine: 'Mexican',           city: 'Palma',         date: 'June 17', time: '8:00 PM',  status: 'confirmed', notes: 'Reservation — Palma evening' },
+    { id: 'r2',  name: 'Extra Virgin',            cuisine: 'Mediterranean',     city: 'Barcelona',     date: 'June 19', time: '6:45 PM',  status: 'confirmed', notes: 'Reservation 6:45 PM' },
+    { id: 'r3',  name: 'Gunbae',                  cuisine: 'Korean BBQ',        city: 'Valiant Lady',  date: 'June 20', time: 'Evening',  status: 'confirmed', notes: 'Scarlet Night theme — wear RED 🌹' },
+    { id: 'r4',  name: 'The Wake (show)',          cuisine: 'American',          city: 'Valiant Lady',  date: 'June 20', time: '9:00 PM',  status: 'confirmed', notes: 'Show & dinner experience' },
+    { id: 'r5',  name: 'Razzle Dazzle',           cuisine: 'Vegetarian',        city: 'Valiant Lady',  date: 'June 21', time: '8:15 AM',  status: 'confirmed', notes: 'Breakfast reservation' },
+    { id: 'r6',  name: 'The Wake (brunch)',        cuisine: 'American',          city: 'Valiant Lady',  date: 'June 21', time: '11:45 AM', status: 'confirmed', notes: 'Brunch reservation' },
+    { id: 'r7',  name: 'Ariya',                   cuisine: 'Pan-Asian',         city: 'Valiant Lady',  date: 'June 21', time: '8:30 PM',  status: 'confirmed', notes: 'Dinner reservation' },
+    { id: 'r8',  name: 'Test Kitchen',            cuisine: 'Experimental',      city: 'Valiant Lady',  date: 'June 23', time: '9:15 PM',  status: 'confirmed', notes: 'After Cinque Terre day' },
+    { id: 'r9',  name: 'The Wake (sea day)',       cuisine: 'American',          city: 'Valiant Lady',  date: 'June 25', time: '8:45 PM',  status: 'confirmed', notes: 'Sea day dinner' },
+    { id: 'r10', name: 'Cala Bassa Beach Club',   cuisine: 'Mediterranean',     city: 'Ibiza',         date: 'June 27', time: 'All Day',  status: 'confirmed', notes: 'PREPAID: 3 sunbeds + champagne 🥂' },
+  ],
+
+  todos: [
+    { id: 'td1',  cat: 'Documents', task: 'Passport packed & valid 6+ months past return',           done: true  },
+    { id: 'td2',  cat: 'Documents', task: 'Print/save all flight confirmations (CBWO8M, 8U8KBK, C7253B)', done: true  },
+    { id: 'td3',  cat: 'Documents', task: 'Save hotel confirmations (Dog Admiral, H10)',              done: true  },
+    { id: 'td4',  cat: 'Documents', task: 'Save cruise confirmation (2478994)',                       done: true  },
+    { id: 'td5',  cat: 'Documents', task: 'Travel insurance documents accessible',                   done: true  },
+    { id: 'td6',  cat: 'Documents', task: 'Share emergency contacts with family at home',            done: false },
+    { id: 'td7',  cat: 'Money',     task: 'Get euros (€200+ each recommended)',                      done: false },
+    { id: 'td8',  cat: 'Money',     task: 'Notify bank/credit card of travel dates',                 done: false },
+    { id: 'td9',  cat: 'Money',     task: 'Bring €10 cash for Sóller tram (June 18)',               done: false },
+    { id: 'td10', cat: 'Cruise',    task: 'Download Virgin Voyages app',                             done: false },
+    { id: 'td11', cat: 'Cruise',    task: 'Set up Sailor Loot / onboard account',                   done: false },
+    { id: 'td12', cat: 'Cruise',    task: 'Book Redemption Spa appointments',                        done: false },
+    { id: 'td13', cat: 'Cruise',    task: 'Pack scarlet/red outfit for Scarlet Night (June 20)',     done: false },
+    { id: 'td14', cat: 'Cruise',    task: 'Pack pajamas for PJ Night (June 26)',                     done: false },
+    { id: 'td15', cat: 'Activities', task: 'Confirm Hammam Al Andalus booking (June 17, 5:30 PM)',  done: true  },
+    { id: 'td16', cat: 'Activities', task: 'Confirm Valldemossa Tour (June 18, 9:30 AM at Cathedral)', done: true },
+    { id: 'td17', cat: 'Activities', task: 'Book Parc Güell timed entry (June 20, 11 AM)',          done: false },
+    { id: 'td18', cat: 'Activities', task: 'Book Rome Colosseum tickets',                            done: false },
+    { id: 'td19', cat: 'Activities', task: 'Cala Bassa Beach Club confirmed & prepaid (June 27)',    done: true  },
+    { id: 'td20', cat: 'Packing',  task: 'Sunscreen (reef-safe) & beach gear',                      done: false },
+    { id: 'td21', cat: 'Packing',  task: 'Comfortable walking shoes',                               done: false },
+    { id: 'td22', cat: 'Packing',  task: 'Universal power adapter (Spain/France/Italy Type C/F)',   done: false },
+    { id: 'td23', cat: 'Packing',  task: 'Motion sickness medication (sea days)',                   done: false },
+    { id: 'td24', cat: 'Packing',  task: 'Portable charger / power bank',                           done: false },
+  ],
+
+  budget: {
+    totals: { felicia: 6237.24, alicyn: 6628.89 },
+    items: [
+      { id: 'bg1',  description: 'Air Canada flights — 3 pax r/t LAX–BCN (CBWO8M)',  paidBy: 'Split',          felicia: '', alicyn: '', notes: 'AC774/AC822 + AC821/AC795' },
+      { id: 'bg2',  description: 'Air Europa BCN→PMI — UX6037',                       paidBy: 'Split',          felicia: '', alicyn: '', notes: 'Conf: 8U8KBK' },
+      { id: 'bg3',  description: 'Ryanair PMI→BCN — FR6379',                          paidBy: 'Split',          felicia: '', alicyn: '', notes: 'Conf: C7253B' },
+      { id: 'bg4',  description: 'Dog Admiral — Flamingo Suite, 2 nights',            paidBy: 'Pay at location', felicia: '', alicyn: '', notes: 'BB26031720350199' },
+      { id: 'bg5',  description: 'H10 Art Gallery — Atrium Room, 2 nights',           paidBy: 'Alicyn',         felicia: '', alicyn: '', notes: 'Pre-paid by Alicyn' },
+      { id: 'bg6',  description: 'Virgin Voyages — Seaview Cabin, 7 nights, 3 pax',  paidBy: 'Felicia',        felicia: '', alicyn: '', notes: 'Conf: 2478994' },
+      { id: 'bg7',  description: 'Hammam Al Andalus (3 pax, June 17)',                paidBy: 'Split',          felicia: '', alicyn: '', notes: '' },
+      { id: 'bg8',  description: 'Valldemossa / Deià / Sóller Tour (3 pax, June 18)', paidBy: 'Split',         felicia: '', alicyn: '', notes: '' },
+      { id: 'bg9',  description: 'Cala Bassa Beach Club — 3 sunbeds + champagne',     paidBy: 'Split',          felicia: '', alicyn: '', notes: 'PREPAID, June 27' },
+      { id: 'bg10', description: 'Travel Insurance',                                  paidBy: 'Split',          felicia: '', alicyn: '', notes: '' },
+      { id: 'bg11', description: 'Misc / Ubers / Transfers',                          paidBy: 'Split',          felicia: '', alicyn: '', notes: '' },
+    ],
+  },
+
+  emergency: {
+    numbers: [
+      { id: 'em1', country: 'Spain',  number: '112',             description: 'General Emergency' },
+      { id: 'em2', country: 'Spain',  number: '061',             description: 'Medical Emergency' },
+      { id: 'em3', country: 'Italy',  number: '112',             description: 'General Emergency' },
+      { id: 'em4', country: 'Italy',  number: '118',             description: 'Medical Emergency' },
+      { id: 'em5', country: 'France', number: '112',             description: 'General Emergency' },
+      { id: 'em6', country: 'France', number: '15',              description: 'Medical Emergency (SAMU)' },
+      { id: 'em7', country: 'All',    number: '+1-888-407-4747', description: 'US State Dept — 24/7 Citizen Services' },
+    ],
+    consulates: [
+      { id: 'co1', country: 'Spain',  name: 'US Consulate Barcelona', address: 'Passeig de la Reina Elisenda de Montcada 23, 08034 Barcelona', phone: '+34 93 280 2227' },
+      { id: 'co2', country: 'Italy',  name: 'US Embassy Rome',        address: 'Via Vittorio Veneto 121, 00187 Roma',                         phone: '+39 06 46741' },
+      { id: 'co3', country: 'France', name: 'US Consulate Marseille', address: 'Place Varian Fry, 13086 Marseille',                           phone: '+33 4 91 54 92 00' },
+    ],
+    travelers: [
+      { id: 'tr1', name: 'Alicyn Kitamura', contact: '', contactPhone: '', bloodType: '', allergies: '', insurance: '' },
+      { id: 'tr2', name: 'Felicia Mapa',    contact: '', contactPhone: '', bloodType: '', allergies: '', insurance: '' },
+      { id: 'tr3', name: 'Sabrina Hammou',  contact: '', contactPhone: '', bloodType: '', allergies: '', insurance: '' },
+    ],
+    allergyTranslations: [
+      { id: 'at1', allergy: '', spanish: '', italian: '', french: '' },
+    ],
+  },
+
+  lastUpdated: null,
+};
+
+/* ─── STORAGE HOOK ──────────────────────────────────────── */
+function useSharedStorage(key, fallback) {
+  const [data, setData] = useState(fallback);
+  const storeRef = useRef(null);
+  const readyRef = useRef(false);
+
+  useEffect(() => {
+    let unsub;
+    try {
+      storeRef.current = window.storage({ shared: true });
+      const stored = storeRef.current.get(key);
+      if (stored !== null && stored !== undefined) setData(stored);
+      readyRef.current = true;
+      unsub = storeRef.current.subscribe(key, (val) => {
+        if (val !== null && val !== undefined) setData(val);
+      });
+    } catch {
+      try {
+        const raw = localStorage.getItem(key);
+        if (raw) setData(JSON.parse(raw));
+      } catch {}
+    }
+    return () => { try { unsub?.(); } catch {} };
+  }, [key]);
+
+  const save = useCallback((updater) => {
+    setData((prev) => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      try {
+        if (storeRef.current && readyRef.current) storeRef.current.set(key, next);
+        else localStorage.setItem(key, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+  }, [key]);
+
+  return [data, save];
+}
+
+/* ─── MICRO COMPONENTS ──────────────────────────────────── */
+function StatusBadge({ status, onClick }) {
+  const s = STATUS[status] || STATUS.pending;
+  return (
+    <span onClick={onClick} title={onClick ? 'Click to cycle status' : s.label} style={{
+      display: 'inline-flex', alignItems: 'center', gap: 4,
+      background: s.color + '18', color: s.color,
+      border: `1px solid ${s.color}44`, borderRadius: 20,
+      padding: '2px 9px', fontSize: 11, fontFamily: 'Lato,sans-serif',
+      fontWeight: 600, cursor: onClick ? 'pointer' : 'default',
+      whiteSpace: 'nowrap', userSelect: 'none',
+    }}>
+      {s.icon} {s.label}
+    </span>
+  );
+}
+
+function Pill({ icon, label, small, mono }) {
+  if (!label && label !== 0) return null;
+  return (
+    <span style={{
+      display: 'inline-flex', alignItems: 'center', gap: 3,
+      fontSize: small ? 11 : 12, color: C.textMid,
+      fontFamily: mono ? 'monospace' : 'Lato,sans-serif',
+      background: C.ivoryMid, borderRadius: 12, padding: '2px 8px',
+    }}>
+      {icon} {label}
+    </span>
+  );
+}
+
+function Btn({ children, onClick, variant = 'ghost', small, style: sx }) {
+  const v = {
+    primary: { background: C.terracotta, color: C.white, border: 'none' },
+    ghost:   { background: 'transparent', color: C.terracotta, border: `1px solid ${C.terracotta}55` },
+    danger:  { background: C.red + '14', color: C.red, border: `1px solid ${C.red}44` },
+    navy:    { background: C.navy, color: C.white, border: 'none' },
+  };
+  return (
+    <button onClick={onClick} style={{
+      display: 'inline-flex', alignItems: 'center', gap: 5,
+      borderRadius: 8, cursor: 'pointer',
+      fontFamily: 'Lato,sans-serif', fontWeight: 600,
+      fontSize: small ? 12 : 13, padding: small ? '4px 10px' : '7px 14px',
+      transition: 'all .15s', ...v[variant], ...sx,
+    }}>{children}</button>
+  );
+}
+
+function Card({ children, style: sx }) {
+  return (
+    <div style={{
+      background: C.white, borderRadius: 14,
+      border: `1px solid ${C.ivoryDark}`,
+      boxShadow: '0 2px 12px rgba(28,45,80,.05)',
+      padding: '16px 18px', ...sx,
+    }}>{children}</div>
+  );
+}
+
+function SectionHead({ title, icon, action }) {
+  return (
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+      <h2 style={{ margin: 0, fontFamily: 'Playfair Display,serif', fontSize: 26, color: C.navy, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 10 }}>
+        {icon} {title}
+      </h2>
+      {action}
+    </div>
+  );
+}
+
+function SubHead({ children }) {
+  return (
+    <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 17, color: C.navy, fontWeight: 600, marginBottom: 12, paddingBottom: 6, borderBottom: `2px solid ${C.ivoryDark}` }}>
+      {children}
+    </div>
+  );
+}
+
+/* ─── MODAL ─────────────────────────────────────────────── */
+function Modal({ title, onClose, children }) {
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = prev; };
+  }, []);
+  return (
+    <div onClick={e => e.target === e.currentTarget && onClose()} style={{
+      position: 'fixed', inset: 0, zIndex: 9999,
+      background: 'rgba(28,45,80,.55)', backdropFilter: 'blur(3px)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16,
+    }}>
+      <div style={{
+        background: C.ivory, borderRadius: 18, width: '100%', maxWidth: 520,
+        maxHeight: '90vh', overflowY: 'auto',
+        boxShadow: '0 20px 60px rgba(28,45,80,.25)',
+        border: `1px solid ${C.ivoryDark}`,
+      }}>
+        <div style={{
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          padding: '18px 22px 14px', borderBottom: `1px solid ${C.ivoryDark}`,
+          position: 'sticky', top: 0, background: C.ivory, borderRadius: '18px 18px 0 0',
+        }}>
+          <span style={{ fontFamily: 'Playfair Display,serif', fontSize: 18, color: C.navy, fontWeight: 600 }}>{title}</span>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 22, color: C.textLight, lineHeight: 1 }}>×</button>
+        </div>
+        <div style={{ padding: '18px 22px' }}>{children}</div>
+      </div>
+    </div>
+  );
+}
+
+function Field({ label, name, value, onChange, type = 'text', options, rows }) {
+  const base = {
+    width: '100%', boxSizing: 'border-box',
+    border: `1px solid ${C.ivoryDark}`, borderRadius: 8,
+    padding: '8px 12px', fontFamily: 'Lato,sans-serif', fontSize: 13,
+    background: C.white, color: C.text, outline: 'none', marginTop: 4,
+  };
+  return (
+    <div style={{ marginBottom: 12 }}>
+      <label style={{ fontSize: 11, fontWeight: 600, color: C.textMid, fontFamily: 'Lato,sans-serif', textTransform: 'uppercase', letterSpacing: .5 }}>{label}</label>
+      {options
+        ? <select name={name} value={value} onChange={onChange} style={base}>{options.map(o => <option key={o.value ?? o} value={o.value ?? o}>{o.label ?? o}</option>)}</select>
+        : rows
+          ? <textarea name={name} value={value} onChange={onChange} rows={rows} style={{ ...base, resize: 'vertical' }} />
+          : <input type={type} name={name} value={value} onChange={onChange} style={base} />
+      }
+    </div>
+  );
+}
+
+/* ─── FLIGHTS VIEW ──────────────────────────────────────── */
+function FlightsView({ data, onUpdate }) {
+  const [editItem, setEditItem] = useState(null);
+  const blank = { airline: '', numbers: '', route: '', date: '', departure: '', arrival: '', confirmation: '', passengers: '', status: 'confirmed', notes: '' };
+
+  const save = (item) => {
+    onUpdate(d => {
+      const list = item.id
+        ? d.flights.map(f => f.id === item.id ? item : f)
+        : [...d.flights, { ...item, id: uid() }];
+      return { ...d, flights: list, lastUpdated: new Date().toISOString() };
+    });
+    setEditItem(null);
+  };
+  const del = (id) => onUpdate(d => ({ ...d, flights: d.flights.filter(f => f.id !== id), lastUpdated: new Date().toISOString() }));
+  const cycle = (id) => onUpdate(d => ({ ...d, lastUpdated: new Date().toISOString(), flights: d.flights.map(f => f.id === id ? { ...f, status: nextStatus(f.status) } : f) }));
+
+  return (
+    <div>
+      <SectionHead title="Flights" icon="✈️" action={<Btn variant="primary" small onClick={() => setEditItem(blank)}>+ Add Flight</Btn>} />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        {data.flights.map(f => (
+          <Card key={f.id}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2, flexWrap: 'wrap' }}>
+                  <span style={{ fontFamily: 'Playfair Display,serif', fontSize: 17, color: C.navy, fontWeight: 600 }}>{f.airline}</span>
+                  <span style={{ fontSize: 12, color: C.textLight, fontFamily: 'Lato,sans-serif' }}>{f.numbers}</span>
+                </div>
+                <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 22, color: C.terracotta, fontWeight: 700, marginBottom: 8 }}>{f.route}</div>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
+                  <Pill icon="📅" label={f.date} />
+                  <Pill icon="🛫" label={f.departure} />
+                  <Pill icon="🛬" label={f.arrival} />
+                </div>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  <Pill icon="🔑" label={f.confirmation} mono />
+                  <Pill icon="👥" label={f.passengers} />
+                </div>
+                {f.notes && <div style={{ marginTop: 8, fontSize: 12, color: C.textMid, fontFamily: 'Lato,sans-serif', fontStyle: 'italic' }}>{f.notes}</div>}
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8, flexShrink: 0 }}>
+                <StatusBadge status={f.status} onClick={() => cycle(f.id)} />
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <Btn small variant="ghost" onClick={() => setEditItem(f)}>Edit</Btn>
+                  <Btn small variant="danger" onClick={() => del(f.id)}>Del</Btn>
+                </div>
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+      {editItem && <FlightForm initial={editItem} onSave={save} onClose={() => setEditItem(null)} />}
+    </div>
+  );
+}
+
+function FlightForm({ initial, onSave, onClose }) {
+  const [form, setForm] = useState(initial);
+  const ch = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+  return (
+    <Modal title={initial.id ? 'Edit Flight' : 'Add Flight'} onClose={onClose}>
+      <Field label="Airline" name="airline" value={form.airline} onChange={ch} />
+      <Field label="Flight Numbers" name="numbers" value={form.numbers} onChange={ch} />
+      <Field label="Route" name="route" value={form.route} onChange={ch} />
+      <Field label="Date" name="date" value={form.date} onChange={ch} />
+      <Field label="Departure" name="departure" value={form.departure} onChange={ch} />
+      <Field label="Arrival" name="arrival" value={form.arrival} onChange={ch} />
+      <Field label="Confirmation #" name="confirmation" value={form.confirmation} onChange={ch} />
+      <Field label="Passengers" name="passengers" value={form.passengers} onChange={ch} />
+      <Field label="Status" name="status" value={form.status} onChange={ch} options={STATUSES.map(s => ({ value: s, label: STATUS[s].label }))} />
+      <Field label="Notes" name="notes" value={form.notes} onChange={ch} rows={2} />
+      <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 8 }}>
+        <Btn variant="ghost" onClick={onClose}>Cancel</Btn>
+        <Btn variant="primary" onClick={() => onSave(form)}>Save</Btn>
+      </div>
+    </Modal>
+  );
+}
+
+/* ─── HOTELS VIEW ───────────────────────────────────────── */
+function HotelsView({ data, onUpdate }) {
+  const [editItem, setEditItem] = useState(null);
+  const blank = { name: '', address: '', checkIn: '', checkOut: '', nights: '', room: '', guests: '', confirmation: '', status: 'confirmed', notes: '' };
+
+  const save = (item) => {
+    onUpdate(d => {
+      const list = item.id ? d.hotels.map(h => h.id === item.id ? item : h) : [...d.hotels, { ...item, id: uid() }];
+      return { ...d, hotels: list, lastUpdated: new Date().toISOString() };
+    });
+    setEditItem(null);
+  };
+  const del = (id) => onUpdate(d => ({ ...d, hotels: d.hotels.filter(h => h.id !== id), lastUpdated: new Date().toISOString() }));
+  const cycle = (id) => onUpdate(d => ({ ...d, lastUpdated: new Date().toISOString(), hotels: d.hotels.map(h => h.id === id ? { ...h, status: nextStatus(h.status) } : h) }));
+
+  return (
+    <div>
+      <SectionHead title="Hotels & Accommodation" icon="🏨" action={<Btn variant="primary" small onClick={() => setEditItem(blank)}>+ Add</Btn>} />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        {data.hotels.map(h => (
+          <Card key={h.id}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
+                  <span style={{ fontSize: 22 }}>{h.name.includes('Virgin') ? '🚢' : '🏨'}</span>
+                  <span style={{ fontFamily: 'Playfair Display,serif', fontSize: 18, color: C.navy, fontWeight: 700 }}>{h.name}</span>
+                </div>
+                <div style={{ fontSize: 13, color: C.textMid, fontFamily: 'Lato,sans-serif', marginBottom: 10 }}>📍 {h.address}</div>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
+                  <Pill icon="📅" label={`${h.checkIn} → ${h.checkOut}`} />
+                  <Pill icon="🌙" label={`${h.nights} nights`} />
+                  <Pill icon="🛏️" label={h.room} />
+                  <Pill icon="👥" label={`${h.guests} guests`} />
+                </div>
+                <Pill icon="🔑" label={h.confirmation} mono />
+                {h.notes && <div style={{ marginTop: 8, fontSize: 12, color: C.textMid, fontFamily: 'Lato,sans-serif', fontStyle: 'italic' }}>{h.notes}</div>}
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8, flexShrink: 0 }}>
+                <StatusBadge status={h.status} onClick={() => cycle(h.id)} />
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <Btn small variant="ghost" onClick={() => setEditItem(h)}>Edit</Btn>
+                  <Btn small variant="danger" onClick={() => del(h.id)}>Del</Btn>
+                </div>
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+      {editItem && <HotelForm initial={editItem} onSave={save} onClose={() => setEditItem(null)} />}
+    </div>
+  );
+}
+
+function HotelForm({ initial, onSave, onClose }) {
+  const [form, setForm] = useState(initial);
+  const ch = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+  return (
+    <Modal title={initial.id ? 'Edit Accommodation' : 'Add Accommodation'} onClose={onClose}>
+      <Field label="Property Name" name="name" value={form.name} onChange={ch} />
+      <Field label="Address" name="address" value={form.address} onChange={ch} />
+      <Field label="Check-In" name="checkIn" value={form.checkIn} onChange={ch} />
+      <Field label="Check-Out" name="checkOut" value={form.checkOut} onChange={ch} />
+      <Field label="Nights" name="nights" value={form.nights} onChange={ch} />
+      <Field label="Room Type" name="room" value={form.room} onChange={ch} />
+      <Field label="Guests" name="guests" value={form.guests} onChange={ch} />
+      <Field label="Confirmation #" name="confirmation" value={form.confirmation} onChange={ch} />
+      <Field label="Status" name="status" value={form.status} onChange={ch} options={STATUSES.map(s => ({ value: s, label: STATUS[s].label }))} />
+      <Field label="Notes" name="notes" value={form.notes} onChange={ch} rows={2} />
+      <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 8 }}>
+        <Btn variant="ghost" onClick={onClose}>Cancel</Btn>
+        <Btn variant="primary" onClick={() => onSave(form)}>Save</Btn>
+      </div>
+    </Modal>
+  );
+}
+
+/* ─── DAILY ITINERARY ───────────────────────────────────── */
+function DailyView({ data, onUpdate }) {
+  const [dragSrc, setDragSrc] = useState(null);
+  const [dragOver, setDragOver] = useState(null);
+  const [editEvt, setEditEvt] = useState(null); // {dayIdx, event}
+  const [expanded, setExpanded] = useState(() => Object.fromEntries((data.days || []).map((_, i) => [i, true])));
+
+  const toggle = i => setExpanded(p => ({ ...p, [i]: !p[i] }));
+  const blankEvt = { time: '', title: '', description: '', location: '', type: 'activity', status: 'pending', notes: '' };
+
+  const saveEvt = ({ dayIdx, event }) => {
+    onUpdate(d => ({
+      ...d, lastUpdated: new Date().toISOString(),
+      days: d.days.map((day, i) => i !== dayIdx ? day : {
+        ...day,
+        events: event.id
+          ? day.events.map(e => e.id === event.id ? event : e)
+          : [...day.events, { ...event, id: uid() }],
+      }),
+    }));
+    setEditEvt(null);
+  };
+
+  const delEvt = (dayIdx, id) => onUpdate(d => ({
+    ...d, lastUpdated: new Date().toISOString(),
+    days: d.days.map((day, i) => i !== dayIdx ? day : { ...day, events: day.events.filter(e => e.id !== id) }),
+  }));
+
+  const cycleEvt = (dayIdx, id) => onUpdate(d => ({
+    ...d, lastUpdated: new Date().toISOString(),
+    days: d.days.map((day, i) => i !== dayIdx ? day : {
+      ...day, events: day.events.map(e => e.id !== id ? e : { ...e, status: nextStatus(e.status) }),
+    }),
+  }));
+
+  const onDrop = (toDayIdx, toEvtIdx) => {
+    if (!dragSrc) return;
+    if (dragSrc.dayIdx === toDayIdx && dragSrc.evtIdx === toEvtIdx) { setDragSrc(null); setDragOver(null); return; }
+    onUpdate(d => {
+      const days = d.days.map(day => ({ ...day, events: [...day.events] }));
+      const [moved] = days[dragSrc.dayIdx].events.splice(dragSrc.evtIdx, 1);
+      days[toDayIdx].events.splice(toEvtIdx, 0, moved);
+      return { ...d, days, lastUpdated: new Date().toISOString() };
+    });
+    setDragSrc(null); setDragOver(null);
+  };
+
+  return (
+    <div>
+      <SectionHead title="Daily Itinerary" icon="📅" />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+        {(data.days || []).map((day, dayIdx) => (
+          <div key={day.date} style={{ borderRadius: 18, overflow: 'hidden', border: `1px solid ${C.ivoryDark}`, boxShadow: '0 4px 20px rgba(28,45,80,.07)' }}>
+            {/* postcard header */}
+            <div onClick={() => toggle(dayIdx)} style={{
+              background: `linear-gradient(135deg, ${C.navy} 0%, ${C.navyMid} 60%, ${C.terracottaD} 100%)`,
+              padding: '14px 20px', cursor: 'pointer',
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            }}>
+              <div>
+                <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 18, color: C.white, fontWeight: 700 }}>{day.label}</div>
+                <div style={{ fontSize: 12, color: C.goldL, fontFamily: 'Lato,sans-serif', marginTop: 2 }}>📍 {day.location} &nbsp;·&nbsp; <em>{day.subtitle}</em></div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span style={{ background: C.gold + '30', color: C.goldL, borderRadius: 20, padding: '2px 10px', fontSize: 11, fontFamily: 'Lato,sans-serif', fontWeight: 600 }}>{day.events.length} events</span>
+                <span style={{ color: C.gold, fontSize: 16 }}>{expanded[dayIdx] ? '▲' : '▼'}</span>
+              </div>
+            </div>
+
+            {expanded[dayIdx] && (
+              <div style={{ background: C.ivory, padding: '12px 12px 6px' }}>
+                {day.events.map((evt, evtIdx) => (
+                  <EventCard
+                    key={evt.id} evt={evt}
+                    isDragging={dragSrc?.dayIdx === dayIdx && dragSrc?.evtIdx === evtIdx}
+                    isOver={dragOver?.dayIdx === dayIdx && dragOver?.evtIdx === evtIdx}
+                    onDragStart={() => setDragSrc({ dayIdx, evtIdx })}
+                    onDragOver={() => setDragOver({ dayIdx, evtIdx })}
+                    onDragLeave={() => setDragOver(null)}
+                    onDrop={() => onDrop(dayIdx, evtIdx)}
+                    onEdit={() => setEditEvt({ dayIdx, event: evt })}
+                    onDelete={() => delEvt(dayIdx, evt.id)}
+                    onCycle={() => cycleEvt(dayIdx, evt.id)}
+                  />
+                ))}
+                {/* drop zone at end */}
+                <div
+                  onDragOver={e => { e.preventDefault(); setDragOver({ dayIdx, evtIdx: day.events.length }); }}
+                  onDrop={e => { e.preventDefault(); onDrop(dayIdx, day.events.length); }}
+                  onDragLeave={() => setDragOver(null)}
+                  style={{ height: 8, borderRadius: 4, transition: 'background .15s', marginBottom: 4, background: dragOver?.dayIdx === dayIdx && dragOver?.evtIdx === day.events.length ? C.terracottaL + '66' : 'transparent' }}
+                />
+                <Btn variant="ghost" small style={{ marginTop: 2, marginBottom: 8 }} onClick={() => setEditEvt({ dayIdx, event: blankEvt })}>+ Add Event</Btn>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+      {editEvt && (
+        <EvtForm
+          initial={editEvt.event}
+          title={`${editEvt.event.id ? 'Edit' : 'Add'} — ${data.days[editEvt.dayIdx]?.label}`}
+          onSave={(evt) => saveEvt({ dayIdx: editEvt.dayIdx, event: evt })}
+          onClose={() => setEditEvt(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+function EventCard({ evt, isDragging, isOver, onDragStart, onDragOver, onDragLeave, onDrop, onEdit, onDelete, onCycle }) {
+  const statusColor = STATUS[evt.status]?.color || C.ivoryDark;
+  return (
+    <div
+      draggable
+      onDragStart={onDragStart}
+      onDragOver={e => { e.preventDefault(); onDragOver(); }}
+      onDragLeave={onDragLeave}
+      onDrop={e => { e.preventDefault(); onDrop(); }}
+      style={{
+        background: isDragging ? C.ivoryMid : C.white,
+        border: `1px solid ${isOver ? C.terracotta : C.ivoryDark}`,
+        borderLeft: `4px solid ${isOver ? C.terracotta : statusColor}`,
+        borderRadius: 10, padding: '10px 13px', marginBottom: 7,
+        cursor: 'grab', opacity: isDragging ? 0.45 : 1,
+        transition: 'border-color .15s, box-shadow .15s',
+        boxShadow: isOver ? `0 3px 14px ${C.terracotta}33` : 'none',
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', flex: 1, minWidth: 0 }}>
+          <span style={{ fontSize: 11, color: C.textLight, fontFamily: 'Lato,sans-serif', fontWeight: 600, minWidth: 62, paddingTop: 2, flexShrink: 0 }}>{evt.time}</span>
+          <span style={{ fontSize: 18, flexShrink: 0 }}>{(TYPE[evt.type] || TYPE.other).icon}</span>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 15, color: C.navy, fontWeight: 600 }}>{evt.title}</div>
+            {evt.description && <div style={{ fontSize: 12, color: C.textMid, fontFamily: 'Lato,sans-serif', marginTop: 2 }}>{evt.description}</div>}
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 5 }}>
+              {evt.location && <Pill icon="📍" label={evt.location} small />}
+              {evt.notes && <Pill icon="📝" label={evt.notes} small />}
+            </div>
+          </div>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
+          <StatusBadge status={evt.status} onClick={onCycle} />
+          <div style={{ display: 'flex', gap: 4 }}>
+            <Btn small variant="ghost" onClick={onEdit}>Edit</Btn>
+            <Btn small variant="danger" onClick={onDelete}>Del</Btn>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EvtForm({ initial, title, onSave, onClose }) {
+  const [form, setForm] = useState(initial);
+  const ch = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+  return (
+    <Modal title={title} onClose={onClose}>
+      <Field label="Time" name="time" value={form.time} onChange={ch} />
+      <Field label="Title" name="title" value={form.title} onChange={ch} />
+      <Field label="Description" name="description" value={form.description} onChange={ch} rows={2} />
+      <Field label="Location" name="location" value={form.location} onChange={ch} />
+      <Field label="Type" name="type" value={form.type} onChange={ch} options={Object.keys(TYPE).map(k => ({ value: k, label: `${TYPE[k].icon} ${TYPE[k].label}` }))} />
+      <Field label="Status" name="status" value={form.status} onChange={ch} options={STATUSES.map(s => ({ value: s, label: STATUS[s].label }))} />
+      <Field label="Notes" name="notes" value={form.notes} onChange={ch} rows={2} />
+      <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 8 }}>
+        <Btn variant="ghost" onClick={onClose}>Cancel</Btn>
+        <Btn variant="primary" onClick={() => onSave(form)}>Save</Btn>
+      </div>
+    </Modal>
+  );
+}
+
+/* ─── RESTAURANTS VIEW ──────────────────────────────────── */
+function RestaurantsView({ data, onUpdate }) {
+  const [editItem, setEditItem] = useState(null);
+  const blank = { name: '', cuisine: '', city: '', date: '', time: '', status: 'confirmed', notes: '' };
+
+  const save = (item) => {
+    onUpdate(d => {
+      const list = item.id ? d.restaurants.map(r => r.id === item.id ? item : r) : [...d.restaurants, { ...item, id: uid() }];
+      return { ...d, restaurants: list, lastUpdated: new Date().toISOString() };
+    });
+    setEditItem(null);
+  };
+  const del = (id) => onUpdate(d => ({ ...d, restaurants: d.restaurants.filter(r => r.id !== id), lastUpdated: new Date().toISOString() }));
+  const cycle = (id) => onUpdate(d => ({ ...d, lastUpdated: new Date().toISOString(), restaurants: d.restaurants.map(r => r.id === id ? { ...r, status: nextStatus(r.status) } : r) }));
+
+  return (
+    <div>
+      <SectionHead title="Restaurants & Activities" icon="🍽️" action={<Btn variant="primary" small onClick={() => setEditItem(blank)}>+ Add</Btn>} />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {data.restaurants.map(r => (
+          <Card key={r.id} style={{ padding: '12px 16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10, flexWrap: 'wrap' }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginBottom: 4 }}>
+                  <span style={{ fontFamily: 'Playfair Display,serif', fontSize: 16, color: C.navy, fontWeight: 600 }}>{r.name}</span>
+                  <span style={{ fontSize: 11, color: C.textLight, background: C.ivoryMid, borderRadius: 10, padding: '1px 8px', fontFamily: 'Lato,sans-serif' }}>{r.cuisine}</span>
+                </div>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  <Pill icon="📍" label={r.city} small />
+                  <Pill icon="📅" label={r.date} small />
+                  <Pill icon="🕐" label={r.time} small />
+                </div>
+                {r.notes && <div style={{ marginTop: 6, fontSize: 12, color: C.textMid, fontFamily: 'Lato,sans-serif', fontStyle: 'italic' }}>{r.notes}</div>}
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
+                <StatusBadge status={r.status} onClick={() => cycle(r.id)} />
+                <div style={{ display: 'flex', gap: 4 }}>
+                  <Btn small variant="ghost" onClick={() => setEditItem(r)}>Edit</Btn>
+                  <Btn small variant="danger" onClick={() => del(r.id)}>Del</Btn>
+                </div>
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+      {editItem && <RestForm initial={editItem} onSave={save} onClose={() => setEditItem(null)} />}
+    </div>
+  );
+}
+
+function RestForm({ initial, onSave, onClose }) {
+  const [form, setForm] = useState(initial);
+  const ch = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+  return (
+    <Modal title={initial.id ? 'Edit Entry' : 'Add Entry'} onClose={onClose}>
+      <Field label="Name" name="name" value={form.name} onChange={ch} />
+      <Field label="Cuisine / Type" name="cuisine" value={form.cuisine} onChange={ch} />
+      <Field label="City / Venue" name="city" value={form.city} onChange={ch} />
+      <Field label="Date" name="date" value={form.date} onChange={ch} />
+      <Field label="Time" name="time" value={form.time} onChange={ch} />
+      <Field label="Status" name="status" value={form.status} onChange={ch} options={STATUSES.map(s => ({ value: s, label: STATUS[s].label }))} />
+      <Field label="Notes" name="notes" value={form.notes} onChange={ch} rows={2} />
+      <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 8 }}>
+        <Btn variant="ghost" onClick={onClose}>Cancel</Btn>
+        <Btn variant="primary" onClick={() => onSave(form)}>Save</Btn>
+      </div>
+    </Modal>
+  );
+}
+
+/* ─── TODO VIEW ─────────────────────────────────────────── */
+function TodoView({ data, onUpdate }) {
+  const [newTask, setNewTask] = useState('');
+  const [newCat, setNewCat] = useState('General');
+
+  const allCats = [...new Set([...(data.todos || []).map(t => t.cat), 'Documents', 'Money', 'Cruise', 'Activities', 'Packing', 'General'])].filter(Boolean);
+
+  const toggle = (id) => onUpdate(d => ({ ...d, lastUpdated: new Date().toISOString(), todos: d.todos.map(t => t.id === id ? { ...t, done: !t.done } : t) }));
+  const del = (id) => onUpdate(d => ({ ...d, todos: d.todos.filter(t => t.id !== id), lastUpdated: new Date().toISOString() }));
+  const add = () => {
+    if (!newTask.trim()) return;
+    onUpdate(d => ({ ...d, lastUpdated: new Date().toISOString(), todos: [...d.todos, { id: uid(), cat: newCat, task: newTask.trim(), done: false }] }));
+    setNewTask('');
+  };
+
+  const done = (data.todos || []).filter(t => t.done).length;
+  const total = (data.todos || []).length;
+  const pct = total ? Math.round((done / total) * 100) : 0;
+
+  return (
+    <div>
+      <SectionHead title="To-Do Checklist" icon="✅" />
+      <Card style={{ marginBottom: 22 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontFamily: 'Lato,sans-serif', fontSize: 13, color: C.textMid, marginBottom: 8 }}>{done} of {total} tasks complete</div>
+            <div style={{ height: 10, background: C.ivoryDark, borderRadius: 5, overflow: 'hidden' }}>
+              <div style={{ height: '100%', width: `${pct}%`, background: `linear-gradient(90deg, ${C.terracotta}, ${C.gold})`, borderRadius: 5, transition: 'width .4s ease' }} />
+            </div>
+          </div>
+          <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 32, color: C.terracotta, fontWeight: 700 }}>{pct}%</div>
+        </div>
+      </Card>
+
+      {allCats.filter(cat => (data.todos || []).some(t => t.cat === cat)).map(cat => (
+        <div key={cat} style={{ marginBottom: 18 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: C.terracotta, fontFamily: 'Lato,sans-serif', textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 8 }}>{cat}</div>
+          {(data.todos || []).filter(t => t.cat === cat).map(t => (
+            <div key={t.id} style={{
+              display: 'flex', alignItems: 'center', gap: 12,
+              padding: '10px 14px', background: t.done ? C.ivoryMid : C.white,
+              borderRadius: 10, marginBottom: 6, border: `1px solid ${C.ivoryDark}`, transition: 'background .2s',
+            }}>
+              <input type="checkbox" checked={t.done} onChange={() => toggle(t.id)}
+                style={{ width: 18, height: 18, cursor: 'pointer', accentColor: C.terracotta, flexShrink: 0 }} />
+              <span style={{ flex: 1, fontFamily: 'Lato,sans-serif', fontSize: 14, color: t.done ? C.textLight : C.text, textDecoration: t.done ? 'line-through' : 'none' }}>{t.task}</span>
+              <button onClick={() => del(t.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.textLight, fontSize: 18, flexShrink: 0 }}>×</button>
+            </div>
+          ))}
+        </div>
+      ))}
+
+      <Card style={{ marginTop: 8 }}>
+        <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 14, color: C.navy, marginBottom: 10 }}>Add New Task</div>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <select value={newCat} onChange={e => setNewCat(e.target.value)}
+            style={{ border: `1px solid ${C.ivoryDark}`, borderRadius: 8, padding: '8px 10px', fontFamily: 'Lato,sans-serif', fontSize: 12, background: C.white, color: C.text }}>
+            {allCats.map(c => <option key={c}>{c}</option>)}
+          </select>
+          <input value={newTask} onChange={e => setNewTask(e.target.value)} onKeyDown={e => e.key === 'Enter' && add()}
+            placeholder="Add a task... (press Enter)"
+            style={{ flex: 1, minWidth: 160, border: `1px solid ${C.ivoryDark}`, borderRadius: 8, padding: '8px 12px', fontFamily: 'Lato,sans-serif', fontSize: 13, color: C.text, outline: 'none' }} />
+          <Btn variant="primary" onClick={add}>Add</Btn>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+/* ─── BUDGET VIEW ───────────────────────────────────────── */
+function BudgetView({ data, onUpdate }) {
+  const [editItem, setEditItem] = useState(null);
+  const blank = { description: '', paidBy: 'Split', felicia: '', alicyn: '', notes: '' };
+
+  const save = (item) => {
+    onUpdate(d => {
+      const items = item.id ? d.budget.items.map(b => b.id === item.id ? item : b) : [...d.budget.items, { ...item, id: uid() }];
+      return { ...d, budget: { ...d.budget, items }, lastUpdated: new Date().toISOString() };
+    });
+    setEditItem(null);
+  };
+  const del = (id) => onUpdate(d => ({ ...d, budget: { ...d.budget, items: d.budget.items.filter(b => b.id !== id) }, lastUpdated: new Date().toISOString() }));
+  const setTotal = (field, val) => onUpdate(d => ({ ...d, budget: { ...d.budget, totals: { ...d.budget.totals, [field]: parseFloat(val) || 0 } }, lastUpdated: new Date().toISOString() }));
+
+  const { totals, items } = data.budget;
+  const grandTotal = (totals.felicia || 0) + (totals.alicyn || 0);
+
+  return (
+    <div>
+      <SectionHead title="Budget Summary" icon="💰" action={<Btn variant="primary" small onClick={() => setEditItem(blank)}>+ Add Item</Btn>} />
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 14, marginBottom: 26 }}>
+        {[{ label: 'Felicia Paid', key: 'felicia', color: C.terracotta }, { label: 'Alicyn Paid', key: 'alicyn', color: C.navy }].map(({ label, key, color }) => (
+          <Card key={key} style={{ textAlign: 'center', padding: '18px 14px', borderTop: `4px solid ${color}` }}>
+            <div style={{ fontSize: 11, color: C.textLight, fontFamily: 'Lato,sans-serif', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>{label}</div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3 }}>
+              <span style={{ fontFamily: 'Lato,sans-serif', fontSize: 18, color, alignSelf: 'flex-start', marginTop: 3 }}>$</span>
+              <input type="number" step="0.01" value={totals[key]} onChange={e => setTotal(key, e.target.value)}
+                style={{ fontFamily: 'Playfair Display,serif', fontSize: 26, color, fontWeight: 700, border: 'none', background: 'transparent', width: 120, textAlign: 'center', outline: 'none' }} />
+            </div>
+          </Card>
+        ))}
+        <Card style={{ textAlign: 'center', padding: '18px 14px', borderTop: `4px solid ${C.gold}`, background: C.navy }}>
+          <div style={{ fontSize: 11, color: C.goldL + 'AA', fontFamily: 'Lato,sans-serif', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Total Trip</div>
+          <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 26, color: C.goldL, fontWeight: 700 }}>${grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+        </Card>
+      </div>
+
+      <div style={{ overflowX: 'auto', borderRadius: 12, overflow: 'hidden', border: `1px solid ${C.ivoryDark}` }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'Lato,sans-serif', fontSize: 13 }}>
+          <thead>
+            <tr style={{ background: C.navy }}>
+              {['Description', 'Paid By', 'Felicia $', 'Alicyn $', 'Notes', ''].map(h => (
+                <th key={h} style={{ padding: '10px 14px', color: C.white, textAlign: 'left', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: .6, whiteSpace: 'nowrap' }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((item, i) => (
+              <tr key={item.id} style={{ background: i % 2 === 0 ? C.white : C.ivory }}>
+                <td style={{ padding: '10px 14px', color: C.text }}>{item.description}</td>
+                <td style={{ padding: '10px 14px', color: C.textMid, whiteSpace: 'nowrap' }}>{item.paidBy}</td>
+                <td style={{ padding: '10px 14px', color: C.terracotta, fontWeight: 600 }}>{item.felicia ? `$${parseFloat(item.felicia).toFixed(2)}` : '—'}</td>
+                <td style={{ padding: '10px 14px', color: C.navy, fontWeight: 600 }}>{item.alicyn ? `$${parseFloat(item.alicyn).toFixed(2)}` : '—'}</td>
+                <td style={{ padding: '10px 14px', color: C.textLight, fontStyle: 'italic', fontSize: 12 }}>{item.notes}</td>
+                <td style={{ padding: '8px 10px', whiteSpace: 'nowrap' }}>
+                  <Btn small variant="ghost" onClick={() => setEditItem(item)} style={{ marginRight: 4 }}>Edit</Btn>
+                  <Btn small variant="danger" onClick={() => del(item.id)}>Del</Btn>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {editItem && <BudgetForm initial={editItem} onSave={save} onClose={() => setEditItem(null)} />}
+    </div>
+  );
+}
+
+function BudgetForm({ initial, onSave, onClose }) {
+  const [form, setForm] = useState(initial);
+  const ch = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+  return (
+    <Modal title={initial.id ? 'Edit Budget Item' : 'Add Budget Item'} onClose={onClose}>
+      <Field label="Description" name="description" value={form.description} onChange={ch} />
+      <Field label="Paid By" name="paidBy" value={form.paidBy} onChange={ch} options={['Split', 'Felicia', 'Alicyn', 'Pay at location']} />
+      <Field label="Felicia Amount ($)" name="felicia" value={form.felicia} onChange={ch} type="number" />
+      <Field label="Alicyn Amount ($)" name="alicyn" value={form.alicyn} onChange={ch} type="number" />
+      <Field label="Notes" name="notes" value={form.notes} onChange={ch} rows={2} />
+      <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 8 }}>
+        <Btn variant="ghost" onClick={onClose}>Cancel</Btn>
+        <Btn variant="primary" onClick={() => onSave(form)}>Save</Btn>
+      </div>
+    </Modal>
+  );
+}
+
+/* ─── EMERGENCY VIEW ────────────────────────────────────── */
+function EmergencyView({ data, onUpdate }) {
+  const { numbers, consulates, travelers, allergyTranslations } = data.emergency;
+
+  const updTraveler = (id, field, val) => onUpdate(d => ({
+    ...d, lastUpdated: new Date().toISOString(),
+    emergency: { ...d.emergency, travelers: d.emergency.travelers.map(t => t.id === id ? { ...t, [field]: val } : t) },
+  }));
+  const updAllergy = (id, field, val) => onUpdate(d => ({
+    ...d, lastUpdated: new Date().toISOString(),
+    emergency: { ...d.emergency, allergyTranslations: d.emergency.allergyTranslations.map(a => a.id === id ? { ...a, [field]: val } : a) },
+  }));
+  const addAllergy = () => onUpdate(d => ({
+    ...d, lastUpdated: new Date().toISOString(),
+    emergency: { ...d.emergency, allergyTranslations: [...d.emergency.allergyTranslations, { id: uid(), allergy: '', spanish: '', italian: '', french: '' }] },
+  }));
+  const delAllergy = (id) => onUpdate(d => ({
+    ...d, lastUpdated: new Date().toISOString(),
+    emergency: { ...d.emergency, allergyTranslations: d.emergency.allergyTranslations.filter(a => a.id !== id) },
+  }));
+  const updConsulate = (id, field, val) => onUpdate(d => ({
+    ...d, lastUpdated: new Date().toISOString(),
+    emergency: { ...d.emergency, consulates: d.emergency.consulates.map(c => c.id === id ? { ...c, [field]: val } : c) },
+  }));
+
+  const countryFlag = { Spain: '🇪🇸', Italy: '🇮🇹', France: '🇫🇷', All: '🌐' };
+
+  return (
+    <div>
+      <SectionHead title="Emergency Information" icon="🚨" />
+
+      {/* Emergency Numbers */}
+      <div style={{ marginBottom: 26 }}>
+        <SubHead>Emergency Numbers</SubHead>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))', gap: 10 }}>
+          {numbers.map(n => (
+            <div key={n.id} style={{
+              background: n.country === 'All' ? C.navy : C.white,
+              borderRadius: 12, padding: '12px 14px',
+              border: `1px solid ${n.country === 'All' ? C.navy : C.ivoryDark}`,
+              display: 'flex', alignItems: 'center', gap: 12,
+            }}>
+              <span style={{ fontSize: 24 }}>{countryFlag[n.country] || '🌐'}</span>
+              <div>
+                <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 22, fontWeight: 700, color: n.country === 'All' ? C.goldL : C.red }}>{n.number}</div>
+                <div style={{ fontSize: 11, fontFamily: 'Lato,sans-serif', color: n.country === 'All' ? C.ivoryMid : C.textMid }}>{n.description}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Traveler Info */}
+      <div style={{ marginBottom: 26 }}>
+        <SubHead>Traveler Info & Emergency Contacts</SubHead>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          {travelers.map(t => (
+            <Card key={t.id}>
+              <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 16, color: C.navy, fontWeight: 600, marginBottom: 12 }}>🧳 {t.name}</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))', gap: 10 }}>
+                {[
+                  ['Emergency Contact Name', 'contact'],
+                  ['Emergency Contact Phone', 'contactPhone'],
+                  ['Blood Type', 'bloodType'],
+                  ['Allergies / Medical Notes', 'allergies'],
+                  ['Insurance Policy #', 'insurance'],
+                ].map(([label, field]) => (
+                  <div key={field}>
+                    <label style={{ fontSize: 10, fontWeight: 700, color: C.textMid, fontFamily: 'Lato,sans-serif', textTransform: 'uppercase', letterSpacing: .5 }}>{label}</label>
+                    <input value={t[field]} onChange={e => updTraveler(t.id, field, e.target.value)} placeholder="—"
+                      style={{ width: '100%', boxSizing: 'border-box', marginTop: 3, border: `1px solid ${C.ivoryDark}`, borderRadius: 7, padding: '7px 10px', fontFamily: 'Lato,sans-serif', fontSize: 13, background: C.white, color: C.text, outline: 'none' }} />
+                  </div>
+                ))}
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      {/* Consulates */}
+      <div style={{ marginBottom: 26 }}>
+        <SubHead>US Consulates Abroad</SubHead>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {consulates.map(c => (
+            <Card key={c.id} style={{ borderLeft: `4px solid ${C.gold}` }}>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 10 }}>
+                <span style={{ fontSize: 20 }}>{countryFlag[c.country] || '🌐'}</span>
+                <span style={{ fontFamily: 'Playfair Display,serif', fontSize: 15, color: C.navy, fontWeight: 600 }}>{c.name}</span>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                {[['Address', 'address'], ['Phone', 'phone']].map(([lbl, fld]) => (
+                  <div key={fld}>
+                    <label style={{ fontSize: 10, fontWeight: 700, color: C.textMid, fontFamily: 'Lato,sans-serif', textTransform: 'uppercase', letterSpacing: .5 }}>{lbl}</label>
+                    <input value={c[fld]} onChange={e => updConsulate(c.id, fld, e.target.value)}
+                      style={{ width: '100%', boxSizing: 'border-box', marginTop: 3, border: `1px solid ${C.ivoryDark}`, borderRadius: 7, padding: '6px 10px', fontFamily: 'Lato,sans-serif', fontSize: 12, background: C.white, color: C.text, outline: 'none' }} />
+                  </div>
+                ))}
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      {/* Allergy Translations */}
+      <div>
+        <SubHead>Allergy / Medical Translations</SubHead>
+        <div style={{ overflowX: 'auto', borderRadius: 12, border: `1px solid ${C.ivoryDark}`, overflow: 'hidden' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'Lato,sans-serif', fontSize: 13 }}>
+            <thead>
+              <tr style={{ background: C.terracotta }}>
+                {['Allergy / Condition', 'Spanish 🇪🇸', 'Italian 🇮🇹', 'French 🇫🇷', ''].map(h => (
+                  <th key={h} style={{ padding: '10px 12px', color: C.white, textAlign: 'left', fontSize: 11, fontWeight: 600, textTransform: 'uppercase' }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {allergyTranslations.map((a, i) => (
+                <tr key={a.id} style={{ background: i % 2 === 0 ? C.white : C.ivory }}>
+                  {['allergy', 'spanish', 'italian', 'french'].map(f => (
+                    <td key={f} style={{ padding: '6px 8px' }}>
+                      <input value={a[f]} onChange={e => updAllergy(a.id, f, e.target.value)} placeholder="—"
+                        style={{ width: '100%', border: `1px solid ${C.ivoryDark}`, borderRadius: 6, padding: '5px 8px', fontFamily: 'Lato,sans-serif', fontSize: 13, background: 'transparent', color: C.text, outline: 'none' }} />
+                    </td>
+                  ))}
+                  <td style={{ padding: '6px 8px' }}>
+                    <button onClick={() => delAllergy(a.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.textLight, fontSize: 18 }}>×</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <Btn variant="ghost" small style={{ marginTop: 10 }} onClick={addAllergy}>+ Add Row</Btn>
+      </div>
+    </div>
+  );
+}
+
+/* ─── NAVIGATION ────────────────────────────────────────── */
+const TABS = [
+  { id: 'itinerary',   label: 'Itinerary',   icon: '📅' },
+  { id: 'flights',     label: 'Flights',     icon: '✈️' },
+  { id: 'hotels',      label: 'Hotels',      icon: '🏨' },
+  { id: 'dining',      label: 'Dining',      icon: '🍽️' },
+  { id: 'todos',       label: 'To-Do',       icon: '✅' },
+  { id: 'budget',      label: 'Budget',      icon: '💰' },
+  { id: 'emergency',   label: 'Emergency',   icon: '🚨' },
+];
+
+/* ─── ROOT APP ──────────────────────────────────────────── */
+export default function App() {
+  const [data, setData] = useSharedStorage('girlstrip2026_v1', INIT);
+  const [tab, setTab] = useState('itinerary');
+
+  useEffect(() => {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = FONT_URL;
+    document.head.appendChild(link);
+
+    const meta = document.createElement('meta');
+    meta.name = 'viewport';
+    meta.content = 'width=device-width, initial-scale=1';
+    document.head.appendChild(meta);
+
+    document.body.style.margin = '0';
+    document.body.style.background = C.ivory;
+    document.body.style.fontFamily = 'Lato,sans-serif';
+
+    return () => {
+      try { document.head.removeChild(link); } catch {}
+    };
+  }, []);
+
+  const lu = data.lastUpdated ? new Date(data.lastUpdated).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : null;
+
+  return (
+    <div style={{ minHeight: '100vh', background: C.ivory }}>
+
+      {/* ── HEADER ── */}
+      <header style={{
+        background: `linear-gradient(135deg, ${C.navy} 0%, ${C.navyMid} 55%, ${C.terracottaD} 100%)`,
+        position: 'sticky', top: 0, zIndex: 200,
+        boxShadow: '0 4px 24px rgba(0,0,0,.22)',
+      }}>
+        {/* Top strip */}
+        <div style={{ padding: '14px 20px 10px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+          <div>
+            <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 21, color: C.white, fontWeight: 700, lineHeight: 1.1 }}>
+              ✦ {data.meta.tripName}
+            </div>
+            <div style={{ fontSize: 12, color: C.goldL, fontFamily: 'Lato,sans-serif', marginTop: 3 }}>
+              {data.meta.tagline} &nbsp;·&nbsp; {data.meta.dates}
+            </div>
+          </div>
+          <div style={{ textAlign: 'right', flexShrink: 0 }}>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'flex-end', marginBottom: 3 }}>
+              {data.meta.travelers.map(t => (
+                <span key={t} style={{ fontSize: 10, background: C.gold + '28', color: C.goldL, borderRadius: 12, padding: '2px 8px', fontFamily: 'Lato,sans-serif', whiteSpace: 'nowrap' }}>
+                  {t.split(' ')[0]}
+                </span>
+              ))}
+            </div>
+            {lu && <div style={{ fontSize: 10, color: C.white + '66', fontFamily: 'Lato,sans-serif' }}>synced {lu}</div>}
+          </div>
+        </div>
+
+        {/* Tab bar */}
+        <div style={{ display: 'flex', overflowX: 'auto', paddingLeft: 8, paddingRight: 8, scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          {TABS.map(t => (
+            <button key={t.id} onClick={() => setTab(t.id)} style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              padding: '9px 14px', fontSize: 13, fontFamily: 'Lato,sans-serif', fontWeight: 600,
+              color: tab === t.id ? C.gold : C.white + 'BB',
+              borderBottom: `3px solid ${tab === t.id ? C.gold : 'transparent'}`,
+              whiteSpace: 'nowrap', transition: 'color .2s, border-color .2s',
+              display: 'flex', alignItems: 'center', gap: 5,
+            }}>
+              <span>{t.icon}</span>
+              <span style={{ display: window?.innerWidth < 480 ? 'none' : 'inline' }}>{t.label}</span>
+            </button>
+          ))}
+        </div>
+      </header>
+
+      {/* ── MAIN CONTENT ── */}
+      <main style={{ maxWidth: 900, margin: '0 auto', padding: '28px 16px 80px' }}>
+        {tab === 'itinerary' && <DailyView        data={data} onUpdate={setData} />}
+        {tab === 'flights'   && <FlightsView      data={data} onUpdate={setData} />}
+        {tab === 'hotels'    && <HotelsView        data={data} onUpdate={setData} />}
+        {tab === 'dining'    && <RestaurantsView   data={data} onUpdate={setData} />}
+        {tab === 'todos'     && <TodoView          data={data} onUpdate={setData} />}
+        {tab === 'budget'    && <BudgetView        data={data} onUpdate={setData} />}
+        {tab === 'emergency' && <EmergencyView     data={data} onUpdate={setData} />}
+      </main>
+
+      {/* gold gradient footer bar */}
+      <div style={{ height: 4, background: `linear-gradient(90deg, ${C.terracotta}, ${C.gold}, ${C.navyMid})`, position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 100 }} />
+    </div>
+  );
+}
