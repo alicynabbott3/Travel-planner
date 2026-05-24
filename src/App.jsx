@@ -4,28 +4,28 @@ import { ref as fbRef, set as fbSet, onValue } from 'firebase/database';
 
 /* ─── PALETTE ──────────────────────────────────────────── */
 const C = {
-  terracotta: '#C1704A',
-  terracottaL: '#D98B68',
-  terracottaD: '#9A5337',
-  ivory: '#F8F3EB',
-  ivoryMid: '#EDE4D3',
-  ivoryDark: '#DDD0BA',
-  navy: '#1C2D50',
-  navyMid: '#2D4472',
-  gold: '#C9A547',
-  goldL: '#DDBC6E',
-  text: '#2A2218',
-  textMid: '#5C4E3C',
-  textLight: '#8A7B68',
+  terracotta: '#8B2035',   // cabernet — primary actions & highlights
+  terracottaL: '#B04A5C',  // lighter wine rose
+  terracottaD: '#6A1228',  // deep dark cabernet
+  ivory: '#F7EDE8',        // warm blush cream background
+  ivoryMid: '#EDD8D0',     // rose-tinted mid surface
+  ivoryDark: '#D4B8B0',    // muted rose border
+  navy: '#2D1520',         // near-black deep wine (was navy)
+  navyMid: '#4A2232',      // dark burgundy (was navyMid)
+  gold: '#C8A87C',         // champagne gold
+  goldL: '#DEC09A',        // light champagne
+  text: '#2C1318',         // very dark wine-tinted text
+  textMid: '#5C3040',      // medium burgundy text
+  textLight: '#8A6068',    // muted rose-grey text
   white: '#FFFFFF',
   green: '#3D7A55',
-  orange: '#D07830',
+  orange: '#C07830',
   purple: '#7059A0',
-  red: '#C03030',
+  red: '#B02828',
 };
 
 const FONT_URL =
-  'https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Lato:wght@300;400;600&display=swap';
+  'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap';
 
 /* ─── STATUS & TYPE ─────────────────────────────────────── */
 const STATUS = {
@@ -397,8 +397,8 @@ function StatusBadge({ status, onClick }) {
     <span onClick={onClick} title={onClick ? 'Click to cycle status' : s.label} style={{
       display: 'inline-flex', alignItems: 'center', gap: 4,
       background: s.color + '18', color: s.color,
-      border: `1px solid ${s.color}44`, borderRadius: 20,
-      padding: '2px 9px', fontSize: 11, fontFamily: 'Lato,sans-serif',
+      border: `1px solid ${s.color}44`, borderRadius: 4,
+      padding: '2px 9px', fontSize: 11, fontFamily: 'Inter,sans-serif',
       fontWeight: 600, cursor: onClick ? 'pointer' : 'default',
       whiteSpace: 'nowrap', userSelect: 'none',
     }}>
@@ -413,8 +413,8 @@ function Pill({ icon, label, small, mono }) {
     <span style={{
       display: 'inline-flex', alignItems: 'center', gap: 3,
       fontSize: small ? 11 : 12, color: C.textMid,
-      fontFamily: mono ? 'monospace' : 'Lato,sans-serif',
-      background: C.ivoryMid, borderRadius: 12, padding: '2px 8px',
+      fontFamily: mono ? 'monospace' : 'Inter,sans-serif',
+      background: C.ivoryMid, borderRadius: 3, padding: '2px 8px',
     }}>
       {icon} {label}
     </span>
@@ -431,8 +431,8 @@ function Btn({ children, onClick, variant = 'ghost', small, style: sx }) {
   return (
     <button onClick={onClick} style={{
       display: 'inline-flex', alignItems: 'center', gap: 5,
-      borderRadius: 8, cursor: 'pointer',
-      fontFamily: 'Lato,sans-serif', fontWeight: 600,
+      borderRadius: 3, cursor: 'pointer',
+      fontFamily: 'Inter,sans-serif', fontWeight: 600,
       fontSize: small ? 12 : 13, padding: small ? '4px 10px' : '7px 14px',
       transition: 'all .15s', ...v[variant], ...sx,
     }}>{children}</button>
@@ -454,8 +454,8 @@ function CopyBtn({ value }) {
     <button onClick={copy} title={`Copy ${value}`} style={{
       background: copied ? C.green + '20' : C.ivoryMid,
       border: `1px solid ${copied ? C.green + '55' : C.ivoryDark}`,
-      borderRadius: 6, cursor: 'pointer', fontSize: 11, padding: '2px 8px',
-      color: copied ? C.green : C.textMid, fontFamily: 'Lato,sans-serif',
+      borderRadius: 3, cursor: 'pointer', fontSize: 11, padding: '2px 8px',
+      color: copied ? C.green : C.textMid, fontFamily: 'Inter,sans-serif',
       fontWeight: 600, transition: 'all .2s', whiteSpace: 'nowrap',
     }}>{copied ? '✓ Copied' : '📋'}</button>
   );
@@ -464,9 +464,9 @@ function CopyBtn({ value }) {
 function Card({ children, style: sx }) {
   return (
     <div style={{
-      background: C.white, borderRadius: 14,
+      background: C.white, borderRadius: 6,
       border: `1px solid ${C.ivoryDark}`,
-      boxShadow: '0 2px 12px rgba(28,45,80,.05)',
+      boxShadow: 'none',
       padding: '16px 18px', ...sx,
     }}>{children}</div>
   );
@@ -475,7 +475,7 @@ function Card({ children, style: sx }) {
 function SectionHead({ title, icon, action }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-      <h2 style={{ margin: 0, fontFamily: 'Playfair Display,serif', fontSize: 26, color: C.navy, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 10 }}>
+      <h2 style={{ margin: 0, fontFamily: 'Space Grotesk,sans-serif', fontSize: 26, color: C.navy, fontWeight: 700, letterSpacing: '-0.5px', display: 'flex', alignItems: 'center', gap: 10 }}>
         {icon} {title}
       </h2>
       {action}
@@ -485,7 +485,7 @@ function SectionHead({ title, icon, action }) {
 
 function SubHead({ children }) {
   return (
-    <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 17, color: C.navy, fontWeight: 600, marginBottom: 12, paddingBottom: 6, borderBottom: `2px solid ${C.ivoryDark}` }}>
+    <div style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: 17, color: C.navy, fontWeight: 600, letterSpacing: '-0.3px', marginBottom: 12, paddingBottom: 6, borderBottom: `1px solid ${C.ivoryDark}` }}>
       {children}
     </div>
   );
@@ -505,17 +505,17 @@ function Modal({ title, onClose, children }) {
       display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16,
     }}>
       <div style={{
-        background: C.ivory, borderRadius: 18, width: '100%', maxWidth: 520,
+        background: C.ivory, borderRadius: 8, width: '100%', maxWidth: 520,
         maxHeight: '90vh', overflowY: 'auto',
-        boxShadow: '0 20px 60px rgba(28,45,80,.25)',
+        boxShadow: '0 8px 32px rgba(28,45,80,.18)',
         border: `1px solid ${C.ivoryDark}`,
       }}>
         <div style={{
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
           padding: '18px 22px 14px', borderBottom: `1px solid ${C.ivoryDark}`,
-          position: 'sticky', top: 0, background: C.ivory, borderRadius: '18px 18px 0 0',
+          position: 'sticky', top: 0, background: C.ivory, borderRadius: '8px 8px 0 0',
         }}>
-          <span style={{ fontFamily: 'Playfair Display,serif', fontSize: 18, color: C.navy, fontWeight: 600 }}>{title}</span>
+          <span style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: 18, color: C.navy, fontWeight: 600 }}>{title}</span>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 22, color: C.textLight, lineHeight: 1 }}>×</button>
         </div>
         <div style={{ padding: '18px 22px' }}>{children}</div>
@@ -527,13 +527,13 @@ function Modal({ title, onClose, children }) {
 function Field({ label, name, value, onChange, type = 'text', options, rows }) {
   const base = {
     width: '100%', boxSizing: 'border-box',
-    border: `1px solid ${C.ivoryDark}`, borderRadius: 8,
-    padding: '8px 12px', fontFamily: 'Lato,sans-serif', fontSize: 13,
+    border: `1px solid ${C.ivoryDark}`, borderRadius: 4,
+    padding: '8px 12px', fontFamily: 'Inter,sans-serif', fontSize: 13,
     background: C.white, color: C.text, outline: 'none', marginTop: 4,
   };
   return (
     <div style={{ marginBottom: 12 }}>
-      <label style={{ fontSize: 11, fontWeight: 600, color: C.textMid, fontFamily: 'Lato,sans-serif', textTransform: 'uppercase', letterSpacing: .5 }}>{label}</label>
+      <label style={{ fontSize: 11, fontWeight: 600, color: C.textMid, fontFamily: 'Inter,sans-serif', textTransform: 'uppercase', letterSpacing: .5 }}>{label}</label>
       {options
         ? <select name={name} value={value} onChange={onChange} style={base}>{options.map(o => <option key={o.value ?? o} value={o.value ?? o}>{o.label ?? o}</option>)}</select>
         : rows
@@ -548,7 +548,7 @@ function Field({ label, name, value, onChange, type = 'text', options, rows }) {
 function ConfirmModal({ message, onConfirm, onCancel }) {
   return (
     <Modal title="Are you sure?" onClose={onCancel}>
-      <p style={{ fontFamily: 'Lato,sans-serif', fontSize: 14, color: C.text, margin: '0 0 22px', lineHeight: 1.6 }}>{message}</p>
+      <p style={{ fontFamily: 'Inter,sans-serif', fontSize: 14, color: C.text, margin: '0 0 22px', lineHeight: 1.6 }}>{message}</p>
       <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
         <Btn variant="ghost" onClick={onCancel}>Cancel</Btn>
         <Btn variant="danger" onClick={onConfirm}>Delete</Btn>
@@ -600,10 +600,10 @@ function FlightsView({ data, onUpdate }) {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2, flexWrap: 'wrap' }}>
-                  <span style={{ fontFamily: 'Playfair Display,serif', fontSize: 17, color: C.navy, fontWeight: 600 }}>{f.airline}</span>
-                  <span style={{ fontSize: 12, color: C.textLight, fontFamily: 'Lato,sans-serif' }}>{f.numbers}</span>
+                  <span style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: 17, color: C.navy, fontWeight: 600 }}>{f.airline}</span>
+                  <span style={{ fontSize: 12, color: C.textLight, fontFamily: 'Inter,sans-serif' }}>{f.numbers}</span>
                 </div>
-                <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 22, color: C.terracotta, fontWeight: 700, marginBottom: 8 }}>{f.route}</div>
+                <div style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: 22, color: C.terracotta, fontWeight: 700, marginBottom: 8 }}>{f.route}</div>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
                   <Pill icon="📅" label={f.date} />
                   <Pill icon="🛫" label={f.departure} />
@@ -614,7 +614,7 @@ function FlightsView({ data, onUpdate }) {
                   {f.confirmation && <CopyBtn value={f.confirmation} />}
                   <Pill icon="👥" label={f.passengers} />
                 </div>
-                {f.notes && <div style={{ marginTop: 8, padding: '6px 10px', background: C.gold + '18', borderLeft: `3px solid ${C.gold}`, borderRadius: 6, fontSize: 12, color: C.textMid, fontFamily: 'Lato,sans-serif' }}>{f.notes}</div>}
+                {f.notes && <div style={{ marginTop: 8, padding: '6px 10px', background: C.gold + '18', borderLeft: `3px solid ${C.gold}`, borderRadius: 6, fontSize: 12, color: C.textMid, fontFamily: 'Inter,sans-serif' }}>{f.notes}</div>}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8, flexShrink: 0 }}>
                 <StatusBadge status={f.status} onClick={() => cycle(f.id)} />
@@ -685,9 +685,9 @@ function HotelsView({ data, onUpdate }) {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
                   <span style={{ fontSize: 22 }}>{h.name.includes('Virgin') ? '🚢' : '🏨'}</span>
-                  <span style={{ fontFamily: 'Playfair Display,serif', fontSize: 18, color: C.navy, fontWeight: 700 }}>{h.name}</span>
+                  <span style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: 18, color: C.navy, fontWeight: 700 }}>{h.name}</span>
                 </div>
-                <div style={{ fontSize: 13, color: C.textMid, fontFamily: 'Lato,sans-serif', marginBottom: 10 }}>📍 {h.address}</div>
+                <div style={{ fontSize: 13, color: C.textMid, fontFamily: 'Inter,sans-serif', marginBottom: 10 }}>📍 {h.address}</div>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
                   <Pill icon="📅" label={`${h.checkIn} → ${h.checkOut}`} />
                   <Pill icon="🌙" label={`${h.nights} nights`} />
@@ -698,7 +698,7 @@ function HotelsView({ data, onUpdate }) {
                   <Pill icon="🔑" label={h.confirmation} mono />
                   {h.confirmation && <CopyBtn value={h.confirmation} />}
                 </div>
-                {h.notes && <div style={{ marginTop: 8, padding: '6px 10px', background: C.gold + '18', borderLeft: `3px solid ${C.gold}`, borderRadius: 6, fontSize: 12, color: C.textMid, fontFamily: 'Lato,sans-serif' }}>{h.notes}</div>}
+                {h.notes && <div style={{ marginTop: 8, padding: '6px 10px', background: C.gold + '18', borderLeft: `3px solid ${C.gold}`, borderRadius: 6, fontSize: 12, color: C.textMid, fontFamily: 'Inter,sans-serif' }}>{h.notes}</div>}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8, flexShrink: 0 }}>
                 <StatusBadge status={h.status} onClick={() => cycle(h.id)} />
@@ -823,12 +823,12 @@ function DailyView({ data, onUpdate }) {
       } />
 
       {/* ── CALENDAR GRID ── */}
-      <div style={{ background: C.white, borderRadius: 16, border: `1px solid ${C.ivoryDark}`, overflow: 'hidden', marginBottom: 22, boxShadow: '0 2px 16px rgba(28,45,80,.07)' }}>
+      <div style={{ background: C.white, borderRadius: 6, border: `1px solid ${C.ivoryDark}`, overflow: 'hidden', marginBottom: 22 }}>
 
         {/* Month header */}
-        <div style={{ background: `linear-gradient(90deg, ${C.navy}, ${C.navyMid})`, padding: '11px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 17, color: C.white, fontWeight: 600, letterSpacing: .3 }}>June 2026</div>
-          <div style={{ fontSize: 11, color: C.goldL, fontFamily: 'Lato,sans-serif' }}>
+        <div style={{ background: C.navy, borderBottom: `1px solid ${C.navyMid}`, padding: '11px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: 17, color: C.white, fontWeight: 600, letterSpacing: .3 }}>June 2026</div>
+          <div style={{ fontSize: 11, color: C.goldL, fontFamily: 'Inter,sans-serif' }}>
             {days.length} days &nbsp;·&nbsp; {days.reduce((s, d) => s + d.events.length, 0)} events
           </div>
         </div>
@@ -840,7 +840,7 @@ function DailyView({ data, onUpdate }) {
               textAlign: 'center', padding: '7px 2px',
               fontSize: 10, fontWeight: 700, letterSpacing: .8, textTransform: 'uppercase',
               color: i >= 5 ? C.terracotta : C.textLight,
-              fontFamily: 'Lato,sans-serif',
+              fontFamily: 'Inter,sans-serif',
               borderRight: i < 6 ? `1px solid ${C.ivoryDark}` : 'none',
             }}>
               {isMobile ? d[0] : d}
@@ -884,7 +884,7 @@ function DailyView({ data, onUpdate }) {
                     borderRadius: '50%',
                     background: isToday ? C.terracotta : isSel ? C.gold : 'transparent',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontFamily: 'Playfair Display,serif',
+                    fontFamily: 'Space Grotesk,sans-serif',
                     fontSize: isMobile ? 13 : 15, fontWeight: 700,
                     color: isToday || isSel ? C.white : isPast ? C.textLight : C.navy,
                     flexShrink: 0, marginBottom: 3,
@@ -897,7 +897,7 @@ function DailyView({ data, onUpdate }) {
                     <div style={{
                       fontSize: 9, lineHeight: 1.2, marginBottom: 4,
                       color: isSel ? C.goldL : C.textLight,
-                      fontFamily: 'Lato,sans-serif',
+                      fontFamily: 'Inter,sans-serif',
                       overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                       maxWidth: '100%',
                     }}>
@@ -911,7 +911,7 @@ function DailyView({ data, onUpdate }) {
                       <span key={i} style={{ fontSize: isMobile ? 10 : 12, lineHeight: 1 }}>{icon}</span>
                     ))}
                     {overflow > 0 && (
-                      <span style={{ fontSize: 9, color: isSel ? C.goldL : C.textLight, fontFamily: 'Lato,sans-serif', fontWeight: 700 }}>+{overflow}</span>
+                      <span style={{ fontSize: 9, color: isSel ? C.goldL : C.textLight, fontFamily: 'Inter,sans-serif', fontWeight: 700 }}>+{overflow}</span>
                     )}
                   </div>
 
@@ -922,7 +922,7 @@ function DailyView({ data, onUpdate }) {
                       width: 16, height: 16, borderRadius: '50%',
                       background: isSel ? C.white + '22' : C.ivoryDark,
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 9, fontFamily: 'Lato,sans-serif', fontWeight: 700,
+                      fontSize: 9, fontFamily: 'Inter,sans-serif', fontWeight: 700,
                       color: isSel ? C.goldL : C.textLight,
                     }}>
                       {day.events.length}
@@ -938,16 +938,15 @@ function DailyView({ data, onUpdate }) {
       {/* ── SELECTED DAY PANEL ── */}
       {selDay && (
         <div style={{
-          borderRadius: 18, overflow: 'hidden',
+          borderRadius: 6, overflow: 'hidden',
           border: `1px solid ${selDay.date === todayStr ? C.terracotta : C.ivoryDark}`,
-          boxShadow: selDay.date === todayStr
-            ? `0 0 0 2px ${C.terracotta}44, 0 6px 24px rgba(28,45,80,.12)`
-            : '0 4px 20px rgba(28,45,80,.08)',
+          boxShadow: selDay.date === todayStr ? `0 0 0 2px ${C.terracotta}44` : 'none',
         }}>
           {/* Day header with prev / next */}
           <div style={{
-            background: `linear-gradient(135deg, ${C.navy} 0%, ${C.navyMid} 60%, ${C.terracottaD} 100%)`,
+            background: C.navy,
             padding: '13px 16px',
+            borderBottom: `1px solid ${C.navyMid}`,
             display: 'flex', alignItems: 'center', gap: 10,
           }}>
             <button onClick={() => setSelIdx(i => Math.max(0, i - 1))} disabled={selIdx === 0}
@@ -957,12 +956,12 @@ function DailyView({ data, onUpdate }) {
 
             <div style={{ flex: 1, textAlign: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, flexWrap: 'wrap' }}>
-                <span style={{ fontFamily: 'Playfair Display,serif', fontSize: isMobile ? 15 : 18, color: C.white, fontWeight: 700 }}>{selDay.label}</span>
+                <span style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: isMobile ? 15 : 18, color: C.white, fontWeight: 700 }}>{selDay.label}</span>
                 {selDay.date === todayStr && (
-                  <span style={{ background: C.terracotta, color: C.white, fontSize: 10, fontFamily: 'Lato,sans-serif', fontWeight: 700, borderRadius: 10, padding: '2px 8px', textTransform: 'uppercase', letterSpacing: .6 }}>Today</span>
+                  <span style={{ background: C.terracotta, color: C.white, fontSize: 10, fontFamily: 'Inter,sans-serif', fontWeight: 700, borderRadius: 3, padding: '2px 8px', textTransform: 'uppercase', letterSpacing: .6 }}>Today</span>
                 )}
               </div>
-              <div style={{ fontSize: 12, color: C.goldL, fontFamily: 'Lato,sans-serif', marginTop: 3 }}>
+              <div style={{ fontSize: 12, color: C.goldL, fontFamily: 'Inter,sans-serif', marginTop: 3 }}>
                 📍 {selDay.location} &nbsp;·&nbsp; <em>{selDay.subtitle}</em>
               </div>
             </div>
@@ -976,7 +975,7 @@ function DailyView({ data, onUpdate }) {
           {/* Event list */}
           <div style={{ background: C.ivory, padding: '12px 12px 6px' }}>
             {selDay.events.length === 0 && (
-              <div style={{ textAlign: 'center', padding: '28px 0 20px', color: C.textLight, fontFamily: 'Lato,sans-serif', fontSize: 14, fontStyle: 'italic' }}>
+              <div style={{ textAlign: 'center', padding: '28px 0 20px', color: C.textLight, fontFamily: 'Inter,sans-serif', fontSize: 14, fontStyle: 'italic' }}>
                 No events yet — add one below
               </div>
             )}
@@ -1037,7 +1036,7 @@ function EventCard({ evt, isFirst, isLast, isDragging, isOver, onDragStart, onDr
         background: isDragging ? C.ivoryMid : C.white,
         border: `1px solid ${isOver ? C.terracotta : C.ivoryDark}`,
         borderLeft: `4px solid ${isOver ? C.terracotta : statusColor}`,
-        borderRadius: 10, padding: '10px 13px', marginBottom: 7,
+        borderRadius: 4, padding: '10px 13px', marginBottom: 7,
         cursor: 'grab', opacity: isDragging ? 0.45 : 1,
         transition: 'border-color .15s, box-shadow .15s',
         boxShadow: isOver ? `0 3px 14px ${C.terracotta}33` : 'none',
@@ -1045,15 +1044,15 @@ function EventCard({ evt, isFirst, isLast, isDragging, isOver, onDragStart, onDr
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', flex: 1, minWidth: 0 }}>
-          <span style={{ fontSize: 11, color: C.textLight, fontFamily: 'Lato,sans-serif', fontWeight: 600, minWidth: 62, paddingTop: 2, flexShrink: 0 }}>{evt.time}</span>
+          <span style={{ fontSize: 11, color: C.textLight, fontFamily: 'Inter,sans-serif', fontWeight: 600, minWidth: 62, paddingTop: 2, flexShrink: 0 }}>{evt.time}</span>
           <span style={{ fontSize: 18, flexShrink: 0 }}>{(TYPE[evt.type] || TYPE.other).icon}</span>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 15, color: C.navy, fontWeight: 600 }}>{evt.title}</div>
-            {evt.description && <div style={{ fontSize: 12, color: C.textMid, fontFamily: 'Lato,sans-serif', marginTop: 2 }}>{evt.description}</div>}
+            <div style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: 15, color: C.navy, fontWeight: 600 }}>{evt.title}</div>
+            {evt.description && <div style={{ fontSize: 12, color: C.textMid, fontFamily: 'Inter,sans-serif', marginTop: 2 }}>{evt.description}</div>}
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 5 }}>
               {evt.location && <Pill icon="📍" label={evt.location} small />}
             </div>
-            {evt.notes && <div style={{ marginTop: 6, padding: '5px 9px', background: C.gold + '1A', borderLeft: `3px solid ${C.gold}`, borderRadius: '0 6px 6px 0', fontSize: 12, color: C.textMid, fontFamily: 'Lato,sans-serif', lineHeight: 1.5 }}>📝 {evt.notes}</div>}
+            {evt.notes && <div style={{ marginTop: 6, padding: '5px 9px', background: C.gold + '1A', borderLeft: `3px solid ${C.gold}`, borderRadius: '0 6px 6px 0', fontSize: 12, color: C.textMid, fontFamily: 'Inter,sans-serif', lineHeight: 1.5 }}>📝 {evt.notes}</div>}
           </div>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
@@ -1129,15 +1128,15 @@ function RestaurantsView({ data, onUpdate }) {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10, flexWrap: 'wrap' }}>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginBottom: 4 }}>
-                  <span style={{ fontFamily: 'Playfair Display,serif', fontSize: 16, color: C.navy, fontWeight: 600 }}>{r.name}</span>
-                  <span style={{ fontSize: 11, color: C.textLight, background: C.ivoryMid, borderRadius: 10, padding: '1px 8px', fontFamily: 'Lato,sans-serif' }}>{r.cuisine}</span>
+                  <span style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: 16, color: C.navy, fontWeight: 600 }}>{r.name}</span>
+                  <span style={{ fontSize: 11, color: C.textLight, background: C.ivoryMid, borderRadius: 3, padding: '1px 8px', fontFamily: 'Inter,sans-serif' }}>{r.cuisine}</span>
                 </div>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                   <Pill icon="📍" label={r.city} small />
                   <Pill icon="📅" label={r.date} small />
                   <Pill icon="🕐" label={r.time} small />
                 </div>
-                {r.notes && <div style={{ marginTop: 6, fontSize: 12, color: C.textMid, fontFamily: 'Lato,sans-serif', fontStyle: 'italic' }}>{r.notes}</div>}
+                {r.notes && <div style={{ marginTop: 6, fontSize: 12, color: C.textMid, fontFamily: 'Inter,sans-serif', fontStyle: 'italic' }}>{r.notes}</div>}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
                 <StatusBadge status={r.status} onClick={() => cycle(r.id)} />
@@ -1205,27 +1204,27 @@ function TodoView({ data, onUpdate }) {
       <Card style={{ marginBottom: 22 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
           <div style={{ flex: 1 }}>
-            <div style={{ fontFamily: 'Lato,sans-serif', fontSize: 13, color: C.textMid, marginBottom: 8 }}>{done} of {total} tasks complete</div>
+            <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 13, color: C.textMid, marginBottom: 8 }}>{done} of {total} tasks complete</div>
             <div style={{ height: 10, background: C.ivoryDark, borderRadius: 5, overflow: 'hidden' }}>
               <div style={{ height: '100%', width: `${pct}%`, background: `linear-gradient(90deg, ${C.terracotta}, ${C.gold})`, borderRadius: 5, transition: 'width .4s ease' }} />
             </div>
           </div>
-          <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 32, color: C.terracotta, fontWeight: 700 }}>{pct}%</div>
+          <div style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: 32, color: C.terracotta, fontWeight: 700 }}>{pct}%</div>
         </div>
       </Card>
 
       {allCats.filter(cat => (data.todos || []).some(t => t.cat === cat)).map(cat => (
         <div key={cat} style={{ marginBottom: 18 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: C.terracotta, fontFamily: 'Lato,sans-serif', textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 8 }}>{cat}</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: C.terracotta, fontFamily: 'Inter,sans-serif', textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 8 }}>{cat}</div>
           {(data.todos || []).filter(t => t.cat === cat).map(t => (
             <div key={t.id} style={{
               display: 'flex', alignItems: 'center', gap: 12,
               padding: '10px 14px', background: t.done ? C.ivoryMid : C.white,
-              borderRadius: 10, marginBottom: 6, border: `1px solid ${C.ivoryDark}`, transition: 'background .2s',
+              borderRadius: 4, marginBottom: 6, border: `1px solid ${C.ivoryDark}`, transition: 'background .2s',
             }}>
               <input type="checkbox" checked={t.done} onChange={() => toggle(t.id)}
                 style={{ width: 18, height: 18, cursor: 'pointer', accentColor: C.terracotta, flexShrink: 0 }} />
-              <span style={{ flex: 1, fontFamily: 'Lato,sans-serif', fontSize: 14, color: t.done ? C.textLight : C.text, textDecoration: t.done ? 'line-through' : 'none' }}>{t.task}</span>
+              <span style={{ flex: 1, fontFamily: 'Inter,sans-serif', fontSize: 14, color: t.done ? C.textLight : C.text, textDecoration: t.done ? 'line-through' : 'none' }}>{t.task}</span>
               <button onClick={() => del(t.id, t.task)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.textLight, fontSize: 18, flexShrink: 0 }}>×</button>
             </div>
           ))}
@@ -1233,15 +1232,15 @@ function TodoView({ data, onUpdate }) {
       ))}
 
       <Card style={{ marginTop: 8 }}>
-        <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 14, color: C.navy, marginBottom: 10 }}>Add New Task</div>
+        <div style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: 14, color: C.navy, marginBottom: 10 }}>Add New Task</div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <select value={newCat} onChange={e => setNewCat(e.target.value)}
-            style={{ border: `1px solid ${C.ivoryDark}`, borderRadius: 8, padding: '8px 10px', fontFamily: 'Lato,sans-serif', fontSize: 12, background: C.white, color: C.text }}>
+            style={{ border: `1px solid ${C.ivoryDark}`, borderRadius: 8, padding: '8px 10px', fontFamily: 'Inter,sans-serif', fontSize: 12, background: C.white, color: C.text }}>
             {allCats.map(c => <option key={c}>{c}</option>)}
           </select>
           <input value={newTask} onChange={e => setNewTask(e.target.value)} onKeyDown={e => e.key === 'Enter' && add()}
             placeholder="Add a task... (press Enter)"
-            style={{ flex: 1, minWidth: 160, border: `1px solid ${C.ivoryDark}`, borderRadius: 8, padding: '8px 12px', fontFamily: 'Lato,sans-serif', fontSize: 13, color: C.text, outline: 'none' }} />
+            style={{ flex: 1, minWidth: 160, border: `1px solid ${C.ivoryDark}`, borderRadius: 8, padding: '8px 12px', fontFamily: 'Inter,sans-serif', fontSize: 13, color: C.text, outline: 'none' }} />
           <Btn variant="primary" onClick={add}>Add</Btn>
         </div>
       </Card>
@@ -1298,32 +1297,32 @@ function BudgetView({ data, onUpdate }) {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 14, marginBottom: 18 }}>
         {[{ label: 'Felicia Paid', key: 'felicia', color: C.terracotta }, { label: 'Alicyn Paid', key: 'alicyn', color: C.navy }].map(({ label, key, color }) => (
           <Card key={key} style={{ textAlign: 'center', padding: '18px 14px', borderTop: `4px solid ${color}` }}>
-            <div style={{ fontSize: 11, color: C.textLight, fontFamily: 'Lato,sans-serif', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>{label}</div>
+            <div style={{ fontSize: 11, color: C.textLight, fontFamily: 'Inter,sans-serif', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>{label}</div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3 }}>
-              <span style={{ fontFamily: 'Lato,sans-serif', fontSize: 18, color, alignSelf: 'flex-start', marginTop: 3 }}>$</span>
+              <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 18, color, alignSelf: 'flex-start', marginTop: 3 }}>$</span>
               <input type="number" step="0.01" value={totals[key]} onChange={e => setTotal(key, e.target.value)}
-                style={{ fontFamily: 'Playfair Display,serif', fontSize: 26, color, fontWeight: 700, border: 'none', background: 'transparent', width: 120, textAlign: 'center', outline: 'none' }} />
+                style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: 26, color, fontWeight: 700, border: 'none', background: 'transparent', width: 120, textAlign: 'center', outline: 'none' }} />
             </div>
           </Card>
         ))}
         <Card style={{ textAlign: 'center', padding: '18px 14px', borderTop: `4px solid ${C.gold}`, background: C.navy }}>
-          <div style={{ fontSize: 11, color: C.goldL + 'AA', fontFamily: 'Lato,sans-serif', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Total Trip</div>
-          <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 26, color: C.goldL, fontWeight: 700 }}>${grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+          <div style={{ fontSize: 11, color: C.goldL + 'AA', fontFamily: 'Inter,sans-serif', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Total Trip</div>
+          <div style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: 26, color: C.goldL, fontWeight: 700 }}>${grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
         </Card>
       </div>
 
       {/* Visual split + settlement */}
       <Card style={{ marginBottom: 22, padding: '16px 20px' }}>
-        <div style={{ fontFamily: 'Lato,sans-serif', fontSize: 11, textTransform: 'uppercase', letterSpacing: 1, color: C.textLight, marginBottom: 8 }}>Who Paid What</div>
+        <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 11, textTransform: 'uppercase', letterSpacing: 1, color: C.textLight, marginBottom: 8 }}>Who Paid What</div>
         <div style={{ display: 'flex', height: 14, borderRadius: 7, overflow: 'hidden', marginBottom: 8 }}>
           <div style={{ width: `${feliciaPct}%`, background: C.terracotta, transition: 'width .4s' }} />
           <div style={{ flex: 1, background: C.navy }} />
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontFamily: 'Lato,sans-serif', color: C.textMid, marginBottom: 10 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontFamily: 'Inter,sans-serif', color: C.textMid, marginBottom: 10 }}>
           <span style={{ color: C.terracotta, fontWeight: 600 }}>Felicia {feliciaPct.toFixed(1)}%</span>
           <span style={{ color: C.navy, fontWeight: 600 }}>Alicyn {(100 - feliciaPct).toFixed(1)}%</span>
         </div>
-        <div style={{ borderTop: `1px solid ${C.ivoryDark}`, paddingTop: 10, fontFamily: 'Lato,sans-serif', fontSize: 13 }}>
+        <div style={{ borderTop: `1px solid ${C.ivoryDark}`, paddingTop: 10, fontFamily: 'Inter,sans-serif', fontSize: 13 }}>
           <span style={{ color: C.textMid }}>Equal split = ${equalShare.toFixed(2)} each — </span>
           <span style={{ color: diff > 0 ? C.terracotta : diff < 0 ? C.navy : C.green, fontWeight: 700 }}>{settlement}</span>
         </div>
@@ -1335,11 +1334,11 @@ function BudgetView({ data, onUpdate }) {
           <SubHead>By Category</SubHead>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(175px, 1fr))', gap: 8 }}>
             {catTotals.map(({ cat, f, a, total }) => (
-              <div key={cat} style={{ background: C.white, borderRadius: 10, padding: '10px 14px', border: `1px solid ${C.ivoryDark}` }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: C.textMid, fontFamily: 'Lato,sans-serif', textTransform: 'uppercase', letterSpacing: .6, marginBottom: 4 }}>{cat}</div>
-                <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 16, color: C.navy, fontWeight: 700 }}>${total.toFixed(2)}</div>
+              <div key={cat} style={{ background: C.white, borderRadius: 4, padding: '10px 14px', border: `1px solid ${C.ivoryDark}` }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: C.textMid, fontFamily: 'Inter,sans-serif', textTransform: 'uppercase', letterSpacing: .6, marginBottom: 4 }}>{cat}</div>
+                <div style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: 16, color: C.navy, fontWeight: 700 }}>${total.toFixed(2)}</div>
                 {(f > 0 || a > 0) && (
-                  <div style={{ fontSize: 11, color: C.textLight, fontFamily: 'Lato,sans-serif', marginTop: 2 }}>
+                  <div style={{ fontSize: 11, color: C.textLight, fontFamily: 'Inter,sans-serif', marginTop: 2 }}>
                     {f > 0 && <span style={{ color: C.terracotta }}>F ${f.toFixed(0)} </span>}
                     {a > 0 && <span style={{ color: C.navyMid }}>A ${a.toFixed(0)}</span>}
                   </div>
@@ -1350,8 +1349,8 @@ function BudgetView({ data, onUpdate }) {
         </div>
       )}
 
-      <div style={{ overflowX: 'auto', borderRadius: 12, overflow: 'hidden', border: `1px solid ${C.ivoryDark}` }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'Lato,sans-serif', fontSize: 13 }}>
+      <div style={{ overflowX: 'auto', borderRadius: 6, overflow: 'hidden', border: `1px solid ${C.ivoryDark}` }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'Inter,sans-serif', fontSize: 13 }}>
           <thead>
             <tr style={{ background: C.navy }}>
               {['Description', 'Category', 'Paid By', 'Felicia $', 'Alicyn $', 'Notes', ''].map(h => (
@@ -1440,14 +1439,14 @@ function EmergencyView({ data, onUpdate }) {
           {numbers.map(n => (
             <div key={n.id} style={{
               background: n.country === 'All' ? C.navy : C.white,
-              borderRadius: 12, padding: '12px 14px',
+              borderRadius: 4, padding: '12px 14px',
               border: `1px solid ${n.country === 'All' ? C.navy : C.ivoryDark}`,
               display: 'flex', alignItems: 'center', gap: 12,
             }}>
               <span style={{ fontSize: 24 }}>{countryFlag[n.country] || '🌐'}</span>
               <div>
-                <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 22, fontWeight: 700, color: n.country === 'All' ? C.goldL : C.red }}>{n.number}</div>
-                <div style={{ fontSize: 11, fontFamily: 'Lato,sans-serif', color: n.country === 'All' ? C.ivoryMid : C.textMid }}>{n.description}</div>
+                <div style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: 22, fontWeight: 700, color: n.country === 'All' ? C.goldL : C.red }}>{n.number}</div>
+                <div style={{ fontSize: 11, fontFamily: 'Inter,sans-serif', color: n.country === 'All' ? C.ivoryMid : C.textMid }}>{n.description}</div>
               </div>
             </div>
           ))}
@@ -1460,7 +1459,7 @@ function EmergencyView({ data, onUpdate }) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           {travelers.map(t => (
             <Card key={t.id}>
-              <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 16, color: C.navy, fontWeight: 600, marginBottom: 12 }}>🧳 {t.name}</div>
+              <div style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: 16, color: C.navy, fontWeight: 600, marginBottom: 12 }}>🧳 {t.name}</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))', gap: 10 }}>
                 {[
                   ['Emergency Contact Name', 'contact'],
@@ -1470,9 +1469,9 @@ function EmergencyView({ data, onUpdate }) {
                   ['Insurance Policy #', 'insurance'],
                 ].map(([label, field]) => (
                   <div key={field}>
-                    <label style={{ fontSize: 10, fontWeight: 700, color: C.textMid, fontFamily: 'Lato,sans-serif', textTransform: 'uppercase', letterSpacing: .5 }}>{label}</label>
+                    <label style={{ fontSize: 10, fontWeight: 700, color: C.textMid, fontFamily: 'Inter,sans-serif', textTransform: 'uppercase', letterSpacing: .5 }}>{label}</label>
                     <input value={t[field]} onChange={e => updTraveler(t.id, field, e.target.value)} placeholder="—"
-                      style={{ width: '100%', boxSizing: 'border-box', marginTop: 3, border: `1px solid ${C.ivoryDark}`, borderRadius: 7, padding: '7px 10px', fontFamily: 'Lato,sans-serif', fontSize: 13, background: C.white, color: C.text, outline: 'none' }} />
+                      style={{ width: '100%', boxSizing: 'border-box', marginTop: 3, border: `1px solid ${C.ivoryDark}`, borderRadius: 7, padding: '7px 10px', fontFamily: 'Inter,sans-serif', fontSize: 13, background: C.white, color: C.text, outline: 'none' }} />
                   </div>
                 ))}
               </div>
@@ -1489,14 +1488,14 @@ function EmergencyView({ data, onUpdate }) {
             <Card key={c.id} style={{ borderLeft: `4px solid ${C.gold}` }}>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 10 }}>
                 <span style={{ fontSize: 20 }}>{countryFlag[c.country] || '🌐'}</span>
-                <span style={{ fontFamily: 'Playfair Display,serif', fontSize: 15, color: C.navy, fontWeight: 600 }}>{c.name}</span>
+                <span style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: 15, color: C.navy, fontWeight: 600 }}>{c.name}</span>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 {[['Address', 'address'], ['Phone', 'phone']].map(([lbl, fld]) => (
                   <div key={fld}>
-                    <label style={{ fontSize: 10, fontWeight: 700, color: C.textMid, fontFamily: 'Lato,sans-serif', textTransform: 'uppercase', letterSpacing: .5 }}>{lbl}</label>
+                    <label style={{ fontSize: 10, fontWeight: 700, color: C.textMid, fontFamily: 'Inter,sans-serif', textTransform: 'uppercase', letterSpacing: .5 }}>{lbl}</label>
                     <input value={c[fld]} onChange={e => updConsulate(c.id, fld, e.target.value)}
-                      style={{ width: '100%', boxSizing: 'border-box', marginTop: 3, border: `1px solid ${C.ivoryDark}`, borderRadius: 7, padding: '6px 10px', fontFamily: 'Lato,sans-serif', fontSize: 12, background: C.white, color: C.text, outline: 'none' }} />
+                      style={{ width: '100%', boxSizing: 'border-box', marginTop: 3, border: `1px solid ${C.ivoryDark}`, borderRadius: 7, padding: '6px 10px', fontFamily: 'Inter,sans-serif', fontSize: 12, background: C.white, color: C.text, outline: 'none' }} />
                   </div>
                 ))}
               </div>
@@ -1508,8 +1507,8 @@ function EmergencyView({ data, onUpdate }) {
       {/* Allergy Translations */}
       <div>
         <SubHead>Allergy / Medical Translations</SubHead>
-        <div style={{ overflowX: 'auto', borderRadius: 12, border: `1px solid ${C.ivoryDark}`, overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'Lato,sans-serif', fontSize: 13 }}>
+        <div style={{ overflowX: 'auto', borderRadius: 6, border: `1px solid ${C.ivoryDark}`, overflow: 'hidden' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'Inter,sans-serif', fontSize: 13 }}>
             <thead>
               <tr style={{ background: C.terracotta }}>
                 {['Allergy / Condition', 'Spanish 🇪🇸', 'Italian 🇮🇹', 'French 🇫🇷', ''].map(h => (
@@ -1523,7 +1522,7 @@ function EmergencyView({ data, onUpdate }) {
                   {['allergy', 'spanish', 'italian', 'french'].map(f => (
                     <td key={f} style={{ padding: '6px 8px' }}>
                       <input value={a[f]} onChange={e => updAllergy(a.id, f, e.target.value)} placeholder="—"
-                        style={{ width: '100%', border: `1px solid ${C.ivoryDark}`, borderRadius: 6, padding: '5px 8px', fontFamily: 'Lato,sans-serif', fontSize: 13, background: 'transparent', color: C.text, outline: 'none' }} />
+                        style={{ width: '100%', border: `1px solid ${C.ivoryDark}`, borderRadius: 6, padding: '5px 8px', fontFamily: 'Inter,sans-serif', fontSize: 13, background: 'transparent', color: C.text, outline: 'none' }} />
                     </td>
                   ))}
                   <td style={{ padding: '6px 8px' }}>
@@ -1576,7 +1575,7 @@ export default function App() {
 
     document.body.style.margin = '0';
     document.body.style.background = C.ivory;
-    document.body.style.fontFamily = 'Lato,sans-serif';
+    document.body.style.fontFamily = 'Inter,sans-serif';
 
     const printStyle = document.createElement('style');
     printStyle.id = 'print-css';
@@ -1592,8 +1591,8 @@ export default function App() {
   if (!data) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', background: C.ivory, gap: 16 }}>
-        <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 26, color: C.navy, fontWeight: 700 }}>✦ Girls Trip 2026</div>
-        <div style={{ fontFamily: 'Lato,sans-serif', color: C.textLight, fontSize: 14 }}>Loading your itinerary…</div>
+        <div style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: 26, color: C.navy, fontWeight: 700 }}>✦ Girls Trip 2026</div>
+        <div style={{ fontFamily: 'Inter,sans-serif', color: C.textLight, fontSize: 14 }}>Loading your itinerary…</div>
         <div style={{ width: 48, height: 4, borderRadius: 2, background: `linear-gradient(90deg, ${C.terracotta}, ${C.gold})`, animation: 'pulse 1.2s ease-in-out infinite' }} />
         <style>{`@keyframes pulse { 0%,100% { opacity:.3 } 50% { opacity:1 } }`}</style>
       </div>
@@ -1626,41 +1625,41 @@ export default function App() {
   return (
     <div style={{ minHeight: '100vh', background: C.ivory }}>
       {!configured && (
-        <div data-noprint style={{ background: C.gold, color: C.navy, padding: '8px 20px', fontFamily: 'Lato,sans-serif', fontSize: 13, textAlign: 'center', fontWeight: 600 }}>
+        <div data-noprint style={{ background: C.gold, color: C.navy, padding: '8px 20px', fontFamily: 'Inter,sans-serif', fontSize: 13, textAlign: 'center', fontWeight: 600 }}>
           ⚠️ Running in local mode — changes are only saved on this device. See README for Firebase setup.
         </div>
       )}
 
       {/* ── HEADER ── */}
       <header data-noprint style={{
-        background: `linear-gradient(135deg, ${C.navy} 0%, ${C.navyMid} 55%, ${C.terracottaD} 100%)`,
+        background: C.navy,
         position: 'sticky', top: 0, zIndex: 200,
-        boxShadow: '0 4px 24px rgba(0,0,0,.22)',
+        borderBottom: `1px solid ${C.navyMid}`,
       }}>
         <div style={{ padding: '14px 20px 10px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
           <div>
-            <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 21, color: C.white, fontWeight: 700, lineHeight: 1.1 }}>
+            <div style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: 21, color: C.white, fontWeight: 700, letterSpacing: '-0.5px', lineHeight: 1.1 }}>
               ✦ {data.meta.tripName}
             </div>
-            <div style={{ fontSize: 12, color: C.goldL, fontFamily: 'Lato,sans-serif', marginTop: 3 }}>
+            <div style={{ fontSize: 12, color: C.goldL, fontFamily: 'Inter,sans-serif', marginTop: 3 }}>
               {data.meta.tagline} &nbsp;·&nbsp; {data.meta.dates}
             </div>
           </div>
           <div style={{ textAlign: 'right', flexShrink: 0 }}>
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'flex-end', marginBottom: 3 }}>
               {data.meta.travelers.map(t => (
-                <span key={t} style={{ fontSize: 10, background: C.gold + '28', color: C.goldL, borderRadius: 12, padding: '2px 8px', fontFamily: 'Lato,sans-serif', whiteSpace: 'nowrap' }}>
+                <span key={t} style={{ fontSize: 10, background: C.gold + '28', color: C.goldL, borderRadius: 3, padding: '2px 8px', fontFamily: 'Inter,sans-serif', whiteSpace: 'nowrap' }}>
                   {t.split(' ')[0]}
                 </span>
               ))}
             </div>
-            {lu && <div style={{ fontSize: 10, color: C.white + '66', fontFamily: 'Lato,sans-serif' }}>{configured ? '🔄 synced' : '💾 saved'} {lu}</div>}
+            {lu && <div style={{ fontSize: 10, color: C.white + '66', fontFamily: 'Inter,sans-serif' }}>{configured ? '🔄 synced' : '💾 saved'} {lu}</div>}
           </div>
         </div>
 
         {/* Countdown strip */}
         {countdownMsg && (
-          <div style={{ background: countdownBg, padding: '6px 20px', fontFamily: 'Lato,sans-serif', fontSize: 12, color: C.white, fontWeight: 600, letterSpacing: .3 }}>
+          <div style={{ background: countdownBg, padding: '6px 20px', fontFamily: 'Inter,sans-serif', fontSize: 12, color: C.white, fontWeight: 600, letterSpacing: .3 }}>
             {countdownMsg}
           </div>
         )}
@@ -1671,7 +1670,7 @@ export default function App() {
             {TABS.map(t => (
               <button key={t.id} onClick={() => setTab(t.id)} style={{
                 background: 'none', border: 'none', cursor: 'pointer',
-                padding: '9px 14px', fontSize: 13, fontFamily: 'Lato,sans-serif', fontWeight: 600,
+                padding: '9px 14px', fontSize: 13, fontFamily: 'Inter,sans-serif', fontWeight: 600,
                 color: tab === t.id ? C.gold : C.white + 'BB',
                 borderBottom: `3px solid ${tab === t.id ? C.gold : 'transparent'}`,
                 whiteSpace: 'nowrap', transition: 'color .2s, border-color .2s',
@@ -1714,7 +1713,7 @@ export default function App() {
               transition: 'border-color .15s',
             }}>
               <span style={{ fontSize: 22 }}>{t.icon}</span>
-              <span style={{ fontSize: 10, fontFamily: 'Lato,sans-serif', fontWeight: 600, color: tab === t.id ? C.terracotta : C.textLight }}>{t.label}</span>
+              <span style={{ fontSize: 10, fontFamily: 'Inter,sans-serif', fontWeight: 600, color: tab === t.id ? C.terracotta : C.textLight }}>{t.label}</span>
             </button>
           ))}
           {/* More button for dining/emergency */}
@@ -1725,7 +1724,7 @@ export default function App() {
             borderTop: `3px solid ${(tab === 'dining' || tab === 'emergency') ? C.terracotta : 'transparent'}`,
           }}>
             <span style={{ fontSize: 22 }}>{tab === 'emergency' ? '🚨' : '🍽️'}</span>
-            <span style={{ fontSize: 10, fontFamily: 'Lato,sans-serif', fontWeight: 600, color: (tab === 'dining' || tab === 'emergency') ? C.terracotta : C.textLight }}>
+            <span style={{ fontSize: 10, fontFamily: 'Inter,sans-serif', fontWeight: 600, color: (tab === 'dining' || tab === 'emergency') ? C.terracotta : C.textLight }}>
               {tab === 'emergency' ? 'SOS' : 'Dining'}
             </span>
           </button>
