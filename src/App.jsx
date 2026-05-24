@@ -4,24 +4,24 @@ import { ref as fbRef, set as fbSet, onValue } from 'firebase/database';
 
 /* ─── PALETTE ──────────────────────────────────────────── */
 const C = {
-  terracotta: '#C1704A',
-  terracottaL: '#D98B68',
-  terracottaD: '#9A5337',
-  ivory: '#F8F3EB',
-  ivoryMid: '#EDE4D3',
-  ivoryDark: '#DDD0BA',
-  navy: '#1C2D50',
-  navyMid: '#2D4472',
-  gold: '#C9A547',
-  goldL: '#DDBC6E',
-  text: '#2A2218',
-  textMid: '#5C4E3C',
-  textLight: '#8A7B68',
+  terracotta: '#8B2035',   // cabernet — primary actions & highlights
+  terracottaL: '#B04A5C',  // lighter wine rose
+  terracottaD: '#6A1228',  // deep dark cabernet
+  ivory: '#F7EDE8',        // warm blush cream background
+  ivoryMid: '#EDD8D0',     // rose-tinted mid surface
+  ivoryDark: '#D4B8B0',    // muted rose border
+  navy: '#2D1520',         // near-black deep wine (was navy)
+  navyMid: '#4A2232',      // dark burgundy (was navyMid)
+  gold: '#C8A87C',         // champagne gold
+  goldL: '#DEC09A',        // light champagne
+  text: '#2C1318',         // very dark wine-tinted text
+  textMid: '#5C3040',      // medium burgundy text
+  textLight: '#8A6068',    // muted rose-grey text
   white: '#FFFFFF',
   green: '#3D7A55',
-  orange: '#D07830',
+  orange: '#C07830',
   purple: '#7059A0',
-  red: '#C03030',
+  red: '#B02828',
 };
 
 const FONT_URL =
