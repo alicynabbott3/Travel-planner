@@ -4,32 +4,32 @@ import { ref as fbRef, set as fbSet, onValue } from 'firebase/database';
 
 /* ─── PALETTE ──────────────────────────────────────────── */
 const C = {
-  terracotta: '#8B2035',   // cabernet — primary actions & highlights
-  terracottaL: '#B04A5C',  // lighter wine rose
-  terracottaD: '#6A1228',  // deep dark cabernet
-  ivory: '#F7EDE8',        // warm blush cream background
-  ivoryMid: '#EDD8D0',     // rose-tinted mid surface
-  ivoryDark: '#D4B8B0',    // muted rose border
-  navy: '#2D1520',         // near-black deep wine (was navy)
-  navyMid: '#4A2232',      // dark burgundy (was navyMid)
-  gold: '#C8A87C',         // champagne gold
-  goldL: '#DEC09A',        // light champagne
-  text: '#2C1318',         // very dark wine-tinted text
-  textMid: '#5C3040',      // medium burgundy text
-  textLight: '#8A6068',    // muted rose-grey text
-  white: '#FFFFFF',
-  green: '#3D7A55',
-  orange: '#C07830',
-  purple: '#7059A0',
-  red: '#B02828',
+  terracotta:  '#C9963A',   // primary gold/amber — CTAs & highlights
+  terracottaL: '#E8B96A',   // light gold
+  terracottaD: '#A67A28',   // dark gold
+  ivory:       '#FAF7F2',   // warm sand — main background
+  ivoryMid:    '#F0EBE3',   // card surface
+  ivoryDark:   '#DDD5C8',   // borders & dividers
+  navy:        '#0D1B2A',   // deep navy — header
+  navyMid:     '#1A2E45',   // secondary navy
+  gold:        '#C9963A',   // alias — same as terracotta
+  goldL:       '#E8B96A',   // light gold alias
+  text:        '#1C1C2E',   // near-black
+  textMid:     '#4A5568',   // medium gray
+  textLight:   '#8A9BB4',   // muted blue-gray
+  white:       '#FFFFFF',
+  green:       '#2E7D52',
+  orange:      '#C07830',
+  purple:      '#6B5B95',
+  red:         '#B02828',
 };
 
 const FONT_URL =
-  'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap';
+  'https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap';
 
 /* ─── STATUS & TYPE ─────────────────────────────────────── */
 const STATUS = {
-  confirmed:     { icon: '✅', label: 'Confirmed',       color: C.green },
+  confirmed:     { icon: '✅', label: 'Confirmed',       color: C.terracotta },
   pending:       { icon: '⏳', label: 'Pending',         color: C.orange },
   payAtLocation: { icon: '💳', label: 'Pay at Location', color: C.purple },
 };
@@ -470,7 +470,7 @@ function Pill({ icon, label, small, mono }) {
   );
 }
 
-function Btn({ children, onClick, variant = 'ghost', small, style: sx }) {
+function Btn({ children, onClick, variant = 'ghost', small, style: sx, title }) {
   const v = {
     primary: { background: C.terracotta, color: C.white, border: 'none' },
     ghost:   { background: 'transparent', color: C.terracotta, border: `1px solid ${C.terracotta}55` },
@@ -478,7 +478,7 @@ function Btn({ children, onClick, variant = 'ghost', small, style: sx }) {
     navy:    { background: C.navy, color: C.white, border: 'none' },
   };
   return (
-    <button onClick={onClick} style={{
+    <button onClick={onClick} title={title} style={{
       display: 'inline-flex', alignItems: 'center', gap: 5,
       borderRadius: 3, cursor: 'pointer',
       fontFamily: 'Inter,sans-serif', fontWeight: 600,
@@ -513,9 +513,9 @@ function CopyBtn({ value }) {
 function Card({ children, style: sx }) {
   return (
     <div style={{
-      background: C.white, borderRadius: 6,
+      background: C.white, borderRadius: 16,
       border: `1px solid ${C.ivoryDark}`,
-      boxShadow: 'none',
+      boxShadow: '0 4px 24px rgba(13,27,42,.07)',
       padding: '16px 18px', ...sx,
     }}>{children}</div>
   );
@@ -524,7 +524,7 @@ function Card({ children, style: sx }) {
 function SectionHead({ title, icon, action }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-      <h2 style={{ margin: 0, fontFamily: 'Space Grotesk,sans-serif', fontSize: 26, color: C.navy, fontWeight: 700, letterSpacing: '-0.5px', display: 'flex', alignItems: 'center', gap: 10 }}>
+      <h2 style={{ margin: 0, fontFamily: 'Playfair Display,serif', fontSize: 28, color: C.navy, fontWeight: 700, letterSpacing: '-0.3px', display: 'flex', alignItems: 'center', gap: 10 }}>
         {icon} {title}
       </h2>
       {action}
@@ -534,7 +534,7 @@ function SectionHead({ title, icon, action }) {
 
 function SubHead({ children }) {
   return (
-    <div style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: 17, color: C.navy, fontWeight: 600, letterSpacing: '-0.3px', marginBottom: 12, paddingBottom: 6, borderBottom: `1px solid ${C.ivoryDark}` }}>
+    <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 17, color: C.navy, fontWeight: 700, letterSpacing: '0px', marginBottom: 12, paddingBottom: 6, borderBottom: `1px solid ${C.ivoryDark}` }}>
       {children}
     </div>
   );
@@ -564,7 +564,7 @@ function Modal({ title, onClose, children }) {
           padding: '18px 22px 14px', borderBottom: `1px solid ${C.ivoryDark}`,
           position: 'sticky', top: 0, background: C.ivory, borderRadius: '8px 8px 0 0',
         }}>
-          <span style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: 18, color: C.navy, fontWeight: 600 }}>{title}</span>
+          <span style={{ fontFamily: 'Playfair Display,serif', fontSize: 18, color: C.navy, fontWeight: 700 }}>{title}</span>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 22, color: C.textLight, lineHeight: 1 }}>×</button>
         </div>
         <div style={{ padding: '18px 22px' }}>{children}</div>
@@ -1073,7 +1073,7 @@ function DailyView({ data, onUpdate }) {
 }
 
 function EventCard({ evt, isFirst, isLast, isDragging, isOver, onDragStart, onDragOver, onDragLeave, onDrop, onEdit, onDelete, onCycle, onMoveUp, onMoveDown }) {
-  const statusColor = STATUS[evt.status]?.color || C.ivoryDark;
+  const [hovered, setHovered] = useState(false);
   return (
     <div
       draggable
@@ -1081,14 +1081,17 @@ function EventCard({ evt, isFirst, isLast, isDragging, isOver, onDragStart, onDr
       onDragOver={e => { e.preventDefault(); onDragOver(); }}
       onDragLeave={onDragLeave}
       onDrop={e => { e.preventDefault(); onDrop(); }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
         background: isDragging ? C.ivoryMid : C.white,
-        border: `1px solid ${isOver ? C.terracotta : C.ivoryDark}`,
-        borderLeft: `4px solid ${isOver ? C.terracotta : statusColor}`,
-        borderRadius: 4, padding: '10px 13px', marginBottom: 7,
+        border: `1px solid ${isOver ? C.gold : C.ivoryDark}`,
+        borderLeft: `4px solid ${C.gold}`,
+        borderRadius: 12, padding: '12px 14px', marginBottom: 8,
         cursor: 'grab', opacity: isDragging ? 0.45 : 1,
-        transition: 'border-color .15s, box-shadow .15s',
-        boxShadow: isOver ? `0 3px 14px ${C.terracotta}33` : 'none',
+        transition: 'transform .18s ease, box-shadow .18s ease, border-color .15s',
+        boxShadow: hovered ? `0 8px 28px rgba(13,27,42,.13)` : '0 2px 12px rgba(13,27,42,.06)',
+        transform: hovered && !isDragging ? 'translateY(-2px)' : 'translateY(0)',
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, flexWrap: 'wrap' }}>
@@ -1096,7 +1099,7 @@ function EventCard({ evt, isFirst, isLast, isDragging, isOver, onDragStart, onDr
           <span style={{ fontSize: 11, color: C.textLight, fontFamily: 'Inter,sans-serif', fontWeight: 600, minWidth: 62, paddingTop: 2, flexShrink: 0 }}>{evt.time}</span>
           <span style={{ fontSize: 18, flexShrink: 0 }}>{(TYPE[evt.type] || TYPE.other).icon}</span>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: 15, color: C.navy, fontWeight: 600 }}>{evt.title}</div>
+            <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 15, color: C.navy, fontWeight: 600 }}>{evt.title}</div>
             {evt.description && <div style={{ fontSize: 12, color: C.textMid, fontFamily: 'Inter,sans-serif', marginTop: 2 }}>{evt.description}</div>}
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 5 }}>
               {evt.location && <Pill icon="📍" label={evt.location} small />}
@@ -1106,7 +1109,6 @@ function EventCard({ evt, isFirst, isLast, isDragging, isOver, onDragStart, onDr
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
           <StatusBadge status={evt.status} onClick={onCycle} />
-          {/* ↑↓ reorder — works on touch (iPad) where drag-and-drop doesn't fire */}
           <div style={{ display: 'flex', gap: 2 }}>
             <button onClick={onMoveUp} disabled={isFirst} title="Move up" style={{
               background: isFirst ? C.ivoryDark : C.ivoryMid, border: 'none',
@@ -1120,8 +1122,8 @@ function EventCard({ evt, isFirst, isLast, isDragging, isOver, onDragStart, onDr
             }}>↓</button>
           </div>
           <div style={{ display: 'flex', gap: 4 }}>
-            <Btn small variant="ghost" onClick={onEdit}>Edit</Btn>
-            <Btn small variant="danger" onClick={onDelete}>Del</Btn>
+            <button onClick={onEdit} title="Edit" style={{ background: C.ivoryMid, border: `1px solid ${C.ivoryDark}`, borderRadius: 6, width: 30, height: 30, cursor: 'pointer', fontSize: 15, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✏️</button>
+            <button onClick={onDelete} title="Delete" style={{ background: C.red + '14', border: `1px solid ${C.red}33`, borderRadius: 6, width: 30, height: 30, cursor: 'pointer', fontSize: 15, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🗑️</button>
           </div>
         </div>
       </div>
