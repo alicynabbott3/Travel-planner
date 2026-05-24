@@ -742,37 +742,31 @@ function HotelForm({ initial, onSave, onClose }) {
 
 /* ─── DAILY ITINERARY ───────────────────────────────────── */
 function DailyView({ data, onUpdate }) {
-  const [dragSrc, setDragSrc] = useState(null);
+  const [dragSrc, setDragSrc]   = useState(null);
   const [dragOver, setDragOver] = useState(null);
-  const [editEvt, setEditEvt] = useState(null);
+  const [editEvt, setEditEvt]   = useState(null);
   const [confirm, confirmModal] = useConfirm();
-  const dayRefs = useRef([]);
+  const isMobile = useIsMobile();
 
+  const days     = data.days || [];
   const todayStr = new Date().toISOString().split('T')[0];
-  const todayIdx = (data.days || []).findIndex(d => d.date === todayStr);
 
-  const [expanded, setExpanded] = useState(() => {
-    if (todayIdx >= 0) return { [todayIdx]: true };
-    // if before trip, open day 0; if after trip, open last day
-    return { 0: true };
+  const [selIdx, setSelIdx] = useState(() => {
+    const i = days.findIndex(d => d.date === todayStr);
+    return i >= 0 ? i : 0;
   });
 
-  const toggle = i => setExpanded(p => ({ ...p, [i]: !p[i] }));
-  const expandAll  = () => setExpanded(Object.fromEntries((data.days || []).map((_, i) => [i, true])));
-  const collapseAll = () => setExpanded({});
   const blankEvt = { time: '', title: '', description: '', location: '', type: 'activity', status: 'pending', notes: '' };
+  const DOW      = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  // June 15 is Monday → two perfect Mon–Sun weeks
+  const weeks    = [days.slice(0, 7), days.slice(7, 14)];
 
-  const jumpTo = (idx) => {
-    setExpanded(p => ({ ...p, [idx]: true }));
-    setTimeout(() => dayRefs.current[idx]?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
-  };
-
+  /* ── event ops ── */
   const saveEvt = ({ dayIdx, event }) => {
     onUpdate(d => ({
       ...d, lastUpdated: new Date().toISOString(),
       days: d.days.map((day, i) => i !== dayIdx ? day : {
-        ...day,
-        events: event.id
+        ...day, events: event.id
           ? day.events.map(e => e.id === event.id ? event : e)
           : [...day.events, { ...event, id: uid() }],
       }),
@@ -796,13 +790,13 @@ function DailyView({ data, onUpdate }) {
   }));
 
   const moveEvt = (dayIdx, evtIdx, dir) => {
-    const newIdx = evtIdx + dir;
+    const ni = evtIdx + dir;
     onUpdate(d => {
-      const days = d.days.map(day => ({ ...day, events: [...day.events] }));
-      const evts = days[dayIdx].events;
-      if (newIdx < 0 || newIdx >= evts.length) return d;
-      [evts[evtIdx], evts[newIdx]] = [evts[newIdx], evts[evtIdx]];
-      return { ...d, days, lastUpdated: new Date().toISOString() };
+      const ds = d.days.map(day => ({ ...day, events: [...day.events] }));
+      const evts = ds[dayIdx].events;
+      if (ni < 0 || ni >= evts.length) return d;
+      [evts[evtIdx], evts[ni]] = [evts[ni], evts[evtIdx]];
+      return { ...d, days: ds, lastUpdated: new Date().toISOString() };
     });
   };
 
@@ -810,100 +804,217 @@ function DailyView({ data, onUpdate }) {
     if (!dragSrc) return;
     if (dragSrc.dayIdx === toDayIdx && dragSrc.evtIdx === toEvtIdx) { setDragSrc(null); setDragOver(null); return; }
     onUpdate(d => {
-      const days = d.days.map(day => ({ ...day, events: [...day.events] }));
-      const [moved] = days[dragSrc.dayIdx].events.splice(dragSrc.evtIdx, 1);
-      days[toDayIdx].events.splice(toEvtIdx, 0, moved);
-      return { ...d, days, lastUpdated: new Date().toISOString() };
+      const ds = d.days.map(day => ({ ...day, events: [...day.events] }));
+      const [moved] = ds[dragSrc.dayIdx].events.splice(dragSrc.evtIdx, 1);
+      ds[toDayIdx].events.splice(toEvtIdx, 0, moved);
+      return { ...d, days: ds, lastUpdated: new Date().toISOString() };
     });
     setDragSrc(null); setDragOver(null);
   };
 
+  const selDay = days[selIdx];
+
   return (
     <div>
       <SectionHead title="Daily Itinerary" icon="📅" action={
-        <div style={{ display: 'flex', gap: 6 }}>
-          <Btn variant="ghost" small onClick={expandAll}>Expand All</Btn>
-          <Btn variant="ghost" small onClick={collapseAll}>Collapse All</Btn>
-        </div>
+        <Btn variant="ghost" small onClick={() => { const i = days.findIndex(d => d.date === todayStr); if (i >= 0) setSelIdx(i); }}>
+          Today
+        </Btn>
       } />
 
-      {/* Jump-to-day chips */}
-      <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 14, scrollbarWidth: 'none', msOverflowStyle: 'none', marginBottom: 4 }}>
-        {(data.days || []).map((day, idx) => {
-          const isToday = day.date === todayStr;
-          const parts = day.label.split(', ');
-          const short = parts[1] ? parts[1].replace('June ', 'Jun ') : parts[0];
-          return (
-            <button key={day.date} onClick={() => jumpTo(idx)} style={{
-              flexShrink: 0, background: isToday ? C.terracotta : expanded[idx] ? C.navy : C.white,
-              color: (isToday || expanded[idx]) ? C.white : C.textMid,
-              border: `1px solid ${isToday ? C.terracotta : expanded[idx] ? C.navy : C.ivoryDark}`,
-              borderRadius: 20, padding: '4px 12px', fontSize: 11, fontFamily: 'Lato,sans-serif',
-              fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all .15s',
-            }}>{isToday ? '📍 ' : ''}{short}</button>
-          );
-        })}
-      </div>
+      {/* ── CALENDAR GRID ── */}
+      <div style={{ background: C.white, borderRadius: 16, border: `1px solid ${C.ivoryDark}`, overflow: 'hidden', marginBottom: 22, boxShadow: '0 2px 16px rgba(28,45,80,.07)' }}>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-        {(data.days || []).map((day, dayIdx) => (
-          <div key={day.date} ref={el => dayRefs.current[dayIdx] = el}
-            style={{ borderRadius: 18, overflow: 'hidden', border: `1px solid ${day.date === todayStr ? C.terracotta : C.ivoryDark}`, boxShadow: day.date === todayStr ? `0 0 0 2px ${C.terracotta}44, 0 4px 20px rgba(28,45,80,.1)` : '0 4px 20px rgba(28,45,80,.07)' }}>
-            {/* postcard header */}
-            <div onClick={() => toggle(dayIdx)} style={{
-              background: `linear-gradient(135deg, ${C.navy} 0%, ${C.navyMid} 60%, ${C.terracottaD} 100%)`,
-              padding: '14px 20px', cursor: 'pointer',
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        {/* Month header */}
+        <div style={{ background: `linear-gradient(90deg, ${C.navy}, ${C.navyMid})`, padding: '11px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 17, color: C.white, fontWeight: 600, letterSpacing: .3 }}>June 2026</div>
+          <div style={{ fontSize: 11, color: C.goldL, fontFamily: 'Lato,sans-serif' }}>
+            {days.length} days &nbsp;·&nbsp; {days.reduce((s, d) => s + d.events.length, 0)} events
+          </div>
+        </div>
+
+        {/* Day-of-week headers */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', borderBottom: `1px solid ${C.ivoryDark}`, background: C.ivory }}>
+          {DOW.map((d, i) => (
+            <div key={d} style={{
+              textAlign: 'center', padding: '7px 2px',
+              fontSize: 10, fontWeight: 700, letterSpacing: .8, textTransform: 'uppercase',
+              color: i >= 5 ? C.terracotta : C.textLight,
+              fontFamily: 'Lato,sans-serif',
+              borderRight: i < 6 ? `1px solid ${C.ivoryDark}` : 'none',
             }}>
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 18, color: C.white, fontWeight: 700 }}>{day.label}</div>
-                  {day.date === todayStr && <span style={{ background: C.terracotta, color: C.white, fontSize: 10, fontFamily: 'Lato,sans-serif', fontWeight: 700, borderRadius: 10, padding: '2px 8px', textTransform: 'uppercase', letterSpacing: .6 }}>Today</span>}
-                </div>
-                <div style={{ fontSize: 12, color: C.goldL, fontFamily: 'Lato,sans-serif', marginTop: 2 }}>📍 {day.location} &nbsp;·&nbsp; <em>{day.subtitle}</em></div>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <span style={{ background: C.gold + '30', color: C.goldL, borderRadius: 20, padding: '2px 10px', fontSize: 11, fontFamily: 'Lato,sans-serif', fontWeight: 600 }}>{day.events.length} events</span>
-                <span style={{ color: C.gold, fontSize: 16 }}>{expanded[dayIdx] ? '▲' : '▼'}</span>
-              </div>
+              {isMobile ? d[0] : d}
             </div>
+          ))}
+        </div>
 
-            {expanded[dayIdx] && (
-              <div style={{ background: C.ivory, padding: '12px 12px 6px' }}>
-                {day.events.map((evt, evtIdx) => (
-                  <EventCard
-                    key={evt.id} evt={evt}
-                    isFirst={evtIdx === 0}
-                    isLast={evtIdx === day.events.length - 1}
-                    isDragging={dragSrc?.dayIdx === dayIdx && dragSrc?.evtIdx === evtIdx}
-                    isOver={dragOver?.dayIdx === dayIdx && dragOver?.evtIdx === evtIdx}
-                    onDragStart={() => setDragSrc({ dayIdx, evtIdx })}
-                    onDragOver={() => setDragOver({ dayIdx, evtIdx })}
-                    onDragLeave={() => setDragOver(null)}
-                    onDrop={() => onDrop(dayIdx, evtIdx)}
-                    onEdit={() => setEditEvt({ dayIdx, event: evt })}
-                    onDelete={() => delEvt(dayIdx, evt.id, evt.title)}
-                    onCycle={() => cycleEvt(dayIdx, evt.id)}
-                    onMoveUp={() => moveEvt(dayIdx, evtIdx, -1)}
-                    onMoveDown={() => moveEvt(dayIdx, evtIdx, 1)}
-                  />
-                ))}
+        {/* Two week rows */}
+        {weeks.map((week, wIdx) => (
+          <div key={wIdx} style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', borderBottom: wIdx === 0 ? `1px solid ${C.ivoryDark}` : 'none' }}>
+            {week.map((day, dIdx) => {
+              const globalIdx  = wIdx * 7 + dIdx;
+              const isToday    = day.date === todayStr;
+              const isSel      = globalIdx === selIdx;
+              const isPast     = day.date < todayStr && !isToday;
+              const maxIcons   = isMobile ? 3 : 5;
+              const typeIcons  = [...new Set(day.events.map(e => (TYPE[e.type] || TYPE.other).icon))].slice(0, maxIcons);
+              const overflow   = day.events.length > maxIcons ? day.events.length - maxIcons : 0;
+              const isWeekend  = dIdx >= 5;
+
+              return (
                 <div
-                  onDragOver={e => { e.preventDefault(); setDragOver({ dayIdx, evtIdx: day.events.length }); }}
-                  onDrop={e => { e.preventDefault(); onDrop(dayIdx, day.events.length); }}
-                  onDragLeave={() => setDragOver(null)}
-                  style={{ height: 8, borderRadius: 4, transition: 'background .15s', marginBottom: 4, background: dragOver?.dayIdx === dayIdx && dragOver?.evtIdx === day.events.length ? C.terracottaL + '66' : 'transparent' }}
-                />
-                <Btn variant="ghost" small style={{ marginTop: 2, marginBottom: 8 }} onClick={() => setEditEvt({ dayIdx, event: blankEvt })}>+ Add Event</Btn>
-              </div>
-            )}
+                  key={day.date}
+                  onClick={() => setSelIdx(globalIdx)}
+                  style={{
+                    padding: isMobile ? '7px 4px 6px' : '10px 8px 8px',
+                    cursor: 'pointer',
+                    background: isSel ? C.navy : isToday ? C.terracotta + '14' : isWeekend ? C.ivoryMid + '60' : 'transparent',
+                    borderRight: dIdx < 6 ? `1px solid ${C.ivoryDark}` : 'none',
+                    transition: 'background .12s',
+                    minHeight: isMobile ? 74 : 90,
+                    display: 'flex', flexDirection: 'column',
+                    outline: isSel ? `2px solid ${C.gold}` : isToday && !isSel ? `2px solid ${C.terracotta}` : 'none',
+                    outlineOffset: -2,
+                    position: 'relative',
+                  }}
+                >
+                  {/* Date number circle */}
+                  <div style={{
+                    width: isMobile ? 22 : 26, height: isMobile ? 22 : 26,
+                    borderRadius: '50%',
+                    background: isToday ? C.terracotta : isSel ? C.gold : 'transparent',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontFamily: 'Playfair Display,serif',
+                    fontSize: isMobile ? 13 : 15, fontWeight: 700,
+                    color: isToday || isSel ? C.white : isPast ? C.textLight : C.navy,
+                    flexShrink: 0, marginBottom: 3,
+                  }}>
+                    {new Date(day.date + 'T12:00:00').getDate()}
+                  </div>
+
+                  {/* Location — desktop only */}
+                  {!isMobile && (
+                    <div style={{
+                      fontSize: 9, lineHeight: 1.2, marginBottom: 4,
+                      color: isSel ? C.goldL : C.textLight,
+                      fontFamily: 'Lato,sans-serif',
+                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                      maxWidth: '100%',
+                    }}>
+                      {day.location.split(/[,→·]/)[0].trim()}
+                    </div>
+                  )}
+
+                  {/* Event type icons */}
+                  <div style={{ marginTop: 'auto', display: 'flex', flexWrap: 'wrap', gap: 1, alignItems: 'center' }}>
+                    {typeIcons.map((icon, i) => (
+                      <span key={i} style={{ fontSize: isMobile ? 10 : 12, lineHeight: 1 }}>{icon}</span>
+                    ))}
+                    {overflow > 0 && (
+                      <span style={{ fontSize: 9, color: isSel ? C.goldL : C.textLight, fontFamily: 'Lato,sans-serif', fontWeight: 700 }}>+{overflow}</span>
+                    )}
+                  </div>
+
+                  {/* Event count dot */}
+                  {day.events.length > 0 && (
+                    <div style={{
+                      position: 'absolute', top: 5, right: 5,
+                      width: 16, height: 16, borderRadius: '50%',
+                      background: isSel ? C.white + '22' : C.ivoryDark,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 9, fontFamily: 'Lato,sans-serif', fontWeight: 700,
+                      color: isSel ? C.goldL : C.textLight,
+                    }}>
+                      {day.events.length}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         ))}
       </div>
+
+      {/* ── SELECTED DAY PANEL ── */}
+      {selDay && (
+        <div style={{
+          borderRadius: 18, overflow: 'hidden',
+          border: `1px solid ${selDay.date === todayStr ? C.terracotta : C.ivoryDark}`,
+          boxShadow: selDay.date === todayStr
+            ? `0 0 0 2px ${C.terracotta}44, 0 6px 24px rgba(28,45,80,.12)`
+            : '0 4px 20px rgba(28,45,80,.08)',
+        }}>
+          {/* Day header with prev / next */}
+          <div style={{
+            background: `linear-gradient(135deg, ${C.navy} 0%, ${C.navyMid} 60%, ${C.terracottaD} 100%)`,
+            padding: '13px 16px',
+            display: 'flex', alignItems: 'center', gap: 10,
+          }}>
+            <button onClick={() => setSelIdx(i => Math.max(0, i - 1))} disabled={selIdx === 0}
+              style={{ background: 'none', border: `1px solid ${C.white}44`, borderRadius: 8, color: selIdx === 0 ? C.white + '33' : C.white, width: 34, height: 34, fontSize: 18, cursor: selIdx === 0 ? 'default' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              ‹
+            </button>
+
+            <div style={{ flex: 1, textAlign: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, flexWrap: 'wrap' }}>
+                <span style={{ fontFamily: 'Playfair Display,serif', fontSize: isMobile ? 15 : 18, color: C.white, fontWeight: 700 }}>{selDay.label}</span>
+                {selDay.date === todayStr && (
+                  <span style={{ background: C.terracotta, color: C.white, fontSize: 10, fontFamily: 'Lato,sans-serif', fontWeight: 700, borderRadius: 10, padding: '2px 8px', textTransform: 'uppercase', letterSpacing: .6 }}>Today</span>
+                )}
+              </div>
+              <div style={{ fontSize: 12, color: C.goldL, fontFamily: 'Lato,sans-serif', marginTop: 3 }}>
+                📍 {selDay.location} &nbsp;·&nbsp; <em>{selDay.subtitle}</em>
+              </div>
+            </div>
+
+            <button onClick={() => setSelIdx(i => Math.min(days.length - 1, i + 1))} disabled={selIdx === days.length - 1}
+              style={{ background: 'none', border: `1px solid ${C.white}44`, borderRadius: 8, color: selIdx === days.length - 1 ? C.white + '33' : C.white, width: 34, height: 34, fontSize: 18, cursor: selIdx === days.length - 1 ? 'default' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              ›
+            </button>
+          </div>
+
+          {/* Event list */}
+          <div style={{ background: C.ivory, padding: '12px 12px 6px' }}>
+            {selDay.events.length === 0 && (
+              <div style={{ textAlign: 'center', padding: '28px 0 20px', color: C.textLight, fontFamily: 'Lato,sans-serif', fontSize: 14, fontStyle: 'italic' }}>
+                No events yet — add one below
+              </div>
+            )}
+            {selDay.events.map((evt, evtIdx) => (
+              <EventCard
+                key={evt.id} evt={evt}
+                isFirst={evtIdx === 0}
+                isLast={evtIdx === selDay.events.length - 1}
+                isDragging={dragSrc?.dayIdx === selIdx && dragSrc?.evtIdx === evtIdx}
+                isOver={dragOver?.dayIdx === selIdx && dragOver?.evtIdx === evtIdx}
+                onDragStart={() => setDragSrc({ dayIdx: selIdx, evtIdx })}
+                onDragOver={() => setDragOver({ dayIdx: selIdx, evtIdx })}
+                onDragLeave={() => setDragOver(null)}
+                onDrop={() => onDrop(selIdx, evtIdx)}
+                onEdit={() => setEditEvt({ dayIdx: selIdx, event: evt })}
+                onDelete={() => delEvt(selIdx, evt.id, evt.title)}
+                onCycle={() => cycleEvt(selIdx, evt.id)}
+                onMoveUp={() => moveEvt(selIdx, evtIdx, -1)}
+                onMoveDown={() => moveEvt(selIdx, evtIdx, 1)}
+              />
+            ))}
+            <div
+              onDragOver={e => { e.preventDefault(); setDragOver({ dayIdx: selIdx, evtIdx: selDay.events.length }); }}
+              onDrop={e => { e.preventDefault(); onDrop(selIdx, selDay.events.length); }}
+              onDragLeave={() => setDragOver(null)}
+              style={{ height: 8, borderRadius: 4, transition: 'background .15s', marginBottom: 4, background: dragOver?.dayIdx === selIdx && dragOver?.evtIdx === selDay.events.length ? C.terracottaL + '66' : 'transparent' }}
+            />
+            <Btn variant="ghost" small style={{ marginTop: 2, marginBottom: 8 }} onClick={() => setEditEvt({ dayIdx: selIdx, event: blankEvt })}>
+              + Add Event
+            </Btn>
+          </div>
+        </div>
+      )}
+
       {editEvt && (
         <EvtForm
           initial={editEvt.event}
-          title={`${editEvt.event.id ? 'Edit' : 'Add'} — ${data.days[editEvt.dayIdx]?.label}`}
+          title={`${editEvt.event.id ? 'Edit' : 'Add'} — ${days[editEvt.dayIdx]?.label}`}
           onSave={(evt) => saveEvt({ dayIdx: editEvt.dayIdx, event: evt })}
           onClose={() => setEditEvt(null)}
         />
