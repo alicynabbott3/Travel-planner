@@ -379,6 +379,17 @@ function useSharedStorage(key, fallback) {
   return [data, save];
 }
 
+/* ─── HOOKS ─────────────────────────────────────────────── */
+function useIsMobile(bp = 640) {
+  const [is, setIs] = useState(() => window.innerWidth < bp);
+  useEffect(() => {
+    const h = () => setIs(window.innerWidth < bp);
+    window.addEventListener('resize', h);
+    return () => window.removeEventListener('resize', h);
+  }, [bp]);
+  return is;
+}
+
 /* ─── MICRO COMPONENTS ──────────────────────────────────── */
 function StatusBadge({ status, onClick }) {
   const s = STATUS[status] || STATUS.pending;
@@ -425,6 +436,28 @@ function Btn({ children, onClick, variant = 'ghost', small, style: sx }) {
       fontSize: small ? 12 : 13, padding: small ? '4px 10px' : '7px 14px',
       transition: 'all .15s', ...v[variant], ...sx,
     }}>{children}</button>
+  );
+}
+
+function CopyBtn({ value }) {
+  const [copied, setCopied] = useState(false);
+  const copy = () => {
+    const write = navigator.clipboard?.writeText(value);
+    const ok = () => { setCopied(true); setTimeout(() => setCopied(false), 1800); };
+    if (write) { write.then(ok).catch(ok); } else {
+      const ta = Object.assign(document.createElement('textarea'), { value });
+      document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+      document.body.removeChild(ta); ok();
+    }
+  };
+  return (
+    <button onClick={copy} title={`Copy ${value}`} style={{
+      background: copied ? C.green + '20' : C.ivoryMid,
+      border: `1px solid ${copied ? C.green + '55' : C.ivoryDark}`,
+      borderRadius: 6, cursor: 'pointer', fontSize: 11, padding: '2px 8px',
+      color: copied ? C.green : C.textMid, fontFamily: 'Lato,sans-serif',
+      fontWeight: 600, transition: 'all .2s', whiteSpace: 'nowrap',
+    }}>{copied ? '✓ Copied' : '📋'}</button>
   );
 }
 
@@ -511,9 +544,36 @@ function Field({ label, name, value, onChange, type = 'text', options, rows }) {
   );
 }
 
+/* ─── CONFIRM MODAL ─────────────────────────────────────── */
+function ConfirmModal({ message, onConfirm, onCancel }) {
+  return (
+    <Modal title="Are you sure?" onClose={onCancel}>
+      <p style={{ fontFamily: 'Lato,sans-serif', fontSize: 14, color: C.text, margin: '0 0 22px', lineHeight: 1.6 }}>{message}</p>
+      <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+        <Btn variant="ghost" onClick={onCancel}>Cancel</Btn>
+        <Btn variant="danger" onClick={onConfirm}>Delete</Btn>
+      </div>
+    </Modal>
+  );
+}
+
+function useConfirm() {
+  const [pending, setPending] = useState(null);
+  const confirm = (message) => new Promise(resolve => setPending({ message, resolve }));
+  const modal = pending ? (
+    <ConfirmModal
+      message={pending.message}
+      onConfirm={() => { pending.resolve(true);  setPending(null); }}
+      onCancel={()  => { pending.resolve(false); setPending(null); }}
+    />
+  ) : null;
+  return [confirm, modal];
+}
+
 /* ─── FLIGHTS VIEW ──────────────────────────────────────── */
 function FlightsView({ data, onUpdate }) {
   const [editItem, setEditItem] = useState(null);
+  const [confirm, confirmModal] = useConfirm();
   const blank = { airline: '', numbers: '', route: '', date: '', departure: '', arrival: '', confirmation: '', passengers: '', status: 'confirmed', notes: '' };
 
   const save = (item) => {
@@ -525,7 +585,10 @@ function FlightsView({ data, onUpdate }) {
     });
     setEditItem(null);
   };
-  const del = (id) => onUpdate(d => ({ ...d, flights: d.flights.filter(f => f.id !== id), lastUpdated: new Date().toISOString() }));
+  const del = async (id, label) => {
+    if (await confirm(`Delete "${label}"? This cannot be undone.`))
+      onUpdate(d => ({ ...d, flights: d.flights.filter(f => f.id !== id), lastUpdated: new Date().toISOString() }));
+  };
   const cycle = (id) => onUpdate(d => ({ ...d, lastUpdated: new Date().toISOString(), flights: d.flights.map(f => f.id === id ? { ...f, status: nextStatus(f.status) } : f) }));
 
   return (
@@ -546,17 +609,18 @@ function FlightsView({ data, onUpdate }) {
                   <Pill icon="🛫" label={f.departure} />
                   <Pill icon="🛬" label={f.arrival} />
                 </div>
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
                   <Pill icon="🔑" label={f.confirmation} mono />
+                  {f.confirmation && <CopyBtn value={f.confirmation} />}
                   <Pill icon="👥" label={f.passengers} />
                 </div>
-                {f.notes && <div style={{ marginTop: 8, fontSize: 12, color: C.textMid, fontFamily: 'Lato,sans-serif', fontStyle: 'italic' }}>{f.notes}</div>}
+                {f.notes && <div style={{ marginTop: 8, padding: '6px 10px', background: C.gold + '18', borderLeft: `3px solid ${C.gold}`, borderRadius: 6, fontSize: 12, color: C.textMid, fontFamily: 'Lato,sans-serif' }}>{f.notes}</div>}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8, flexShrink: 0 }}>
                 <StatusBadge status={f.status} onClick={() => cycle(f.id)} />
                 <div style={{ display: 'flex', gap: 6 }}>
                   <Btn small variant="ghost" onClick={() => setEditItem(f)}>Edit</Btn>
-                  <Btn small variant="danger" onClick={() => del(f.id)}>Del</Btn>
+                  <Btn small variant="danger" onClick={() => del(f.id, `${f.airline} ${f.route}`)}>Del</Btn>
                 </div>
               </div>
             </div>
@@ -564,6 +628,7 @@ function FlightsView({ data, onUpdate }) {
         ))}
       </div>
       {editItem && <FlightForm initial={editItem} onSave={save} onClose={() => setEditItem(null)} />}
+      {confirmModal}
     </div>
   );
 }
@@ -594,6 +659,7 @@ function FlightForm({ initial, onSave, onClose }) {
 /* ─── HOTELS VIEW ───────────────────────────────────────── */
 function HotelsView({ data, onUpdate }) {
   const [editItem, setEditItem] = useState(null);
+  const [confirm, confirmModal] = useConfirm();
   const blank = { name: '', address: '', checkIn: '', checkOut: '', nights: '', room: '', guests: '', confirmation: '', status: 'confirmed', notes: '' };
 
   const save = (item) => {
@@ -603,7 +669,10 @@ function HotelsView({ data, onUpdate }) {
     });
     setEditItem(null);
   };
-  const del = (id) => onUpdate(d => ({ ...d, hotels: d.hotels.filter(h => h.id !== id), lastUpdated: new Date().toISOString() }));
+  const del = async (id, label) => {
+    if (await confirm(`Delete "${label}"? This cannot be undone.`))
+      onUpdate(d => ({ ...d, hotels: d.hotels.filter(h => h.id !== id), lastUpdated: new Date().toISOString() }));
+  };
   const cycle = (id) => onUpdate(d => ({ ...d, lastUpdated: new Date().toISOString(), hotels: d.hotels.map(h => h.id === id ? { ...h, status: nextStatus(h.status) } : h) }));
 
   return (
@@ -625,14 +694,17 @@ function HotelsView({ data, onUpdate }) {
                   <Pill icon="🛏️" label={h.room} />
                   <Pill icon="👥" label={`${h.guests} guests`} />
                 </div>
-                <Pill icon="🔑" label={h.confirmation} mono />
-                {h.notes && <div style={{ marginTop: 8, fontSize: 12, color: C.textMid, fontFamily: 'Lato,sans-serif', fontStyle: 'italic' }}>{h.notes}</div>}
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                  <Pill icon="🔑" label={h.confirmation} mono />
+                  {h.confirmation && <CopyBtn value={h.confirmation} />}
+                </div>
+                {h.notes && <div style={{ marginTop: 8, padding: '6px 10px', background: C.gold + '18', borderLeft: `3px solid ${C.gold}`, borderRadius: 6, fontSize: 12, color: C.textMid, fontFamily: 'Lato,sans-serif' }}>{h.notes}</div>}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8, flexShrink: 0 }}>
                 <StatusBadge status={h.status} onClick={() => cycle(h.id)} />
                 <div style={{ display: 'flex', gap: 6 }}>
                   <Btn small variant="ghost" onClick={() => setEditItem(h)}>Edit</Btn>
-                  <Btn small variant="danger" onClick={() => del(h.id)}>Del</Btn>
+                  <Btn small variant="danger" onClick={() => del(h.id, h.name)}>Del</Btn>
                 </div>
               </div>
             </div>
@@ -640,6 +712,7 @@ function HotelsView({ data, onUpdate }) {
         ))}
       </div>
       {editItem && <HotelForm initial={editItem} onSave={save} onClose={() => setEditItem(null)} />}
+      {confirmModal}
     </div>
   );
 }
@@ -671,11 +744,28 @@ function HotelForm({ initial, onSave, onClose }) {
 function DailyView({ data, onUpdate }) {
   const [dragSrc, setDragSrc] = useState(null);
   const [dragOver, setDragOver] = useState(null);
-  const [editEvt, setEditEvt] = useState(null); // {dayIdx, event}
-  const [expanded, setExpanded] = useState(() => Object.fromEntries((data.days || []).map((_, i) => [i, true])));
+  const [editEvt, setEditEvt] = useState(null);
+  const [confirm, confirmModal] = useConfirm();
+  const dayRefs = useRef([]);
+
+  const todayStr = new Date().toISOString().split('T')[0];
+  const todayIdx = (data.days || []).findIndex(d => d.date === todayStr);
+
+  const [expanded, setExpanded] = useState(() => {
+    if (todayIdx >= 0) return { [todayIdx]: true };
+    // if before trip, open day 0; if after trip, open last day
+    return { 0: true };
+  });
 
   const toggle = i => setExpanded(p => ({ ...p, [i]: !p[i] }));
+  const expandAll  = () => setExpanded(Object.fromEntries((data.days || []).map((_, i) => [i, true])));
+  const collapseAll = () => setExpanded({});
   const blankEvt = { time: '', title: '', description: '', location: '', type: 'activity', status: 'pending', notes: '' };
+
+  const jumpTo = (idx) => {
+    setExpanded(p => ({ ...p, [idx]: true }));
+    setTimeout(() => dayRefs.current[idx]?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+  };
 
   const saveEvt = ({ dayIdx, event }) => {
     onUpdate(d => ({
@@ -690,10 +780,13 @@ function DailyView({ data, onUpdate }) {
     setEditEvt(null);
   };
 
-  const delEvt = (dayIdx, id) => onUpdate(d => ({
-    ...d, lastUpdated: new Date().toISOString(),
-    days: d.days.map((day, i) => i !== dayIdx ? day : { ...day, events: day.events.filter(e => e.id !== id) }),
-  }));
+  const delEvt = async (dayIdx, id, title) => {
+    if (await confirm(`Delete "${title}"? This cannot be undone.`))
+      onUpdate(d => ({
+        ...d, lastUpdated: new Date().toISOString(),
+        days: d.days.map((day, i) => i !== dayIdx ? day : { ...day, events: day.events.filter(e => e.id !== id) }),
+      }));
+  };
 
   const cycleEvt = (dayIdx, id) => onUpdate(d => ({
     ...d, lastUpdated: new Date().toISOString(),
@@ -727,10 +820,35 @@ function DailyView({ data, onUpdate }) {
 
   return (
     <div>
-      <SectionHead title="Daily Itinerary" icon="📅" />
+      <SectionHead title="Daily Itinerary" icon="📅" action={
+        <div style={{ display: 'flex', gap: 6 }}>
+          <Btn variant="ghost" small onClick={expandAll}>Expand All</Btn>
+          <Btn variant="ghost" small onClick={collapseAll}>Collapse All</Btn>
+        </div>
+      } />
+
+      {/* Jump-to-day chips */}
+      <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 14, scrollbarWidth: 'none', msOverflowStyle: 'none', marginBottom: 4 }}>
+        {(data.days || []).map((day, idx) => {
+          const isToday = day.date === todayStr;
+          const parts = day.label.split(', ');
+          const short = parts[1] ? parts[1].replace('June ', 'Jun ') : parts[0];
+          return (
+            <button key={day.date} onClick={() => jumpTo(idx)} style={{
+              flexShrink: 0, background: isToday ? C.terracotta : expanded[idx] ? C.navy : C.white,
+              color: (isToday || expanded[idx]) ? C.white : C.textMid,
+              border: `1px solid ${isToday ? C.terracotta : expanded[idx] ? C.navy : C.ivoryDark}`,
+              borderRadius: 20, padding: '4px 12px', fontSize: 11, fontFamily: 'Lato,sans-serif',
+              fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all .15s',
+            }}>{isToday ? '📍 ' : ''}{short}</button>
+          );
+        })}
+      </div>
+
       <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
         {(data.days || []).map((day, dayIdx) => (
-          <div key={day.date} style={{ borderRadius: 18, overflow: 'hidden', border: `1px solid ${C.ivoryDark}`, boxShadow: '0 4px 20px rgba(28,45,80,.07)' }}>
+          <div key={day.date} ref={el => dayRefs.current[dayIdx] = el}
+            style={{ borderRadius: 18, overflow: 'hidden', border: `1px solid ${day.date === todayStr ? C.terracotta : C.ivoryDark}`, boxShadow: day.date === todayStr ? `0 0 0 2px ${C.terracotta}44, 0 4px 20px rgba(28,45,80,.1)` : '0 4px 20px rgba(28,45,80,.07)' }}>
             {/* postcard header */}
             <div onClick={() => toggle(dayIdx)} style={{
               background: `linear-gradient(135deg, ${C.navy} 0%, ${C.navyMid} 60%, ${C.terracottaD} 100%)`,
@@ -738,7 +856,10 @@ function DailyView({ data, onUpdate }) {
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
             }}>
               <div>
-                <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 18, color: C.white, fontWeight: 700 }}>{day.label}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 18, color: C.white, fontWeight: 700 }}>{day.label}</div>
+                  {day.date === todayStr && <span style={{ background: C.terracotta, color: C.white, fontSize: 10, fontFamily: 'Lato,sans-serif', fontWeight: 700, borderRadius: 10, padding: '2px 8px', textTransform: 'uppercase', letterSpacing: .6 }}>Today</span>}
+                </div>
                 <div style={{ fontSize: 12, color: C.goldL, fontFamily: 'Lato,sans-serif', marginTop: 2 }}>📍 {day.location} &nbsp;·&nbsp; <em>{day.subtitle}</em></div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -761,13 +882,12 @@ function DailyView({ data, onUpdate }) {
                     onDragLeave={() => setDragOver(null)}
                     onDrop={() => onDrop(dayIdx, evtIdx)}
                     onEdit={() => setEditEvt({ dayIdx, event: evt })}
-                    onDelete={() => delEvt(dayIdx, evt.id)}
+                    onDelete={() => delEvt(dayIdx, evt.id, evt.title)}
                     onCycle={() => cycleEvt(dayIdx, evt.id)}
                     onMoveUp={() => moveEvt(dayIdx, evtIdx, -1)}
                     onMoveDown={() => moveEvt(dayIdx, evtIdx, 1)}
                   />
                 ))}
-                {/* drop zone at end */}
                 <div
                   onDragOver={e => { e.preventDefault(); setDragOver({ dayIdx, evtIdx: day.events.length }); }}
                   onDrop={e => { e.preventDefault(); onDrop(dayIdx, day.events.length); }}
@@ -788,6 +908,7 @@ function DailyView({ data, onUpdate }) {
           onClose={() => setEditEvt(null)}
         />
       )}
+      {confirmModal}
     </div>
   );
 }
@@ -820,8 +941,8 @@ function EventCard({ evt, isFirst, isLast, isDragging, isOver, onDragStart, onDr
             {evt.description && <div style={{ fontSize: 12, color: C.textMid, fontFamily: 'Lato,sans-serif', marginTop: 2 }}>{evt.description}</div>}
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 5 }}>
               {evt.location && <Pill icon="📍" label={evt.location} small />}
-              {evt.notes && <Pill icon="📝" label={evt.notes} small />}
             </div>
+            {evt.notes && <div style={{ marginTop: 6, padding: '5px 9px', background: C.gold + '1A', borderLeft: `3px solid ${C.gold}`, borderRadius: '0 6px 6px 0', fontSize: 12, color: C.textMid, fontFamily: 'Lato,sans-serif', lineHeight: 1.5 }}>📝 {evt.notes}</div>}
           </div>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
@@ -872,6 +993,7 @@ function EvtForm({ initial, title, onSave, onClose }) {
 /* ─── RESTAURANTS VIEW ──────────────────────────────────── */
 function RestaurantsView({ data, onUpdate }) {
   const [editItem, setEditItem] = useState(null);
+  const [confirm, confirmModal] = useConfirm();
   const blank = { name: '', cuisine: '', city: '', date: '', time: '', status: 'confirmed', notes: '' };
 
   const save = (item) => {
@@ -881,7 +1003,10 @@ function RestaurantsView({ data, onUpdate }) {
     });
     setEditItem(null);
   };
-  const del = (id) => onUpdate(d => ({ ...d, restaurants: d.restaurants.filter(r => r.id !== id), lastUpdated: new Date().toISOString() }));
+  const del = async (id, name) => {
+    if (await confirm(`Remove "${name}" from the list?`))
+      onUpdate(d => ({ ...d, restaurants: d.restaurants.filter(r => r.id !== id), lastUpdated: new Date().toISOString() }));
+  };
   const cycle = (id) => onUpdate(d => ({ ...d, lastUpdated: new Date().toISOString(), restaurants: d.restaurants.map(r => r.id === id ? { ...r, status: nextStatus(r.status) } : r) }));
 
   return (
@@ -907,7 +1032,7 @@ function RestaurantsView({ data, onUpdate }) {
                 <StatusBadge status={r.status} onClick={() => cycle(r.id)} />
                 <div style={{ display: 'flex', gap: 4 }}>
                   <Btn small variant="ghost" onClick={() => setEditItem(r)}>Edit</Btn>
-                  <Btn small variant="danger" onClick={() => del(r.id)}>Del</Btn>
+                  <Btn small variant="danger" onClick={() => del(r.id, r.name)}>Del</Btn>
                 </div>
               </div>
             </div>
@@ -915,6 +1040,7 @@ function RestaurantsView({ data, onUpdate }) {
         ))}
       </div>
       {editItem && <RestForm initial={editItem} onSave={save} onClose={() => setEditItem(null)} />}
+      {confirmModal}
     </div>
   );
 }
@@ -943,11 +1069,15 @@ function RestForm({ initial, onSave, onClose }) {
 function TodoView({ data, onUpdate }) {
   const [newTask, setNewTask] = useState('');
   const [newCat, setNewCat] = useState('General');
+  const [confirm, confirmModal] = useConfirm();
 
   const allCats = [...new Set([...(data.todos || []).map(t => t.cat), 'Documents', 'Money', 'Cruise', 'Activities', 'Packing', 'General'])].filter(Boolean);
 
   const toggle = (id) => onUpdate(d => ({ ...d, lastUpdated: new Date().toISOString(), todos: d.todos.map(t => t.id === id ? { ...t, done: !t.done } : t) }));
-  const del = (id) => onUpdate(d => ({ ...d, todos: d.todos.filter(t => t.id !== id), lastUpdated: new Date().toISOString() }));
+  const del = async (id, task) => {
+    if (await confirm(`Delete "${task}"?`))
+      onUpdate(d => ({ ...d, todos: d.todos.filter(t => t.id !== id), lastUpdated: new Date().toISOString() }));
+  };
   const add = () => {
     if (!newTask.trim()) return;
     onUpdate(d => ({ ...d, lastUpdated: new Date().toISOString(), todos: [...d.todos, { id: uid(), cat: newCat, task: newTask.trim(), done: false }] }));
@@ -985,7 +1115,7 @@ function TodoView({ data, onUpdate }) {
               <input type="checkbox" checked={t.done} onChange={() => toggle(t.id)}
                 style={{ width: 18, height: 18, cursor: 'pointer', accentColor: C.terracotta, flexShrink: 0 }} />
               <span style={{ flex: 1, fontFamily: 'Lato,sans-serif', fontSize: 14, color: t.done ? C.textLight : C.text, textDecoration: t.done ? 'line-through' : 'none' }}>{t.task}</span>
-              <button onClick={() => del(t.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.textLight, fontSize: 18, flexShrink: 0 }}>×</button>
+              <button onClick={() => del(t.id, t.task)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.textLight, fontSize: 18, flexShrink: 0 }}>×</button>
             </div>
           ))}
         </div>
@@ -1004,14 +1134,18 @@ function TodoView({ data, onUpdate }) {
           <Btn variant="primary" onClick={add}>Add</Btn>
         </div>
       </Card>
+      {confirmModal}
     </div>
   );
 }
 
 /* ─── BUDGET VIEW ───────────────────────────────────────── */
+const BUDGET_CATS = ['Flights', 'Accommodation', 'Cruise', 'Activities', 'Food & Dining', 'Transfers', 'Insurance', 'Other'];
+
 function BudgetView({ data, onUpdate }) {
   const [editItem, setEditItem] = useState(null);
-  const blank = { description: '', paidBy: 'Split', felicia: '', alicyn: '', notes: '' };
+  const [confirm, confirmModal] = useConfirm();
+  const blank = { description: '', category: 'Other', paidBy: 'Split', felicia: '', alicyn: '', notes: '' };
 
   const save = (item) => {
     onUpdate(d => {
@@ -1020,17 +1154,37 @@ function BudgetView({ data, onUpdate }) {
     });
     setEditItem(null);
   };
-  const del = (id) => onUpdate(d => ({ ...d, budget: { ...d.budget, items: d.budget.items.filter(b => b.id !== id) }, lastUpdated: new Date().toISOString() }));
+  const del = async (id, desc) => {
+    if (await confirm(`Delete "${desc}"?`))
+      onUpdate(d => ({ ...d, budget: { ...d.budget, items: d.budget.items.filter(b => b.id !== id) }, lastUpdated: new Date().toISOString() }));
+  };
   const setTotal = (field, val) => onUpdate(d => ({ ...d, budget: { ...d.budget, totals: { ...d.budget.totals, [field]: parseFloat(val) || 0 } }, lastUpdated: new Date().toISOString() }));
 
   const { totals, items } = data.budget;
   const grandTotal = (totals.felicia || 0) + (totals.alicyn || 0);
+  const equalShare = grandTotal / 2;
+  const diff = (totals.alicyn || 0) - equalShare;
+  const settlement = diff > 0.005
+    ? `Felicia owes Alicyn $${diff.toFixed(2)}`
+    : diff < -0.005
+    ? `Alicyn owes Felicia $${Math.abs(diff).toFixed(2)}`
+    : 'All square! ✓';
+  const feliciaPct = grandTotal ? ((totals.felicia || 0) / grandTotal * 100) : 50;
+
+  // per-category subtotals from items that have dollar amounts
+  const catTotals = BUDGET_CATS.map(cat => {
+    const catItems = items.filter(it => (it.category || 'Other') === cat);
+    const f = catItems.reduce((s, it) => s + (parseFloat(it.felicia) || 0), 0);
+    const a = catItems.reduce((s, it) => s + (parseFloat(it.alicyn) || 0), 0);
+    return { cat, f, a, total: f + a, count: catItems.length };
+  }).filter(x => x.count > 0);
 
   return (
     <div>
       <SectionHead title="Budget Summary" icon="💰" action={<Btn variant="primary" small onClick={() => setEditItem(blank)}>+ Add Item</Btn>} />
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 14, marginBottom: 26 }}>
+      {/* Totals cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 14, marginBottom: 18 }}>
         {[{ label: 'Felicia Paid', key: 'felicia', color: C.terracotta }, { label: 'Alicyn Paid', key: 'alicyn', color: C.navy }].map(({ label, key, color }) => (
           <Card key={key} style={{ textAlign: 'center', padding: '18px 14px', borderTop: `4px solid ${color}` }}>
             <div style={{ fontSize: 11, color: C.textLight, fontFamily: 'Lato,sans-serif', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>{label}</div>
@@ -1047,11 +1201,49 @@ function BudgetView({ data, onUpdate }) {
         </Card>
       </div>
 
+      {/* Visual split + settlement */}
+      <Card style={{ marginBottom: 22, padding: '16px 20px' }}>
+        <div style={{ fontFamily: 'Lato,sans-serif', fontSize: 11, textTransform: 'uppercase', letterSpacing: 1, color: C.textLight, marginBottom: 8 }}>Who Paid What</div>
+        <div style={{ display: 'flex', height: 14, borderRadius: 7, overflow: 'hidden', marginBottom: 8 }}>
+          <div style={{ width: `${feliciaPct}%`, background: C.terracotta, transition: 'width .4s' }} />
+          <div style={{ flex: 1, background: C.navy }} />
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontFamily: 'Lato,sans-serif', color: C.textMid, marginBottom: 10 }}>
+          <span style={{ color: C.terracotta, fontWeight: 600 }}>Felicia {feliciaPct.toFixed(1)}%</span>
+          <span style={{ color: C.navy, fontWeight: 600 }}>Alicyn {(100 - feliciaPct).toFixed(1)}%</span>
+        </div>
+        <div style={{ borderTop: `1px solid ${C.ivoryDark}`, paddingTop: 10, fontFamily: 'Lato,sans-serif', fontSize: 13 }}>
+          <span style={{ color: C.textMid }}>Equal split = ${equalShare.toFixed(2)} each — </span>
+          <span style={{ color: diff > 0 ? C.terracotta : diff < 0 ? C.navy : C.green, fontWeight: 700 }}>{settlement}</span>
+        </div>
+      </Card>
+
+      {/* Per-category subtotals */}
+      {catTotals.length > 0 && (
+        <div style={{ marginBottom: 22 }}>
+          <SubHead>By Category</SubHead>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(175px, 1fr))', gap: 8 }}>
+            {catTotals.map(({ cat, f, a, total }) => (
+              <div key={cat} style={{ background: C.white, borderRadius: 10, padding: '10px 14px', border: `1px solid ${C.ivoryDark}` }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: C.textMid, fontFamily: 'Lato,sans-serif', textTransform: 'uppercase', letterSpacing: .6, marginBottom: 4 }}>{cat}</div>
+                <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 16, color: C.navy, fontWeight: 700 }}>${total.toFixed(2)}</div>
+                {(f > 0 || a > 0) && (
+                  <div style={{ fontSize: 11, color: C.textLight, fontFamily: 'Lato,sans-serif', marginTop: 2 }}>
+                    {f > 0 && <span style={{ color: C.terracotta }}>F ${f.toFixed(0)} </span>}
+                    {a > 0 && <span style={{ color: C.navyMid }}>A ${a.toFixed(0)}</span>}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div style={{ overflowX: 'auto', borderRadius: 12, overflow: 'hidden', border: `1px solid ${C.ivoryDark}` }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'Lato,sans-serif', fontSize: 13 }}>
           <thead>
             <tr style={{ background: C.navy }}>
-              {['Description', 'Paid By', 'Felicia $', 'Alicyn $', 'Notes', ''].map(h => (
+              {['Description', 'Category', 'Paid By', 'Felicia $', 'Alicyn $', 'Notes', ''].map(h => (
                 <th key={h} style={{ padding: '10px 14px', color: C.white, textAlign: 'left', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: .6, whiteSpace: 'nowrap' }}>{h}</th>
               ))}
             </tr>
@@ -1060,13 +1252,14 @@ function BudgetView({ data, onUpdate }) {
             {items.map((item, i) => (
               <tr key={item.id} style={{ background: i % 2 === 0 ? C.white : C.ivory }}>
                 <td style={{ padding: '10px 14px', color: C.text }}>{item.description}</td>
+                <td style={{ padding: '10px 14px', color: C.textMid, fontSize: 11, whiteSpace: 'nowrap' }}>{item.category || '—'}</td>
                 <td style={{ padding: '10px 14px', color: C.textMid, whiteSpace: 'nowrap' }}>{item.paidBy}</td>
                 <td style={{ padding: '10px 14px', color: C.terracotta, fontWeight: 600 }}>{item.felicia ? `$${parseFloat(item.felicia).toFixed(2)}` : '—'}</td>
                 <td style={{ padding: '10px 14px', color: C.navy, fontWeight: 600 }}>{item.alicyn ? `$${parseFloat(item.alicyn).toFixed(2)}` : '—'}</td>
                 <td style={{ padding: '10px 14px', color: C.textLight, fontStyle: 'italic', fontSize: 12 }}>{item.notes}</td>
                 <td style={{ padding: '8px 10px', whiteSpace: 'nowrap' }}>
                   <Btn small variant="ghost" onClick={() => setEditItem(item)} style={{ marginRight: 4 }}>Edit</Btn>
-                  <Btn small variant="danger" onClick={() => del(item.id)}>Del</Btn>
+                  <Btn small variant="danger" onClick={() => del(item.id, item.description)}>Del</Btn>
                 </td>
               </tr>
             ))}
@@ -1074,6 +1267,7 @@ function BudgetView({ data, onUpdate }) {
         </table>
       </div>
       {editItem && <BudgetForm initial={editItem} onSave={save} onClose={() => setEditItem(null)} />}
+      {confirmModal}
     </div>
   );
 }
@@ -1084,6 +1278,7 @@ function BudgetForm({ initial, onSave, onClose }) {
   return (
     <Modal title={initial.id ? 'Edit Budget Item' : 'Add Budget Item'} onClose={onClose}>
       <Field label="Description" name="description" value={form.description} onChange={ch} />
+      <Field label="Category" name="category" value={form.category || 'Other'} onChange={ch} options={BUDGET_CATS} />
       <Field label="Paid By" name="paidBy" value={form.paidBy} onChange={ch} options={['Split', 'Felicia', 'Alicyn', 'Pay at location']} />
       <Field label="Felicia Amount ($)" name="felicia" value={form.felicia} onChange={ch} type="number" />
       <Field label="Alicyn Amount ($)" name="alicyn" value={form.alicyn} onChange={ch} type="number" />
@@ -1246,31 +1441,43 @@ const TABS = [
 ];
 
 /* ─── ROOT APP ──────────────────────────────────────────── */
+const BOTTOM_TABS = [
+  { id: 'itinerary', label: 'Trip',      icon: '📅' },
+  { id: 'flights',   label: 'Flights',   icon: '✈️' },
+  { id: 'hotels',    label: 'Hotels',    icon: '🏨' },
+  { id: 'todos',     label: 'To-Do',     icon: '✅' },
+  { id: 'budget',    label: 'Budget',    icon: '💰' },
+];
+
 export default function App() {
   const [data, setData] = useSharedStorage('girlstrip2026_v1', INIT);
   const [tab, setTab] = useState('itinerary');
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = FONT_URL;
+    link.rel = 'stylesheet'; link.href = FONT_URL;
     document.head.appendChild(link);
 
     const meta = document.createElement('meta');
-    meta.name = 'viewport';
-    meta.content = 'width=device-width, initial-scale=1';
+    meta.name = 'viewport'; meta.content = 'width=device-width, initial-scale=1';
     document.head.appendChild(meta);
 
     document.body.style.margin = '0';
     document.body.style.background = C.ivory;
     document.body.style.fontFamily = 'Lato,sans-serif';
 
+    const printStyle = document.createElement('style');
+    printStyle.id = 'print-css';
+    printStyle.textContent = `@media print { [data-noprint] { display:none !important; } body { background:#fff !important; } * { box-shadow:none !important; } }`;
+    document.head.appendChild(printStyle);
+
     return () => {
       try { document.head.removeChild(link); } catch {}
+      try { document.head.removeChild(printStyle); } catch {}
     };
   }, []);
 
-  // Show loading screen while Firebase hydrates
   if (!data) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', background: C.ivory, gap: 16 }}>
@@ -1284,23 +1491,41 @@ export default function App() {
 
   const lu = data.lastUpdated ? new Date(data.lastUpdated).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : null;
 
+  // Countdown
+  const now = new Date();
+  const departure  = new Date('2026-06-15T00:00:00');
+  const tripEnd    = new Date('2026-06-28T23:59:59');
+  const msDay      = 86400000;
+  const daysUntil  = Math.ceil((departure - now) / msDay);
+  const dayInTrip  = now >= departure && now <= tripEnd ? Math.floor((now - departure) / msDay) + 1 : null;
+  const todayStr   = now.toISOString().split('T')[0];
+  const todayDay   = data.days?.find(d => d.date === todayStr);
+  let countdownBg  = C.terracottaD + 'CC';
+  let countdownMsg = null;
+  if (daysUntil > 0) {
+    countdownMsg = `✈️  T-${daysUntil} day${daysUntil !== 1 ? 's' : ''} until departure — pack your bags!`;
+  } else if (dayInTrip) {
+    countdownMsg = `🌍  Day ${dayInTrip} of 14 — ${todayDay ? todayDay.location : 'on your trip'}`;
+    countdownBg  = C.green + 'CC';
+  } else if (now > tripEnd) {
+    countdownMsg = `🏠  Back home! What an incredible trip.`;
+    countdownBg  = C.navyMid + 'CC';
+  }
+
   return (
     <div style={{ minHeight: '100vh', background: C.ivory }}>
-
-      {/* local-mode warning — hidden once Firebase is configured */}
       {!configured && (
-        <div style={{ background: C.gold, color: C.navy, padding: '8px 20px', fontFamily: 'Lato,sans-serif', fontSize: 13, textAlign: 'center', fontWeight: 600 }}>
+        <div data-noprint style={{ background: C.gold, color: C.navy, padding: '8px 20px', fontFamily: 'Lato,sans-serif', fontSize: 13, textAlign: 'center', fontWeight: 600 }}>
           ⚠️ Running in local mode — changes are only saved on this device. See README for Firebase setup.
         </div>
       )}
 
       {/* ── HEADER ── */}
-      <header style={{
+      <header data-noprint style={{
         background: `linear-gradient(135deg, ${C.navy} 0%, ${C.navyMid} 55%, ${C.terracottaD} 100%)`,
         position: 'sticky', top: 0, zIndex: 200,
         boxShadow: '0 4px 24px rgba(0,0,0,.22)',
       }}>
-        {/* Top strip */}
         <div style={{ padding: '14px 20px 10px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
           <div>
             <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 21, color: C.white, fontWeight: 700, lineHeight: 1.1 }}>
@@ -1322,26 +1547,35 @@ export default function App() {
           </div>
         </div>
 
-        {/* Tab bar */}
-        <div style={{ display: 'flex', overflowX: 'auto', paddingLeft: 8, paddingRight: 8, scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-          {TABS.map(t => (
-            <button key={t.id} onClick={() => setTab(t.id)} style={{
-              background: 'none', border: 'none', cursor: 'pointer',
-              padding: '9px 14px', fontSize: 13, fontFamily: 'Lato,sans-serif', fontWeight: 600,
-              color: tab === t.id ? C.gold : C.white + 'BB',
-              borderBottom: `3px solid ${tab === t.id ? C.gold : 'transparent'}`,
-              whiteSpace: 'nowrap', transition: 'color .2s, border-color .2s',
-              display: 'flex', alignItems: 'center', gap: 5,
-            }}>
-              <span>{t.icon}</span>
-              <span style={{ display: window?.innerWidth < 480 ? 'none' : 'inline' }}>{t.label}</span>
-            </button>
-          ))}
-        </div>
+        {/* Countdown strip */}
+        {countdownMsg && (
+          <div style={{ background: countdownBg, padding: '6px 20px', fontFamily: 'Lato,sans-serif', fontSize: 12, color: C.white, fontWeight: 600, letterSpacing: .3 }}>
+            {countdownMsg}
+          </div>
+        )}
+
+        {/* Tab bar — hidden on mobile (use bottom nav instead) */}
+        {!isMobile && (
+          <div style={{ display: 'flex', overflowX: 'auto', paddingLeft: 8, paddingRight: 8, scrollbarWidth: 'none' }}>
+            {TABS.map(t => (
+              <button key={t.id} onClick={() => setTab(t.id)} style={{
+                background: 'none', border: 'none', cursor: 'pointer',
+                padding: '9px 14px', fontSize: 13, fontFamily: 'Lato,sans-serif', fontWeight: 600,
+                color: tab === t.id ? C.gold : C.white + 'BB',
+                borderBottom: `3px solid ${tab === t.id ? C.gold : 'transparent'}`,
+                whiteSpace: 'nowrap', transition: 'color .2s, border-color .2s',
+                display: 'flex', alignItems: 'center', gap: 5,
+              }}>
+                <span>{t.icon}</span>
+                <span>{t.label}</span>
+              </button>
+            ))}
+          </div>
+        )}
       </header>
 
       {/* ── MAIN CONTENT ── */}
-      <main style={{ maxWidth: 900, margin: '0 auto', padding: '28px 16px 80px' }}>
+      <main style={{ maxWidth: 900, margin: '0 auto', padding: `28px 16px ${isMobile ? '90px' : '80px'}` }}>
         {tab === 'itinerary' && <DailyView        data={data} onUpdate={setData} />}
         {tab === 'flights'   && <FlightsView      data={data} onUpdate={setData} />}
         {tab === 'hotels'    && <HotelsView        data={data} onUpdate={setData} />}
@@ -1351,8 +1585,43 @@ export default function App() {
         {tab === 'emergency' && <EmergencyView     data={data} onUpdate={setData} />}
       </main>
 
-      {/* gold gradient footer bar */}
-      <div style={{ height: 4, background: `linear-gradient(90deg, ${C.terracotta}, ${C.gold}, ${C.navyMid})`, position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 100 }} />
+      {/* ── MOBILE BOTTOM NAV ── */}
+      {isMobile ? (
+        <nav data-noprint style={{
+          position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 300,
+          background: C.white, borderTop: `1px solid ${C.ivoryDark}`,
+          boxShadow: '0 -4px 20px rgba(28,45,80,.12)',
+          display: 'flex', justifyContent: 'space-around', alignItems: 'stretch',
+          paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+        }}>
+          {BOTTOM_TABS.map(t => (
+            <button key={t.id} onClick={() => setTab(t.id)} style={{
+              flex: 1, background: 'none', border: 'none', cursor: 'pointer',
+              padding: '10px 4px 8px', display: 'flex', flexDirection: 'column',
+              alignItems: 'center', gap: 3,
+              borderTop: `3px solid ${tab === t.id ? C.terracotta : 'transparent'}`,
+              transition: 'border-color .15s',
+            }}>
+              <span style={{ fontSize: 22 }}>{t.icon}</span>
+              <span style={{ fontSize: 10, fontFamily: 'Lato,sans-serif', fontWeight: 600, color: tab === t.id ? C.terracotta : C.textLight }}>{t.label}</span>
+            </button>
+          ))}
+          {/* More button for dining/emergency */}
+          <button onClick={() => setTab(tab === 'dining' ? 'emergency' : 'dining')} style={{
+            flex: 1, background: 'none', border: 'none', cursor: 'pointer',
+            padding: '10px 4px 8px', display: 'flex', flexDirection: 'column',
+            alignItems: 'center', gap: 3,
+            borderTop: `3px solid ${(tab === 'dining' || tab === 'emergency') ? C.terracotta : 'transparent'}`,
+          }}>
+            <span style={{ fontSize: 22 }}>{tab === 'emergency' ? '🚨' : '🍽️'}</span>
+            <span style={{ fontSize: 10, fontFamily: 'Lato,sans-serif', fontWeight: 600, color: (tab === 'dining' || tab === 'emergency') ? C.terracotta : C.textLight }}>
+              {tab === 'emergency' ? 'SOS' : 'Dining'}
+            </span>
+          </button>
+        </nav>
+      ) : (
+        <div data-noprint style={{ height: 4, background: `linear-gradient(90deg, ${C.terracotta}, ${C.gold}, ${C.navyMid})`, position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 100 }} />
+      )}
     </div>
   );
 }
