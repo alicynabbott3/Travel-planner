@@ -1393,9 +1393,11 @@ function PackingView({ data, onUpdate }) {
   const [filter, setFilter] = useState('all');
   const [confirm, confirmModal] = useConfirm();
 
-  // Auto-migrate old flat-array format to per-person object
+  // Auto-migrate: Firebase serializes arrays as {0:{},1:{},...} so Array.isArray is unreliable.
+  // Treat any packing data that lacks the 'alicyn' person key as old format and reset.
+  const isOldFormat = !data.packing || !('alicyn' in data.packing);
   useEffect(() => {
-    if (Array.isArray(data.packing)) {
+    if (isOldFormat) {
       onUpdate(d => ({
         ...d,
         packing: { alicyn: makePackingList('pka'), felicia: makePackingList('pkf'), sabrina: makePackingList('pks') },
@@ -1405,7 +1407,7 @@ function PackingView({ data, onUpdate }) {
   }, []); // eslint-disable-line
 
   const packing = data.packing;
-  if (Array.isArray(packing)) {
+  if (isOldFormat) {
     return <div style={{ textAlign: 'center', padding: 60, color: C.textMid, fontFamily: 'Inter,sans-serif' }}>Updating packing list…</div>;
   }
 
