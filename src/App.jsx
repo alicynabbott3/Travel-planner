@@ -1905,7 +1905,7 @@ const TABS = [
   { id: 'hotels',     label: 'Swamp Stays',     icon: '🌿' },
   { id: 'dining',     label: 'Swamp Grub',      icon: '🍽️' },
   { id: 'packing',    label: "Donkey's Bag",    icon: '🧳' },
-  { id: 'todos',      label: 'Ogre Packing List', icon: '📋' },
+  { id: 'todos',      label: "Ogre To-Do's",      icon: '📋' },
   { id: 'budget',     label: 'Royal Treasury',  icon: '💰' },
   { id: 'emergency',  label: 'Far Far Away SOS',icon: '🚨' },
 ];
