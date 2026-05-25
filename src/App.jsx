@@ -2003,7 +2003,7 @@ export default function App() {
               Far Far Away Girls Trip 🌿
             </div>
             <div style={{ fontSize: 12, color: C.goldL, fontFamily: 'Inter,sans-serif', marginTop: 4, letterSpacing: '0.5px' }}>
-              {data.meta.tagline} &nbsp;—&nbsp; {data.meta.dates}
+              Ogres have layers. So do our travel plans. &nbsp;—&nbsp; {data.meta.dates}
             </div>
           </div>
           <div style={{ textAlign: 'right', flexShrink: 0 }}>
@@ -2014,7 +2014,7 @@ export default function App() {
                 </span>
               ))}
             </div>
-            {lu && <div style={{ fontSize: 10, color: C.white + '66', fontFamily: 'Inter,sans-serif' }}>{configured ? '🔄 synced' : '💾 saved'} {lu}</div>}
+            {lu && <div style={{ fontSize: 10, color: C.white + '66', fontFamily: 'Inter,sans-serif' }}>{configured ? '🌿 synced' : '💾 saved'} {lu}</div>}
           </div>
         </div>
 
