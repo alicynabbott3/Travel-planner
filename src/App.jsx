@@ -4,23 +4,23 @@ import { ref as fbRef, set as fbSet, onValue } from 'firebase/database';
 
 /* ─── PALETTE ──────────────────────────────────────────── */
 const C = {
-  terracotta:  '#C9963A',   // primary gold/amber — CTAs & highlights
-  terracottaL: '#E8B96A',   // light gold
-  terracottaD: '#A67A28',   // dark gold
-  ivory:       '#FAF7F2',   // warm sand — main background
-  ivoryMid:    '#F0EBE3',   // card surface
-  ivoryDark:   '#DDD5C8',   // borders & dividers
-  navy:        '#0D1B2A',   // deep navy — header
-  navyMid:     '#1A2E45',   // secondary navy
-  gold:        '#C9963A',   // alias — same as terracotta
-  goldL:       '#E8B96A',   // light gold alias
-  text:        '#1C1C2E',   // near-black
-  textMid:     '#4A5568',   // medium gray
-  textLight:   '#8A9BB4',   // muted blue-gray
+  terracotta:  '#6B9A2A',   // ogre green — primary CTAs
+  terracottaL: '#9DC040',   // light ogre green
+  terracottaD: '#4A7010',   // dark swamp green
+  ivory:       '#EFF5E0',   // swamp mist — main background
+  ivoryMid:    '#E2ECD0',   // card surface
+  ivoryDark:   '#BDD09A',   // borders & dividers
+  navy:        '#1E3C08',   // deep swamp — header
+  navyMid:     '#2E5A10',   // secondary swamp
+  gold:        '#A67C00',   // firefly gold
+  goldL:       '#D4A830',   // light gold
+  text:        '#1A2C08',   // near-black swamp
+  textMid:     '#3D5A1E',   // medium swamp green
+  textLight:   '#6A8C45',   // muted green
   white:       '#FFFFFF',
   green:       '#2E7D52',
   orange:      '#C07830',
-  purple:      '#6B5B95',
+  purple:      '#6B3FA0',
   red:         '#B02828',
 };
 
@@ -145,8 +145,8 @@ const makePackingList = (prefix) =>
 /* ─── INITIAL DATA ──────────────────────────────────────── */
 const INIT = {
   meta: {
-    tripName: 'Girls Trip 2026',
-    tagline: 'Barcelona · Palma · Mediterranean Cruise',
+    tripName: 'Far Far Away Girls Trip 🌿',
+    tagline: 'Ogres have layers. So do our travel plans.',
     dates: 'June 15–28, 2026',
     travelers: ['Alicyn Kitamura', 'Felicia Mapa', 'Sabrina Hammou'],
   },
@@ -691,7 +691,7 @@ function FlightsView({ data, onUpdate }) {
 
   return (
     <div>
-      <SectionHead title="Flights" icon="✈️" action={<Btn variant="primary" small onClick={() => setEditItem(blank)}>+ Add Flight</Btn>} />
+      <SectionHead title="Dragon's Wings" icon="🐉" action={<Btn variant="primary" small onClick={() => setEditItem(blank)}>+ Add Flight</Btn>} />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         {data.flights.map(f => (
           <Card key={f.id}>
@@ -775,7 +775,7 @@ function HotelsView({ data, onUpdate }) {
 
   return (
     <div>
-      <SectionHead title="Hotels & Accommodation" icon="🏨" action={<Btn variant="primary" small onClick={() => setEditItem(blank)}>+ Add</Btn>} />
+      <SectionHead title="Swamp Stays & Castles" icon="🌿" action={<Btn variant="primary" small onClick={() => setEditItem(blank)}>+ Add</Btn>} />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         {data.hotels.map(h => (
           <Card key={h.id}>
@@ -943,7 +943,7 @@ function DailyView({ data, onUpdate }) {
           }}>{pillMsg}</div>
         </div>
       )}
-      <SectionHead title="Itinerary" icon="📅" action={
+      <SectionHead title="The Quest" icon="🗺️" action={
         <Btn variant="ghost" small onClick={() => { const i = days.findIndex(d => d.date === todayStr); if (i >= 0) setSelIdx(i); }}>
           Today
         </Btn>
@@ -1257,7 +1257,7 @@ function RestaurantsView({ data, onUpdate }) {
 
   return (
     <div>
-      <SectionHead title="Restaurants & Activities" icon="🍽️" action={<Btn variant="primary" small onClick={() => setEditItem(blank)}>+ Add</Btn>} />
+      <SectionHead title="Swamp Grub & Adventures" icon="🍽️" action={<Btn variant="primary" small onClick={() => setEditItem(blank)}>+ Add</Btn>} />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         {data.restaurants.map(r => (
           <Card key={r.id} style={{ padding: '12px 16px' }}>
@@ -1336,7 +1336,7 @@ function TodoView({ data, onUpdate }) {
 
   return (
     <div>
-      <SectionHead title="To-Do Checklist" icon="✅" />
+      <SectionHead title="Ogre Orders" icon="📋" />
       <Card style={{ marginBottom: 22 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
           <div style={{ flex: 1 }}>
@@ -1408,7 +1408,7 @@ function PackingView({ data, onUpdate }) {
 
   const packing = data.packing;
   if (isOldFormat) {
-    return <div style={{ textAlign: 'center', padding: 60, color: C.textMid, fontFamily: 'Inter,sans-serif' }}>Updating packing list…</div>;
+    return <div style={{ textAlign: 'center', padding: 60, color: C.textMid, fontFamily: 'Inter,sans-serif' }}>Donkey is fetching your packing list… 🫏</div>;
   }
 
   const PEOPLE = [
@@ -1450,7 +1450,7 @@ function PackingView({ data, onUpdate }) {
 
   return (
     <div>
-      <SectionHead title="Packing List" icon="🧳" action={
+      <SectionHead title="Donkey's Saddlebag" icon="🧳" action={
         <div style={{ display: 'flex', gap: 6 }}>
           <Btn small variant={filter === 'all' ? 'primary' : 'ghost'} onClick={() => setFilter('all')}>All</Btn>
           <Btn small variant={filter === 'unpacked' ? 'primary' : 'ghost'} onClick={() => setFilter('unpacked')}>Unpacked</Btn>
@@ -1497,7 +1497,7 @@ function PackingView({ data, onUpdate }) {
           </div>
           <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 32, color: pct === 100 ? C.green : C.terracotta, fontWeight: 700 }}>{pct}%</div>
         </div>
-        {pct === 100 && <div style={{ marginTop: 10, fontSize: 13, color: C.green, fontFamily: 'Inter,sans-serif', fontWeight: 600 }}>✈️ All packed — have an amazing trip!</div>}
+        {pct === 100 && <div style={{ marginTop: 10, fontSize: 13, color: C.green, fontFamily: 'Inter,sans-serif', fontWeight: 600 }}>🐉 All packed — time to leave the swamp!</div>}
       </Card>
 
       {/* Items by category */}
@@ -1583,7 +1583,7 @@ function BudgetView({ data, onUpdate }) {
         <div style={{ fontSize: 52 }}>🔒</div>
         <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 26, color: C.navy, fontWeight: 700 }}>Financial Details</div>
         <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 14, color: C.textMid, textAlign: 'center', maxWidth: 300, lineHeight: 1.6 }}>
-          This section is password protected. Enter the password to view budget details.
+          This treasury is PRIVATE PROPERTY! 🏰 Enter the royal password or face the tournament.
         </div>
         <div style={{ width: '100%', maxWidth: 320, display: 'flex', flexDirection: 'column', gap: 10 }}>
           <input
@@ -1591,7 +1591,7 @@ function BudgetView({ data, onUpdate }) {
             value={pw}
             onChange={e => { setPw(e.target.value); setPwErr(false); }}
             onKeyDown={e => e.key === 'Enter' && tryUnlock()}
-            placeholder="Enter password"
+            placeholder="Speak, friend, and enter…"
             autoFocus
             style={{
               border: `1px solid ${pwErr ? C.red : C.ivoryDark}`,
@@ -1603,11 +1603,11 @@ function BudgetView({ data, onUpdate }) {
           />
           {pwErr && (
             <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 13, color: C.red, textAlign: 'center' }}>
-              Incorrect password — try again.
+              Wrong password! Do you know the Muffin Man?!
             </div>
           )}
           <Btn variant="primary" onClick={tryUnlock} style={{ width: '100%', justifyContent: 'center', padding: '10px 16px' }}>
-            Unlock
+            🔓 Open Sesame
           </Btn>
         </div>
       </div>
@@ -1650,7 +1650,7 @@ function BudgetView({ data, onUpdate }) {
 
   return (
     <div>
-      <SectionHead title="Budget Summary" icon="💰" action={<Btn variant="primary" small onClick={() => setEditItem(blank)}>+ Add Item</Btn>} />
+      <SectionHead title="Royal Treasury" icon="💰" action={<Btn variant="primary" small onClick={() => setEditItem(blank)}>+ Add Item</Btn>} />
 
       {/* Totals cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 14, marginBottom: 18 }}>
@@ -1789,7 +1789,7 @@ function EmergencyView({ data, onUpdate }) {
 
   return (
     <div>
-      <SectionHead title="Emergency Information" icon="🚨" />
+      <SectionHead title="Far Far Away SOS" icon="🚨" />
 
       {/* Emergency Numbers */}
       <div style={{ marginBottom: 26 }}>
@@ -1814,7 +1814,7 @@ function EmergencyView({ data, onUpdate }) {
 
       {/* Traveler Info */}
       <div style={{ marginBottom: 26 }}>
-        <SubHead>Traveler Info & Emergency Contacts</SubHead>
+        <SubHead>Ogre Profiles & Emergency Contacts</SubHead>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           {travelers.map(t => (
             <Card key={t.id}>
@@ -1900,23 +1900,23 @@ function EmergencyView({ data, onUpdate }) {
 
 /* ─── NAVIGATION ────────────────────────────────────────── */
 const TABS = [
-  { id: 'itinerary',   label: 'Itinerary',   icon: '📅' },
-  { id: 'flights',     label: 'Flights',     icon: '✈️' },
-  { id: 'hotels',      label: 'Hotels',      icon: '🏨' },
-  { id: 'dining',      label: 'Dining',      icon: '🍽️' },
-  { id: 'packing',     label: 'Packing',     icon: '🧳' },
-  { id: 'todos',       label: 'To-Do',       icon: '✅' },
-  { id: 'budget',      label: 'Budget',      icon: '💰' },
-  { id: 'emergency',   label: 'Emergency',   icon: '🚨' },
+  { id: 'itinerary',  label: 'The Quest',      icon: '🗺️' },
+  { id: 'flights',    label: "Dragon's Wings",  icon: '🐉' },
+  { id: 'hotels',     label: 'Swamp Stays',     icon: '🌿' },
+  { id: 'dining',     label: 'Swamp Grub',      icon: '🍽️' },
+  { id: 'packing',    label: "Donkey's Bag",    icon: '🧳' },
+  { id: 'todos',      label: 'Ogre Orders',     icon: '📋' },
+  { id: 'budget',     label: 'Royal Treasury',  icon: '💰' },
+  { id: 'emergency',  label: 'Far Far Away SOS',icon: '🚨' },
 ];
 
 /* ─── ROOT APP ──────────────────────────────────────────── */
 const BOTTOM_TABS = [
-  { id: 'itinerary', label: 'Trip',      icon: '📅' },
-  { id: 'flights',   label: 'Flights',   icon: '✈️' },
-  { id: 'hotels',    label: 'Hotels',    icon: '🏨' },
-  { id: 'packing',   label: 'Packing',   icon: '🧳' },
-  { id: 'budget',    label: 'Budget',    icon: '💰' },
+  { id: 'itinerary', label: 'Quest',   icon: '🗺️' },
+  { id: 'flights',   label: 'Dragon',  icon: '🐉' },
+  { id: 'hotels',    label: 'Swamp',   icon: '🌿' },
+  { id: 'packing',   label: 'Donkey',  icon: '🧳' },
+  { id: 'budget',    label: 'Gold',    icon: '💰' },
 ];
 
 export default function App() {
@@ -1951,8 +1951,8 @@ export default function App() {
   if (!data) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', background: C.ivory, gap: 16 }}>
-        <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 28, color: C.navy, fontWeight: 700, letterSpacing: '0.3px' }}>Girls Trip 2026</div>
-        <div style={{ fontFamily: 'Inter,sans-serif', color: C.textLight, fontSize: 14 }}>Loading your itinerary…</div>
+        <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 28, color: C.navy, fontWeight: 700, letterSpacing: '0.3px' }}>Far Far Away Girls Trip 🌿</div>
+        <div style={{ fontFamily: 'Inter,sans-serif', color: C.textLight, fontSize: 14 }}>Waking up the Donkey…</div>
         <div style={{ width: 48, height: 4, borderRadius: 2, background: `linear-gradient(90deg, ${C.terracotta}, ${C.gold})`, animation: 'pulse 1.2s ease-in-out infinite' }} />
         <style>{`@keyframes pulse { 0%,100% { opacity:.3 } 50% { opacity:1 } }`}</style>
       </div>
@@ -1973,12 +1973,12 @@ export default function App() {
   let countdownBg  = C.terracottaD + 'CC';
   let countdownMsg = null;
   if (daysUntil > 0) {
-    countdownMsg = `✈️  T-${daysUntil} day${daysUntil !== 1 ? 's' : ''} until departure — pack your bags!`;
+    countdownMsg = `🌿  T-${daysUntil} day${daysUntil !== 1 ? 's' : ''} until we're FAR FAR AWAY — better start packing, Donkey!`;
   } else if (dayInTrip) {
-    countdownMsg = `🌍  Day ${dayInTrip} of 14 — ${todayDay ? todayDay.location : 'on your trip'}`;
+    countdownMsg = `🐉  Day ${dayInTrip} of 14 — ${todayDay ? todayDay.location : 'somewhere over the rainbow'}`;
     countdownBg  = C.green + 'CC';
   } else if (now > tripEnd) {
-    countdownMsg = `🏠  Back home! What an incredible trip.`;
+    countdownMsg = `🏠  Back in the swamp! What a fairytale adventure.`;
     countdownBg  = C.navyMid + 'CC';
   }
 
@@ -1986,13 +1986,13 @@ export default function App() {
     <div style={{ minHeight: '100vh', background: C.ivory }}>
       {!configured && (
         <div data-noprint style={{ background: C.gold, color: C.navy, padding: '8px 20px', fontFamily: 'Inter,sans-serif', fontSize: 13, textAlign: 'center', fontWeight: 600 }}>
-          ⚠️ Running in local mode — changes are only saved on this device. See README for Firebase setup.
+          ⚠️ Running in swamp mode — changes are only saved on this device. This is the part where you add Firebase.
         </div>
       )}
 
       {/* ── HEADER ── */}
       <header data-noprint style={{
-        background: `linear-gradient(160deg, ${C.navy} 0%, #162840 60%, #1A2E45 100%)`,
+        background: `linear-gradient(160deg, ${C.navy} 0%, #1A3C08 60%, ${C.navyMid} 100%)`,
         position: 'sticky', top: 0, zIndex: 200,
         borderBottom: `1px solid rgba(255,255,255,.06)`,
         boxShadow: '0 4px 32px rgba(13,27,42,.35)',
@@ -2000,7 +2000,7 @@ export default function App() {
         <div style={{ padding: '16px 20px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
           <div>
             <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 24, color: C.white, fontWeight: 700, letterSpacing: '0.3px', lineHeight: 1.15 }}>
-              {data.meta.tripName}
+              Far Far Away Girls Trip 🌿
             </div>
             <div style={{ fontSize: 12, color: C.goldL, fontFamily: 'Inter,sans-serif', marginTop: 4, letterSpacing: '0.5px' }}>
               {data.meta.tagline} &nbsp;—&nbsp; {data.meta.dates}
@@ -2023,8 +2023,8 @@ export default function App() {
           <div style={{ display: 'flex', overflowX: 'auto', padding: '8px 10px 6px', scrollbarWidth: 'none', gap: 2 }}>
             {TABS.map(t => (
               <button key={t.id} onClick={() => setTab(t.id)} style={{
-                background: tab === t.id ? `rgba(201,150,58,.18)` : 'transparent',
-                border: `1px solid ${tab === t.id ? `rgba(201,150,58,.45)` : 'transparent'}`,
+                background: tab === t.id ? `rgba(107,154,42,.22)` : 'transparent',
+                border: `1px solid ${tab === t.id ? `rgba(107,154,42,.5)` : 'transparent'}`,
                 borderRadius: 999, cursor: 'pointer',
                 padding: '6px 14px', fontSize: 12, fontFamily: 'Inter,sans-serif', fontWeight: 600,
                 color: tab === t.id ? C.goldL : C.white + 'AA',
@@ -2081,7 +2081,7 @@ export default function App() {
           {(() => {
             const moreActive = tab === 'dining' || tab === 'todos' || tab === 'emergency';
             const moreIcon  = tab === 'emergency' ? '🚨' : tab === 'todos' ? '✅' : '🍽️';
-            const moreLabel = tab === 'emergency' ? 'SOS' : tab === 'todos' ? 'To-Do' : 'Dining';
+            const moreLabel = tab === 'emergency' ? 'SOS' : tab === 'todos' ? 'Orders' : 'Grub';
             const nextTab   = tab === 'dining' ? 'todos' : tab === 'todos' ? 'emergency' : 'dining';
             return (
               <button onClick={() => setTab(nextTab)} style={{
