@@ -4,32 +4,32 @@ import { ref as fbRef, set as fbSet, onValue } from 'firebase/database';
 
 /* ─── PALETTE ──────────────────────────────────────────── */
 const C = {
-  terracotta: '#8B2035',   // cabernet — primary actions & highlights
-  terracottaL: '#B04A5C',  // lighter wine rose
-  terracottaD: '#6A1228',  // deep dark cabernet
-  ivory: '#F7EDE8',        // warm blush cream background
-  ivoryMid: '#EDD8D0',     // rose-tinted mid surface
-  ivoryDark: '#D4B8B0',    // muted rose border
-  navy: '#2D1520',         // near-black deep wine (was navy)
-  navyMid: '#4A2232',      // dark burgundy (was navyMid)
-  gold: '#C8A87C',         // champagne gold
-  goldL: '#DEC09A',        // light champagne
-  text: '#2C1318',         // very dark wine-tinted text
-  textMid: '#5C3040',      // medium burgundy text
-  textLight: '#8A6068',    // muted rose-grey text
-  white: '#FFFFFF',
-  green: '#3D7A55',
-  orange: '#C07830',
-  purple: '#7059A0',
-  red: '#B02828',
+  terracotta:  '#C9963A',   // primary gold/amber — CTAs & highlights
+  terracottaL: '#E8B96A',   // light gold
+  terracottaD: '#A67A28',   // dark gold
+  ivory:       '#FAF7F2',   // warm sand — main background
+  ivoryMid:    '#F0EBE3',   // card surface
+  ivoryDark:   '#DDD5C8',   // borders & dividers
+  navy:        '#0D1B2A',   // deep navy — header
+  navyMid:     '#1A2E45',   // secondary navy
+  gold:        '#C9963A',   // alias — same as terracotta
+  goldL:       '#E8B96A',   // light gold alias
+  text:        '#1C1C2E',   // near-black
+  textMid:     '#4A5568',   // medium gray
+  textLight:   '#8A9BB4',   // muted blue-gray
+  white:       '#FFFFFF',
+  green:       '#2E7D52',
+  orange:      '#C07830',
+  purple:      '#6B5B95',
+  red:         '#B02828',
 };
 
 const FONT_URL =
-  'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap';
+  'https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap';
 
 /* ─── STATUS & TYPE ─────────────────────────────────────── */
 const STATUS = {
-  confirmed:     { icon: '✅', label: 'Confirmed',       color: C.green },
+  confirmed:     { icon: '✅', label: 'Confirmed',       color: C.terracotta },
   pending:       { icon: '⏳', label: 'Pending',         color: C.orange },
   payAtLocation: { icon: '💳', label: 'Pay at Location', color: C.purple },
 };
@@ -283,6 +283,55 @@ const INIT = {
     { id: 'td24', cat: 'Packing',  task: 'Portable charger / power bank',                           done: false },
   ],
 
+  packing: [
+    { id: 'pk1',  cat: 'Documents',     item: 'Passport (valid 6+ months past June 28, 2026)',        packed: false, notes: '' },
+    { id: 'pk2',  cat: 'Documents',     item: 'Flight confirmations (CBWO8M, 8U8KBK, C7253B)',        packed: false, notes: 'Print or save to phone' },
+    { id: 'pk3',  cat: 'Documents',     item: 'Dog Admiral confirmation BB26031720350199',             packed: false, notes: '' },
+    { id: 'pk4',  cat: 'Documents',     item: 'H10 Art Gallery — see Alicyn\'s email',                packed: false, notes: '' },
+    { id: 'pk5',  cat: 'Documents',     item: 'Cruise confirmation 2478994',                          packed: false, notes: '' },
+    { id: 'pk6',  cat: 'Documents',     item: 'Travel insurance documents',                           packed: false, notes: '' },
+    { id: 'pk7',  cat: 'Money & Cards', item: 'Euros (€200+ per person recommended)',                 packed: false, notes: '€10 cash for Sóller tram (June 18)' },
+    { id: 'pk8',  cat: 'Money & Cards', item: 'Credit card with no foreign transaction fees',         packed: false, notes: '' },
+    { id: 'pk9',  cat: 'Money & Cards', item: 'Notify bank of travel dates before leaving',           packed: false, notes: '' },
+    { id: 'pk10', cat: 'Money & Cards', item: 'Emergency backup cash (hidden)',                       packed: false, notes: '' },
+    { id: 'pk11', cat: 'Cruise Attire', item: 'Scarlet / red outfit — Scarlet Night (June 20)',       packed: false, notes: 'Dress code: SCARLET / RED 🌹' },
+    { id: 'pk12', cat: 'Cruise Attire', item: 'Pajamas — PJ Night (June 26)',                         packed: false, notes: 'Themed party onboard 😴' },
+    { id: 'pk13', cat: 'Cruise Attire', item: 'Cocktail / dressy outfit for ship dining',             packed: false, notes: '' },
+    { id: 'pk14', cat: 'Cruise Attire', item: 'Smart casual outfits (5–6 sets)',                      packed: false, notes: '' },
+    { id: 'pk15', cat: 'Clothing',      item: 'Casual dresses / tops (5–6)',                          packed: false, notes: '' },
+    { id: 'pk16', cat: 'Clothing',      item: 'Lightweight pants / jeans (2 pairs)',                  packed: false, notes: '' },
+    { id: 'pk17', cat: 'Clothing',      item: 'Comfortable walking outfit (2)',                       packed: false, notes: 'Barcelona & Rome have cobblestones!' },
+    { id: 'pk18', cat: 'Clothing',      item: 'Light cardigan or wrap',                               packed: false, notes: 'Evening breeze on deck' },
+    { id: 'pk19', cat: 'Shoes',         item: 'Comfortable walking shoes',                            packed: false, notes: 'Essential for Barcelona & Rome!' },
+    { id: 'pk20', cat: 'Shoes',         item: 'Sandals / flats',                                      packed: false, notes: '' },
+    { id: 'pk21', cat: 'Shoes',         item: 'Heels / wedges for dining',                            packed: false, notes: '' },
+    { id: 'pk22', cat: 'Shoes',         item: 'Flip flops / slides (pool deck)',                      packed: false, notes: '' },
+    { id: 'pk23', cat: 'Beach & Pool',  item: 'Swimsuits (2–3)',                                      packed: false, notes: '' },
+    { id: 'pk24', cat: 'Beach & Pool',  item: 'Cover-up / sarong',                                    packed: false, notes: '' },
+    { id: 'pk25', cat: 'Beach & Pool',  item: 'Reef-safe sunscreen SPF 50+',                          packed: false, notes: 'Required at Cinque Terre & Cala Bassa' },
+    { id: 'pk26', cat: 'Beach & Pool',  item: 'Sunglasses',                                           packed: false, notes: '' },
+    { id: 'pk27', cat: 'Beach & Pool',  item: 'Waterproof phone pouch',                               packed: false, notes: 'Great for Cinque Terre & Cala Bassa' },
+    { id: 'pk28', cat: 'Toiletries',    item: 'Shampoo & conditioner (travel size)',                   packed: false, notes: 'Cruise cabin has basics' },
+    { id: 'pk29', cat: 'Toiletries',    item: 'Body wash & face wash',                                packed: false, notes: '' },
+    { id: 'pk30', cat: 'Toiletries',    item: 'Makeup & skincare',                                    packed: false, notes: '' },
+    { id: 'pk31', cat: 'Toiletries',    item: 'Deodorant & razor',                                    packed: false, notes: '' },
+    { id: 'pk32', cat: 'Toiletries',    item: 'Feminine hygiene products',                            packed: false, notes: '' },
+    { id: 'pk33', cat: 'Toiletries',    item: 'Hair tools (straightener / curling iron)',              packed: false, notes: 'Check voltage — needs adapter' },
+    { id: 'pk34', cat: 'Health',        item: 'Motion sickness medication',                           packed: false, notes: 'Sea days: June 21, 25 & 27–28' },
+    { id: 'pk35', cat: 'Health',        item: 'Pain reliever (ibuprofen / Tylenol)',                  packed: false, notes: '' },
+    { id: 'pk36', cat: 'Health',        item: 'Prescription medications (full supply + extra)',        packed: false, notes: 'Keep in carry-on' },
+    { id: 'pk37', cat: 'Health',        item: 'Band-aids & blister pads',                             packed: false, notes: 'Lots of walking!' },
+    { id: 'pk38', cat: 'Health',        item: 'Hand sanitizer',                                       packed: false, notes: '' },
+    { id: 'pk39', cat: 'Electronics',   item: 'Phone + charging cable',                               packed: false, notes: '' },
+    { id: 'pk40', cat: 'Electronics',   item: 'Universal power adapter (Type C/F)',                   packed: false, notes: 'Spain, France & Italy all need it' },
+    { id: 'pk41', cat: 'Electronics',   item: 'Portable power bank',                                  packed: false, notes: '' },
+    { id: 'pk42', cat: 'Electronics',   item: 'Headphones / earbuds',                                 packed: false, notes: '' },
+    { id: 'pk43', cat: 'Electronics',   item: 'Camera + extra memory card',                           packed: false, notes: 'Optional' },
+    { id: 'pk44', cat: 'Bags',          item: 'Day backpack / tote for excursions',                   packed: false, notes: '' },
+    { id: 'pk45', cat: 'Bags',          item: 'Anti-theft crossbody bag',                             packed: false, notes: 'Keep valuables safe in cities' },
+    { id: 'pk46', cat: 'Bags',          item: 'Packing cubes',                                        packed: false, notes: 'Game-changer for cruise cabin space!' },
+  ],
+
   budget: {
     totals: { felicia: 6237.24, alicyn: 6628.89 },
     items: [
@@ -421,7 +470,7 @@ function Pill({ icon, label, small, mono }) {
   );
 }
 
-function Btn({ children, onClick, variant = 'ghost', small, style: sx }) {
+function Btn({ children, onClick, variant = 'ghost', small, style: sx, title }) {
   const v = {
     primary: { background: C.terracotta, color: C.white, border: 'none' },
     ghost:   { background: 'transparent', color: C.terracotta, border: `1px solid ${C.terracotta}55` },
@@ -429,7 +478,7 @@ function Btn({ children, onClick, variant = 'ghost', small, style: sx }) {
     navy:    { background: C.navy, color: C.white, border: 'none' },
   };
   return (
-    <button onClick={onClick} style={{
+    <button onClick={onClick} title={title} style={{
       display: 'inline-flex', alignItems: 'center', gap: 5,
       borderRadius: 3, cursor: 'pointer',
       fontFamily: 'Inter,sans-serif', fontWeight: 600,
@@ -464,9 +513,9 @@ function CopyBtn({ value }) {
 function Card({ children, style: sx }) {
   return (
     <div style={{
-      background: C.white, borderRadius: 6,
+      background: C.white, borderRadius: 16,
       border: `1px solid ${C.ivoryDark}`,
-      boxShadow: 'none',
+      boxShadow: '0 4px 24px rgba(13,27,42,.07)',
       padding: '16px 18px', ...sx,
     }}>{children}</div>
   );
@@ -475,7 +524,7 @@ function Card({ children, style: sx }) {
 function SectionHead({ title, icon, action }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-      <h2 style={{ margin: 0, fontFamily: 'Space Grotesk,sans-serif', fontSize: 26, color: C.navy, fontWeight: 700, letterSpacing: '-0.5px', display: 'flex', alignItems: 'center', gap: 10 }}>
+      <h2 style={{ margin: 0, fontFamily: 'Playfair Display,serif', fontSize: 28, color: C.navy, fontWeight: 700, letterSpacing: '-0.3px', display: 'flex', alignItems: 'center', gap: 10 }}>
         {icon} {title}
       </h2>
       {action}
@@ -485,7 +534,7 @@ function SectionHead({ title, icon, action }) {
 
 function SubHead({ children }) {
   return (
-    <div style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: 17, color: C.navy, fontWeight: 600, letterSpacing: '-0.3px', marginBottom: 12, paddingBottom: 6, borderBottom: `1px solid ${C.ivoryDark}` }}>
+    <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 17, color: C.navy, fontWeight: 700, letterSpacing: '0px', marginBottom: 12, paddingBottom: 6, borderBottom: `1px solid ${C.ivoryDark}` }}>
       {children}
     </div>
   );
@@ -515,7 +564,7 @@ function Modal({ title, onClose, children }) {
           padding: '18px 22px 14px', borderBottom: `1px solid ${C.ivoryDark}`,
           position: 'sticky', top: 0, background: C.ivory, borderRadius: '8px 8px 0 0',
         }}>
-          <span style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: 18, color: C.navy, fontWeight: 600 }}>{title}</span>
+          <span style={{ fontFamily: 'Playfair Display,serif', fontSize: 18, color: C.navy, fontWeight: 700 }}>{title}</span>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 22, color: C.textLight, lineHeight: 1 }}>×</button>
         </div>
         <div style={{ padding: '18px 22px' }}>{children}</div>
@@ -600,10 +649,10 @@ function FlightsView({ data, onUpdate }) {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2, flexWrap: 'wrap' }}>
-                  <span style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: 17, color: C.navy, fontWeight: 600 }}>{f.airline}</span>
+                  <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 17, color: C.navy, fontWeight: 600 }}>{f.airline}</span>
                   <span style={{ fontSize: 12, color: C.textLight, fontFamily: 'Inter,sans-serif' }}>{f.numbers}</span>
                 </div>
-                <div style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: 22, color: C.terracotta, fontWeight: 700, marginBottom: 8 }}>{f.route}</div>
+                <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 22, color: C.terracotta, fontWeight: 700, marginBottom: 8 }}>{f.route}</div>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
                   <Pill icon="📅" label={f.date} />
                   <Pill icon="🛫" label={f.departure} />
@@ -685,7 +734,7 @@ function HotelsView({ data, onUpdate }) {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
                   <span style={{ fontSize: 22 }}>{h.name.includes('Virgin') ? '🚢' : '🏨'}</span>
-                  <span style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: 18, color: C.navy, fontWeight: 700 }}>{h.name}</span>
+                  <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 18, color: C.navy, fontWeight: 700 }}>{h.name}</span>
                 </div>
                 <div style={{ fontSize: 13, color: C.textMid, fontFamily: 'Inter,sans-serif', marginBottom: 10 }}>📍 {h.address}</div>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
@@ -814,20 +863,49 @@ function DailyView({ data, onUpdate }) {
 
   const selDay = days[selIdx];
 
+  // Countdown for pill banner
+  const _now = new Date();
+  const _dep = new Date('2026-06-15T00:00:00');
+  const _end = new Date('2026-06-28T23:59:59');
+  const _msDay = 86400000;
+  const _daysUntil = Math.ceil((_dep - _now) / _msDay);
+  const _dayInTrip = _now >= _dep && _now <= _end ? Math.floor((_now - _dep) / _msDay) + 1 : null;
+  const _todayStr = _now.toISOString().split('T')[0];
+  const _todayDay = days.find(d => d.date === _todayStr);
+  let pillMsg = null, pillGrad = `linear-gradient(135deg, ${C.gold}, ${C.terracottaL})`;
+  if (_daysUntil > 0) {
+    pillMsg = `✈️  T-${_daysUntil} day${_daysUntil !== 1 ? 's' : ''} until departure`;
+  } else if (_dayInTrip) {
+    pillMsg = `🌍  Day ${_dayInTrip} of 14 — ${_todayDay ? _todayDay.location : 'on your trip'}`;
+    pillGrad = `linear-gradient(135deg, #2E7D52, #4CAF7D)`;
+  } else if (_now > _end) {
+    pillMsg = `🏠  What an incredible trip!`;
+    pillGrad = `linear-gradient(135deg, ${C.navyMid}, ${C.navy})`;
+  }
+
   return (
     <div>
-      <SectionHead title="Daily Itinerary" icon="📅" action={
+      {pillMsg && (
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 24 }}>
+          <div style={{
+            background: pillGrad, borderRadius: 999, padding: '9px 22px',
+            fontFamily: 'Inter,sans-serif', fontSize: 12, color: C.white, fontWeight: 700,
+            letterSpacing: '.4px', boxShadow: `0 4px 20px rgba(201,150,58,.35)`,
+          }}>{pillMsg}</div>
+        </div>
+      )}
+      <SectionHead title="Itinerary" icon="📅" action={
         <Btn variant="ghost" small onClick={() => { const i = days.findIndex(d => d.date === todayStr); if (i >= 0) setSelIdx(i); }}>
           Today
         </Btn>
       } />
 
       {/* ── CALENDAR GRID ── */}
-      <div style={{ background: C.white, borderRadius: 6, border: `1px solid ${C.ivoryDark}`, overflow: 'hidden', marginBottom: 22 }}>
+      <div style={{ background: C.white, borderRadius: 16, border: `1px solid ${C.ivoryDark}`, overflow: 'hidden', marginBottom: 22, boxShadow: '0 4px 24px rgba(13,27,42,.07)' }}>
 
         {/* Month header */}
-        <div style={{ background: C.navy, borderBottom: `1px solid ${C.navyMid}`, padding: '11px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: 17, color: C.white, fontWeight: 600, letterSpacing: .3 }}>June 2026</div>
+        <div style={{ background: `linear-gradient(135deg, ${C.navy} 0%, ${C.navyMid} 100%)`, borderBottom: `1px solid rgba(255,255,255,.08)`, padding: '13px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 17, color: C.white, fontWeight: 600, letterSpacing: .3 }}>June 2026</div>
           <div style={{ fontSize: 11, color: C.goldL, fontFamily: 'Inter,sans-serif' }}>
             {days.length} days &nbsp;·&nbsp; {days.reduce((s, d) => s + d.events.length, 0)} events
           </div>
@@ -884,7 +962,7 @@ function DailyView({ data, onUpdate }) {
                     borderRadius: '50%',
                     background: isToday ? C.terracotta : isSel ? C.gold : 'transparent',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontFamily: 'Space Grotesk,sans-serif',
+                    fontFamily: 'Inter,sans-serif',
                     fontSize: isMobile ? 13 : 15, fontWeight: 700,
                     color: isToday || isSel ? C.white : isPast ? C.textLight : C.navy,
                     flexShrink: 0, marginBottom: 3,
@@ -938,15 +1016,15 @@ function DailyView({ data, onUpdate }) {
       {/* ── SELECTED DAY PANEL ── */}
       {selDay && (
         <div style={{
-          borderRadius: 6, overflow: 'hidden',
-          border: `1px solid ${selDay.date === todayStr ? C.terracotta : C.ivoryDark}`,
-          boxShadow: selDay.date === todayStr ? `0 0 0 2px ${C.terracotta}44` : 'none',
+          borderRadius: 16, overflow: 'hidden',
+          border: `1px solid ${selDay.date === todayStr ? C.gold : C.ivoryDark}`,
+          boxShadow: selDay.date === todayStr ? `0 0 0 2px ${C.gold}44, 0 8px 32px rgba(13,27,42,.10)` : '0 4px 24px rgba(13,27,42,.08)',
         }}>
           {/* Day header with prev / next */}
           <div style={{
-            background: C.navy,
-            padding: '13px 16px',
-            borderBottom: `1px solid ${C.navyMid}`,
+            background: `linear-gradient(135deg, ${C.navy} 0%, ${C.navyMid} 100%)`,
+            padding: '14px 18px',
+            borderBottom: `1px solid rgba(255,255,255,.08)`,
             display: 'flex', alignItems: 'center', gap: 10,
           }}>
             <button onClick={() => setSelIdx(i => Math.max(0, i - 1))} disabled={selIdx === 0}
@@ -956,7 +1034,7 @@ function DailyView({ data, onUpdate }) {
 
             <div style={{ flex: 1, textAlign: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, flexWrap: 'wrap' }}>
-                <span style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: isMobile ? 15 : 18, color: C.white, fontWeight: 700 }}>{selDay.label}</span>
+                <span style={{ fontFamily: 'Inter,sans-serif', fontSize: isMobile ? 15 : 18, color: C.white, fontWeight: 700 }}>{selDay.label}</span>
                 {selDay.date === todayStr && (
                   <span style={{ background: C.terracotta, color: C.white, fontSize: 10, fontFamily: 'Inter,sans-serif', fontWeight: 700, borderRadius: 3, padding: '2px 8px', textTransform: 'uppercase', letterSpacing: .6 }}>Today</span>
                 )}
@@ -1003,9 +1081,16 @@ function DailyView({ data, onUpdate }) {
               onDragLeave={() => setDragOver(null)}
               style={{ height: 8, borderRadius: 4, transition: 'background .15s', marginBottom: 4, background: dragOver?.dayIdx === selIdx && dragOver?.evtIdx === selDay.events.length ? C.terracottaL + '66' : 'transparent' }}
             />
-            <Btn variant="ghost" small style={{ marginTop: 2, marginBottom: 8 }} onClick={() => setEditEvt({ dayIdx: selIdx, event: blankEvt })}>
-              + Add Event
-            </Btn>
+            <button onClick={() => setEditEvt({ dayIdx: selIdx, event: blankEvt })} style={{
+              width: '100%', boxSizing: 'border-box',
+              border: `2px dashed ${C.gold}66`, borderRadius: 12,
+              padding: '12px 16px', background: 'transparent', cursor: 'pointer',
+              color: C.gold, fontFamily: 'Inter,sans-serif', fontSize: 13, fontWeight: 600,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              marginTop: 6, marginBottom: 8, transition: 'all .2s',
+            }}>
+              ＋ Add Event
+            </button>
           </div>
         </div>
       )}
@@ -1024,7 +1109,7 @@ function DailyView({ data, onUpdate }) {
 }
 
 function EventCard({ evt, isFirst, isLast, isDragging, isOver, onDragStart, onDragOver, onDragLeave, onDrop, onEdit, onDelete, onCycle, onMoveUp, onMoveDown }) {
-  const statusColor = STATUS[evt.status]?.color || C.ivoryDark;
+  const [hovered, setHovered] = useState(false);
   return (
     <div
       draggable
@@ -1032,14 +1117,17 @@ function EventCard({ evt, isFirst, isLast, isDragging, isOver, onDragStart, onDr
       onDragOver={e => { e.preventDefault(); onDragOver(); }}
       onDragLeave={onDragLeave}
       onDrop={e => { e.preventDefault(); onDrop(); }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
         background: isDragging ? C.ivoryMid : C.white,
-        border: `1px solid ${isOver ? C.terracotta : C.ivoryDark}`,
-        borderLeft: `4px solid ${isOver ? C.terracotta : statusColor}`,
-        borderRadius: 4, padding: '10px 13px', marginBottom: 7,
+        border: `1px solid ${isOver ? C.gold : C.ivoryDark}`,
+        borderLeft: `4px solid ${C.gold}`,
+        borderRadius: 12, padding: '12px 14px', marginBottom: 8,
         cursor: 'grab', opacity: isDragging ? 0.45 : 1,
-        transition: 'border-color .15s, box-shadow .15s',
-        boxShadow: isOver ? `0 3px 14px ${C.terracotta}33` : 'none',
+        transition: 'transform .18s ease, box-shadow .18s ease, border-color .15s',
+        boxShadow: hovered ? `0 8px 28px rgba(13,27,42,.13)` : '0 2px 12px rgba(13,27,42,.06)',
+        transform: hovered && !isDragging ? 'translateY(-2px)' : 'translateY(0)',
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, flexWrap: 'wrap' }}>
@@ -1047,7 +1135,7 @@ function EventCard({ evt, isFirst, isLast, isDragging, isOver, onDragStart, onDr
           <span style={{ fontSize: 11, color: C.textLight, fontFamily: 'Inter,sans-serif', fontWeight: 600, minWidth: 62, paddingTop: 2, flexShrink: 0 }}>{evt.time}</span>
           <span style={{ fontSize: 18, flexShrink: 0 }}>{(TYPE[evt.type] || TYPE.other).icon}</span>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: 15, color: C.navy, fontWeight: 600 }}>{evt.title}</div>
+            <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 15, color: C.navy, fontWeight: 600 }}>{evt.title}</div>
             {evt.description && <div style={{ fontSize: 12, color: C.textMid, fontFamily: 'Inter,sans-serif', marginTop: 2 }}>{evt.description}</div>}
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 5 }}>
               {evt.location && <Pill icon="📍" label={evt.location} small />}
@@ -1057,7 +1145,6 @@ function EventCard({ evt, isFirst, isLast, isDragging, isOver, onDragStart, onDr
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
           <StatusBadge status={evt.status} onClick={onCycle} />
-          {/* ↑↓ reorder — works on touch (iPad) where drag-and-drop doesn't fire */}
           <div style={{ display: 'flex', gap: 2 }}>
             <button onClick={onMoveUp} disabled={isFirst} title="Move up" style={{
               background: isFirst ? C.ivoryDark : C.ivoryMid, border: 'none',
@@ -1071,8 +1158,8 @@ function EventCard({ evt, isFirst, isLast, isDragging, isOver, onDragStart, onDr
             }}>↓</button>
           </div>
           <div style={{ display: 'flex', gap: 4 }}>
-            <Btn small variant="ghost" onClick={onEdit}>Edit</Btn>
-            <Btn small variant="danger" onClick={onDelete}>Del</Btn>
+            <button onClick={onEdit} title="Edit" style={{ background: C.ivoryMid, border: `1px solid ${C.ivoryDark}`, borderRadius: 6, width: 30, height: 30, cursor: 'pointer', fontSize: 15, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✏️</button>
+            <button onClick={onDelete} title="Delete" style={{ background: C.red + '14', border: `1px solid ${C.red}33`, borderRadius: 6, width: 30, height: 30, cursor: 'pointer', fontSize: 15, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🗑️</button>
           </div>
         </div>
       </div>
@@ -1128,7 +1215,7 @@ function RestaurantsView({ data, onUpdate }) {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10, flexWrap: 'wrap' }}>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginBottom: 4 }}>
-                  <span style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: 16, color: C.navy, fontWeight: 600 }}>{r.name}</span>
+                  <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 16, color: C.navy, fontWeight: 600 }}>{r.name}</span>
                   <span style={{ fontSize: 11, color: C.textLight, background: C.ivoryMid, borderRadius: 3, padding: '1px 8px', fontFamily: 'Inter,sans-serif' }}>{r.cuisine}</span>
                 </div>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
@@ -1209,7 +1296,7 @@ function TodoView({ data, onUpdate }) {
               <div style={{ height: '100%', width: `${pct}%`, background: `linear-gradient(90deg, ${C.terracotta}, ${C.gold})`, borderRadius: 5, transition: 'width .4s ease' }} />
             </div>
           </div>
-          <div style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: 32, color: C.terracotta, fontWeight: 700 }}>{pct}%</div>
+          <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 32, color: C.terracotta, fontWeight: 700 }}>{pct}%</div>
         </div>
       </Card>
 
@@ -1232,7 +1319,7 @@ function TodoView({ data, onUpdate }) {
       ))}
 
       <Card style={{ marginTop: 8 }}>
-        <div style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: 14, color: C.navy, marginBottom: 10 }}>Add New Task</div>
+        <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 14, color: C.navy, marginBottom: 10 }}>Add New Task</div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <select value={newCat} onChange={e => setNewCat(e.target.value)}
             style={{ border: `1px solid ${C.ivoryDark}`, borderRadius: 8, padding: '8px 10px', fontFamily: 'Inter,sans-serif', fontSize: 12, background: C.white, color: C.text }}>
@@ -1241,6 +1328,108 @@ function TodoView({ data, onUpdate }) {
           <input value={newTask} onChange={e => setNewTask(e.target.value)} onKeyDown={e => e.key === 'Enter' && add()}
             placeholder="Add a task... (press Enter)"
             style={{ flex: 1, minWidth: 160, border: `1px solid ${C.ivoryDark}`, borderRadius: 8, padding: '8px 12px', fontFamily: 'Inter,sans-serif', fontSize: 13, color: C.text, outline: 'none' }} />
+          <Btn variant="primary" onClick={add}>Add</Btn>
+        </div>
+      </Card>
+      {confirmModal}
+    </div>
+  );
+}
+
+/* ─── PACKING VIEW ──────────────────────────────────────── */
+const PACK_CATS = ['Documents', 'Money & Cards', 'Cruise Attire', 'Clothing', 'Shoes', 'Beach & Pool', 'Toiletries', 'Health', 'Electronics', 'Bags', 'Other'];
+
+function PackingView({ data, onUpdate }) {
+  const [newItem, setNewItem] = useState('');
+  const [newCat, setNewCat] = useState('Clothing');
+  const [filter, setFilter] = useState('all');
+  const [confirm, confirmModal] = useConfirm();
+
+  const items = data.packing || [];
+  const visible = filter === 'unpacked' ? items.filter(p => !p.packed) : items;
+  const packedCount = items.filter(p => p.packed).length;
+  const total = items.length;
+  const pct = total ? Math.round((packedCount / total) * 100) : 0;
+
+  const toggle = (id) => onUpdate(d => ({ ...d, lastUpdated: new Date().toISOString(), packing: d.packing.map(p => p.id === id ? { ...p, packed: !p.packed } : p) }));
+  const del = async (id, item) => {
+    if (await confirm(`Remove "${item}" from packing list?`))
+      onUpdate(d => ({ ...d, packing: d.packing.filter(p => p.id !== id), lastUpdated: new Date().toISOString() }));
+  };
+  const add = () => {
+    if (!newItem.trim()) return;
+    onUpdate(d => ({ ...d, lastUpdated: new Date().toISOString(), packing: [...(d.packing || []), { id: uid(), cat: newCat, item: newItem.trim(), packed: false, notes: '' }] }));
+    setNewItem('');
+  };
+
+  const activeCats = [...PACK_CATS, ...visible.map(p => p.cat)].filter((c, i, a) => a.indexOf(c) === i).filter(cat => visible.some(p => p.cat === cat));
+
+  return (
+    <div>
+      <SectionHead title="Packing List" icon="🧳" action={
+        <div style={{ display: 'flex', gap: 6 }}>
+          <Btn small variant={filter === 'all' ? 'primary' : 'ghost'} onClick={() => setFilter('all')}>All</Btn>
+          <Btn small variant={filter === 'unpacked' ? 'primary' : 'ghost'} onClick={() => setFilter('unpacked')}>Unpacked</Btn>
+        </div>
+      } />
+
+      <Card style={{ marginBottom: 22 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 13, color: C.textMid, marginBottom: 8 }}>
+              {packedCount} of {total} items packed
+            </div>
+            <div style={{ height: 10, background: C.ivoryDark, borderRadius: 5, overflow: 'hidden' }}>
+              <div style={{ height: '100%', width: `${pct}%`, background: pct === 100 ? `linear-gradient(90deg, ${C.green}, ${C.green})` : `linear-gradient(90deg, ${C.terracotta}, ${C.gold})`, borderRadius: 5, transition: 'width .4s ease' }} />
+            </div>
+          </div>
+          <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 32, color: pct === 100 ? C.green : C.terracotta, fontWeight: 700 }}>{pct}%</div>
+        </div>
+        {pct === 100 && <div style={{ marginTop: 10, fontSize: 13, color: C.green, fontFamily: 'Inter,sans-serif', fontWeight: 600 }}>✈️ All packed — have an amazing trip!</div>}
+      </Card>
+
+      {activeCats.map(cat => {
+        const catItems = visible.filter(p => p.cat === cat);
+        const catPacked = items.filter(p => p.cat === cat && p.packed).length;
+        const catTotal = items.filter(p => p.cat === cat).length;
+        return (
+          <div key={cat} style={{ marginBottom: 20 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: C.terracotta, fontFamily: 'Inter,sans-serif', textTransform: 'uppercase', letterSpacing: 1.2 }}>{cat}</div>
+              <span style={{ fontSize: 11, fontFamily: 'Inter,sans-serif', fontWeight: 600, color: catPacked === catTotal ? C.green : C.textLight }}>{catPacked}/{catTotal}</span>
+            </div>
+            {catItems.map(p => (
+              <div key={p.id} style={{
+                display: 'flex', alignItems: 'flex-start', gap: 12,
+                padding: '10px 14px', marginBottom: 6,
+                background: p.packed ? C.ivoryMid : C.white,
+                border: `1px solid ${C.ivoryDark}`,
+                borderLeft: `4px solid ${p.packed ? C.green : C.ivoryDark}`,
+                borderRadius: 4, transition: 'all .2s',
+              }}>
+                <input type="checkbox" checked={p.packed} onChange={() => toggle(p.id)}
+                  style={{ width: 18, height: 18, cursor: 'pointer', accentColor: C.terracotta, flexShrink: 0, marginTop: 1 }} />
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 14, color: p.packed ? C.textLight : C.text, textDecoration: p.packed ? 'line-through' : 'none' }}>{p.item}</div>
+                  {p.notes && <div style={{ fontSize: 11, color: C.textLight, fontFamily: 'Inter,sans-serif', marginTop: 2, fontStyle: 'italic' }}>{p.notes}</div>}
+                </div>
+                <button onClick={() => del(p.id, p.item)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.textLight, fontSize: 18, flexShrink: 0, lineHeight: 1 }}>×</button>
+              </div>
+            ))}
+          </div>
+        );
+      })}
+
+      <Card style={{ marginTop: 8 }}>
+        <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 14, color: C.navy, marginBottom: 10 }}>Add Item</div>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <select value={newCat} onChange={e => setNewCat(e.target.value)}
+            style={{ border: `1px solid ${C.ivoryDark}`, borderRadius: 4, padding: '8px 10px', fontFamily: 'Inter,sans-serif', fontSize: 12, background: C.white, color: C.text }}>
+            {PACK_CATS.map(c => <option key={c}>{c}</option>)}
+          </select>
+          <input value={newItem} onChange={e => setNewItem(e.target.value)} onKeyDown={e => e.key === 'Enter' && add()}
+            placeholder="Add an item… (press Enter)"
+            style={{ flex: 1, minWidth: 160, border: `1px solid ${C.ivoryDark}`, borderRadius: 4, padding: '8px 12px', fontFamily: 'Inter,sans-serif', fontSize: 13, color: C.text, outline: 'none' }} />
           <Btn variant="primary" onClick={add}>Add</Btn>
         </div>
       </Card>
@@ -1301,13 +1490,13 @@ function BudgetView({ data, onUpdate }) {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3 }}>
               <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 18, color, alignSelf: 'flex-start', marginTop: 3 }}>$</span>
               <input type="number" step="0.01" value={totals[key]} onChange={e => setTotal(key, e.target.value)}
-                style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: 26, color, fontWeight: 700, border: 'none', background: 'transparent', width: 120, textAlign: 'center', outline: 'none' }} />
+                style={{ fontFamily: 'Inter,sans-serif', fontSize: 26, color, fontWeight: 700, border: 'none', background: 'transparent', width: 120, textAlign: 'center', outline: 'none' }} />
             </div>
           </Card>
         ))}
         <Card style={{ textAlign: 'center', padding: '18px 14px', borderTop: `4px solid ${C.gold}`, background: C.navy }}>
           <div style={{ fontSize: 11, color: C.goldL + 'AA', fontFamily: 'Inter,sans-serif', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Total Trip</div>
-          <div style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: 26, color: C.goldL, fontWeight: 700 }}>${grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+          <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 26, color: C.goldL, fontWeight: 700 }}>${grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
         </Card>
       </div>
 
@@ -1336,7 +1525,7 @@ function BudgetView({ data, onUpdate }) {
             {catTotals.map(({ cat, f, a, total }) => (
               <div key={cat} style={{ background: C.white, borderRadius: 4, padding: '10px 14px', border: `1px solid ${C.ivoryDark}` }}>
                 <div style={{ fontSize: 11, fontWeight: 700, color: C.textMid, fontFamily: 'Inter,sans-serif', textTransform: 'uppercase', letterSpacing: .6, marginBottom: 4 }}>{cat}</div>
-                <div style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: 16, color: C.navy, fontWeight: 700 }}>${total.toFixed(2)}</div>
+                <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 16, color: C.navy, fontWeight: 700 }}>${total.toFixed(2)}</div>
                 {(f > 0 || a > 0) && (
                   <div style={{ fontSize: 11, color: C.textLight, fontFamily: 'Inter,sans-serif', marginTop: 2 }}>
                     {f > 0 && <span style={{ color: C.terracotta }}>F ${f.toFixed(0)} </span>}
@@ -1445,7 +1634,7 @@ function EmergencyView({ data, onUpdate }) {
             }}>
               <span style={{ fontSize: 24 }}>{countryFlag[n.country] || '🌐'}</span>
               <div>
-                <div style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: 22, fontWeight: 700, color: n.country === 'All' ? C.goldL : C.red }}>{n.number}</div>
+                <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 22, fontWeight: 700, color: n.country === 'All' ? C.goldL : C.red }}>{n.number}</div>
                 <div style={{ fontSize: 11, fontFamily: 'Inter,sans-serif', color: n.country === 'All' ? C.ivoryMid : C.textMid }}>{n.description}</div>
               </div>
             </div>
@@ -1459,7 +1648,7 @@ function EmergencyView({ data, onUpdate }) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           {travelers.map(t => (
             <Card key={t.id}>
-              <div style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: 16, color: C.navy, fontWeight: 600, marginBottom: 12 }}>🧳 {t.name}</div>
+              <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 16, color: C.navy, fontWeight: 600, marginBottom: 12 }}>🧳 {t.name}</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))', gap: 10 }}>
                 {[
                   ['Emergency Contact Name', 'contact'],
@@ -1488,7 +1677,7 @@ function EmergencyView({ data, onUpdate }) {
             <Card key={c.id} style={{ borderLeft: `4px solid ${C.gold}` }}>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 10 }}>
                 <span style={{ fontSize: 20 }}>{countryFlag[c.country] || '🌐'}</span>
-                <span style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: 15, color: C.navy, fontWeight: 600 }}>{c.name}</span>
+                <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 15, color: C.navy, fontWeight: 600 }}>{c.name}</span>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 {[['Address', 'address'], ['Phone', 'phone']].map(([lbl, fld]) => (
@@ -1545,6 +1734,7 @@ const TABS = [
   { id: 'flights',     label: 'Flights',     icon: '✈️' },
   { id: 'hotels',      label: 'Hotels',      icon: '🏨' },
   { id: 'dining',      label: 'Dining',      icon: '🍽️' },
+  { id: 'packing',     label: 'Packing',     icon: '🧳' },
   { id: 'todos',       label: 'To-Do',       icon: '✅' },
   { id: 'budget',      label: 'Budget',      icon: '💰' },
   { id: 'emergency',   label: 'Emergency',   icon: '🚨' },
@@ -1555,7 +1745,7 @@ const BOTTOM_TABS = [
   { id: 'itinerary', label: 'Trip',      icon: '📅' },
   { id: 'flights',   label: 'Flights',   icon: '✈️' },
   { id: 'hotels',    label: 'Hotels',    icon: '🏨' },
-  { id: 'todos',     label: 'To-Do',     icon: '✅' },
+  { id: 'packing',   label: 'Packing',   icon: '🧳' },
   { id: 'budget',    label: 'Budget',    icon: '💰' },
 ];
 
@@ -1591,7 +1781,7 @@ export default function App() {
   if (!data) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', background: C.ivory, gap: 16 }}>
-        <div style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: 26, color: C.navy, fontWeight: 700 }}>✦ Girls Trip 2026</div>
+        <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 28, color: C.navy, fontWeight: 700, letterSpacing: '0.3px' }}>Girls Trip 2026</div>
         <div style={{ fontFamily: 'Inter,sans-serif', color: C.textLight, fontSize: 14 }}>Loading your itinerary…</div>
         <div style={{ width: 48, height: 4, borderRadius: 2, background: `linear-gradient(90deg, ${C.terracotta}, ${C.gold})`, animation: 'pulse 1.2s ease-in-out infinite' }} />
         <style>{`@keyframes pulse { 0%,100% { opacity:.3 } 50% { opacity:1 } }`}</style>
@@ -1632,17 +1822,18 @@ export default function App() {
 
       {/* ── HEADER ── */}
       <header data-noprint style={{
-        background: C.navy,
+        background: `linear-gradient(160deg, ${C.navy} 0%, #162840 60%, #1A2E45 100%)`,
         position: 'sticky', top: 0, zIndex: 200,
-        borderBottom: `1px solid ${C.navyMid}`,
+        borderBottom: `1px solid rgba(255,255,255,.06)`,
+        boxShadow: '0 4px 32px rgba(13,27,42,.35)',
       }}>
-        <div style={{ padding: '14px 20px 10px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+        <div style={{ padding: '16px 20px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
           <div>
-            <div style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: 21, color: C.white, fontWeight: 700, letterSpacing: '-0.5px', lineHeight: 1.1 }}>
-              ✦ {data.meta.tripName}
+            <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 24, color: C.white, fontWeight: 700, letterSpacing: '0.3px', lineHeight: 1.15 }}>
+              {data.meta.tripName}
             </div>
-            <div style={{ fontSize: 12, color: C.goldL, fontFamily: 'Inter,sans-serif', marginTop: 3 }}>
-              {data.meta.tagline} &nbsp;·&nbsp; {data.meta.dates}
+            <div style={{ fontSize: 12, color: C.goldL, fontFamily: 'Inter,sans-serif', marginTop: 4, letterSpacing: '0.5px' }}>
+              {data.meta.tagline} &nbsp;—&nbsp; {data.meta.dates}
             </div>
           </div>
           <div style={{ textAlign: 'right', flexShrink: 0 }}>
@@ -1657,23 +1848,17 @@ export default function App() {
           </div>
         </div>
 
-        {/* Countdown strip */}
-        {countdownMsg && (
-          <div style={{ background: countdownBg, padding: '6px 20px', fontFamily: 'Inter,sans-serif', fontSize: 12, color: C.white, fontWeight: 600, letterSpacing: .3 }}>
-            {countdownMsg}
-          </div>
-        )}
-
         {/* Tab bar — hidden on mobile (use bottom nav instead) */}
         {!isMobile && (
-          <div style={{ display: 'flex', overflowX: 'auto', paddingLeft: 8, paddingRight: 8, scrollbarWidth: 'none' }}>
+          <div style={{ display: 'flex', overflowX: 'auto', padding: '8px 10px 6px', scrollbarWidth: 'none', gap: 2 }}>
             {TABS.map(t => (
               <button key={t.id} onClick={() => setTab(t.id)} style={{
-                background: 'none', border: 'none', cursor: 'pointer',
-                padding: '9px 14px', fontSize: 13, fontFamily: 'Inter,sans-serif', fontWeight: 600,
-                color: tab === t.id ? C.gold : C.white + 'BB',
-                borderBottom: `3px solid ${tab === t.id ? C.gold : 'transparent'}`,
-                whiteSpace: 'nowrap', transition: 'color .2s, border-color .2s',
+                background: tab === t.id ? `rgba(201,150,58,.18)` : 'transparent',
+                border: `1px solid ${tab === t.id ? `rgba(201,150,58,.45)` : 'transparent'}`,
+                borderRadius: 999, cursor: 'pointer',
+                padding: '6px 14px', fontSize: 12, fontFamily: 'Inter,sans-serif', fontWeight: 600,
+                color: tab === t.id ? C.goldL : C.white + 'AA',
+                whiteSpace: 'nowrap', transition: 'all .2s',
                 display: 'flex', alignItems: 'center', gap: 5,
               }}>
                 <span>{t.icon}</span>
@@ -1690,6 +1875,7 @@ export default function App() {
         {tab === 'flights'   && <FlightsView      data={data} onUpdate={setData} />}
         {tab === 'hotels'    && <HotelsView        data={data} onUpdate={setData} />}
         {tab === 'dining'    && <RestaurantsView   data={data} onUpdate={setData} />}
+        {tab === 'packing'   && <PackingView       data={data} onUpdate={setData} />}
         {tab === 'todos'     && <TodoView          data={data} onUpdate={setData} />}
         {tab === 'budget'    && <BudgetView        data={data} onUpdate={setData} />}
         {tab === 'emergency' && <EmergencyView     data={data} onUpdate={setData} />}
@@ -1707,27 +1893,44 @@ export default function App() {
           {BOTTOM_TABS.map(t => (
             <button key={t.id} onClick={() => setTab(t.id)} style={{
               flex: 1, background: 'none', border: 'none', cursor: 'pointer',
-              padding: '10px 4px 8px', display: 'flex', flexDirection: 'column',
-              alignItems: 'center', gap: 3,
-              borderTop: `3px solid ${tab === t.id ? C.terracotta : 'transparent'}`,
-              transition: 'border-color .15s',
+              padding: '8px 4px 6px', display: 'flex', flexDirection: 'column',
+              alignItems: 'center', gap: 2, transition: 'all .15s',
             }}>
-              <span style={{ fontSize: 22 }}>{t.icon}</span>
-              <span style={{ fontSize: 10, fontFamily: 'Inter,sans-serif', fontWeight: 600, color: tab === t.id ? C.terracotta : C.textLight }}>{t.label}</span>
+              <div style={{
+                width: 44, height: 32, borderRadius: 999,
+                background: tab === t.id ? C.terracotta + '20' : 'transparent',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'background .15s',
+              }}>
+                <span style={{ fontSize: 20 }}>{t.icon}</span>
+              </div>
+              <span style={{ fontSize: 9, fontFamily: 'Inter,sans-serif', fontWeight: 700, color: tab === t.id ? C.terracotta : C.textLight, textTransform: 'uppercase', letterSpacing: '.5px' }}>{t.label}</span>
             </button>
           ))}
-          {/* More button for dining/emergency */}
-          <button onClick={() => setTab(tab === 'dining' ? 'emergency' : 'dining')} style={{
-            flex: 1, background: 'none', border: 'none', cursor: 'pointer',
-            padding: '10px 4px 8px', display: 'flex', flexDirection: 'column',
-            alignItems: 'center', gap: 3,
-            borderTop: `3px solid ${(tab === 'dining' || tab === 'emergency') ? C.terracotta : 'transparent'}`,
-          }}>
-            <span style={{ fontSize: 22 }}>{tab === 'emergency' ? '🚨' : '🍽️'}</span>
-            <span style={{ fontSize: 10, fontFamily: 'Inter,sans-serif', fontWeight: 600, color: (tab === 'dining' || tab === 'emergency') ? C.terracotta : C.textLight }}>
-              {tab === 'emergency' ? 'SOS' : 'Dining'}
-            </span>
-          </button>
+          {/* More button cycles: dining → todos → emergency */}
+          {(() => {
+            const moreActive = tab === 'dining' || tab === 'todos' || tab === 'emergency';
+            const moreIcon  = tab === 'emergency' ? '🚨' : tab === 'todos' ? '✅' : '🍽️';
+            const moreLabel = tab === 'emergency' ? 'SOS' : tab === 'todos' ? 'To-Do' : 'Dining';
+            const nextTab   = tab === 'dining' ? 'todos' : tab === 'todos' ? 'emergency' : 'dining';
+            return (
+              <button onClick={() => setTab(nextTab)} style={{
+                flex: 1, background: 'none', border: 'none', cursor: 'pointer',
+                padding: '8px 4px 6px', display: 'flex', flexDirection: 'column',
+                alignItems: 'center', gap: 2, transition: 'all .15s',
+              }}>
+                <div style={{
+                  width: 44, height: 32, borderRadius: 999,
+                  background: moreActive ? C.terracotta + '20' : 'transparent',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  transition: 'background .15s',
+                }}>
+                  <span style={{ fontSize: 20 }}>{moreIcon}</span>
+                </div>
+                <span style={{ fontSize: 9, fontFamily: 'Inter,sans-serif', fontWeight: 700, color: moreActive ? C.terracotta : C.textLight, textTransform: 'uppercase', letterSpacing: '.5px' }}>{moreLabel}</span>
+              </button>
+            );
+          })()}
         </nav>
       ) : (
         <div data-noprint style={{ height: 4, background: `linear-gradient(90deg, ${C.terracotta}, ${C.gold}, ${C.navyMid})`, position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 100 }} />
