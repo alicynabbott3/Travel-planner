@@ -50,6 +50,98 @@ const TYPE = {
 const uid = () => Math.random().toString(36).substr(2, 9);
 const nextStatus = (s) => STATUSES[(STATUSES.indexOf(s) + 1) % STATUSES.length];
 
+/* ─── PACKING TEMPLATE ──────────────────────────────────── */
+const PACK_CATS = [
+  'Documents & Travel', 'Money & Cards', 'Cruise Essentials',
+  'Clothing', 'Footwear', 'Beach & Pool', 'Toiletries & Beauty',
+  'Health & Wellness', 'Electronics', 'Bags & Luggage',
+];
+
+const PACKING_TEMPLATE = [
+  // Documents & Travel
+  { cat: 'Documents & Travel', item: 'Passport (valid 6+ months past June 28, 2026)', notes: 'Check expiry NOW!' },
+  { cat: 'Documents & Travel', item: 'Flight confirmations (CBWO8M, 8U8KBK, C7253B)', notes: 'Print or save to phone' },
+  { cat: 'Documents & Travel', item: 'Travel insurance documents', notes: 'Keep accessible at all times' },
+  { cat: 'Documents & Travel', item: 'Dog Admiral confirmation BB26031720350199', notes: '' },
+  { cat: 'Documents & Travel', item: 'H10 Art Gallery confirmation', notes: "See Alicyn's email" },
+  { cat: 'Documents & Travel', item: 'Cruise confirmation 2478994', notes: '' },
+  { cat: 'Documents & Travel', item: "Driver's license (backup ID)", notes: '' },
+  { cat: 'Documents & Travel', item: 'Copies of all docs saved to phone & cloud', notes: 'Email to yourself too' },
+  { cat: 'Documents & Travel', item: 'Virgin Voyages app downloaded & account set up', notes: 'Set up Sailor Loot onboard account' },
+  // Money & Cards
+  { cat: 'Money & Cards', item: 'Euros (€200+ recommended)', notes: '€10 cash for Sóller tram (June 18)' },
+  { cat: 'Money & Cards', item: 'Credit card with no foreign transaction fees', notes: '' },
+  { cat: 'Money & Cards', item: 'Backup debit card', notes: '' },
+  { cat: 'Money & Cards', item: 'Emergency cash (hidden separately)', notes: '' },
+  { cat: 'Money & Cards', item: 'Bank notified of travel dates', notes: '' },
+  // Cruise Essentials
+  { cat: 'Cruise Essentials', item: 'Scarlet / red outfit for Scarlet Night (June 20)', notes: 'Dress code: SCARLET / RED 🌹' },
+  { cat: 'Cruise Essentials', item: 'Pajamas for PJ Night (June 26)', notes: 'Themed party onboard 😴' },
+  { cat: 'Cruise Essentials', item: 'Dressy cocktail outfit for ship dining', notes: '' },
+  { cat: 'Cruise Essentials', item: 'Smart casual outfits (5–6 sets)', notes: '' },
+  { cat: 'Cruise Essentials', item: 'Lanyard or card holder for ship key card', notes: 'Handy onboard' },
+  // Clothing
+  { cat: 'Clothing', item: 'Casual sundresses (4–5)', notes: '' },
+  { cat: 'Clothing', item: 'Lightweight pants / jeans (2 pairs)', notes: '' },
+  { cat: 'Clothing', item: 'Comfortable walking outfits (2)', notes: 'Cobblestones in Barcelona & Rome!' },
+  { cat: 'Clothing', item: 'Light cardigan or wrap', notes: 'Evenings on deck can be breezy' },
+  { cat: 'Clothing', item: 'Tank tops / t-shirts (3–4)', notes: '' },
+  // Footwear
+  { cat: 'Footwear', item: 'Comfortable walking shoes', notes: 'ESSENTIAL — Barcelona, Rome & Cinque Terre!' },
+  { cat: 'Footwear', item: 'Sandals / flats', notes: '' },
+  { cat: 'Footwear', item: 'Heels or wedges for dinner', notes: '' },
+  { cat: 'Footwear', item: 'Flip flops / slides', notes: 'Pool deck & beach club' },
+  // Beach & Pool
+  { cat: 'Beach & Pool', item: 'Swimsuit (2–3)', notes: '' },
+  { cat: 'Beach & Pool', item: 'Cover-up / sarong', notes: '' },
+  { cat: 'Beach & Pool', item: 'Reef-safe sunscreen SPF 50+', notes: 'Required at Cinque Terre & Cala Bassa' },
+  { cat: 'Beach & Pool', item: 'Sunglasses + case', notes: '' },
+  { cat: 'Beach & Pool', item: 'Beach tote / bag', notes: '' },
+  { cat: 'Beach & Pool', item: 'Waterproof phone pouch', notes: 'Cinque Terre swimming & Cala Bassa Beach Club' },
+  { cat: 'Beach & Pool', item: 'After-sun lotion', notes: '' },
+  { cat: 'Beach & Pool', item: 'Lip balm with SPF', notes: '' },
+  // Toiletries & Beauty
+  { cat: 'Toiletries & Beauty', item: 'Shampoo & conditioner (travel size)', notes: 'Cruise cabin has basics' },
+  { cat: 'Toiletries & Beauty', item: 'Body wash & face wash', notes: '' },
+  { cat: 'Toiletries & Beauty', item: 'Moisturizer & face SPF', notes: '' },
+  { cat: 'Toiletries & Beauty', item: 'Makeup kit', notes: '' },
+  { cat: 'Toiletries & Beauty', item: 'Makeup remover wipes', notes: '' },
+  { cat: 'Toiletries & Beauty', item: 'Deodorant', notes: '' },
+  { cat: 'Toiletries & Beauty', item: 'Razor + refills', notes: '' },
+  { cat: 'Toiletries & Beauty', item: 'Feminine hygiene products', notes: '' },
+  { cat: 'Toiletries & Beauty', item: 'Toothbrush & toothpaste', notes: '' },
+  { cat: 'Toiletries & Beauty', item: 'Hair tools (straightener / curling iron)', notes: 'Bring universal adapter!' },
+  { cat: 'Toiletries & Beauty', item: 'Dry shampoo', notes: '' },
+  { cat: 'Toiletries & Beauty', item: 'Perfume (travel size)', notes: '' },
+  // Health & Wellness
+  { cat: 'Health & Wellness', item: 'Motion sickness medication', notes: 'Sea days: June 21, 25 & sailing nights!' },
+  { cat: 'Health & Wellness', item: 'Pain reliever (ibuprofen / Tylenol)', notes: '' },
+  { cat: 'Health & Wellness', item: 'Prescription medications (full supply + 2 extra days)', notes: 'Keep in carry-on!' },
+  { cat: 'Health & Wellness', item: 'Antacid / digestive tablets', notes: 'Rich food ahead!' },
+  { cat: 'Health & Wellness', item: 'Band-aids & blister pads', notes: 'Lots of walking!' },
+  { cat: 'Health & Wellness', item: 'Hand sanitizer', notes: '' },
+  { cat: 'Health & Wellness', item: 'Allergy medication (if needed)', notes: '' },
+  { cat: 'Health & Wellness', item: 'Melatonin', notes: 'Jet lag & overnight flight June 16' },
+  // Electronics
+  { cat: 'Electronics', item: 'Phone + charging cable', notes: '' },
+  { cat: 'Electronics', item: 'Universal power adapter Type C/F', notes: 'Spain, France & Italy — all need it!' },
+  { cat: 'Electronics', item: 'Portable power bank', notes: '' },
+  { cat: 'Electronics', item: 'Headphones / earbuds', notes: 'LAX → Montreal → Barcelona overnight flight' },
+  { cat: 'Electronics', item: 'Camera + extra memory card', notes: 'Optional' },
+  { cat: 'Electronics', item: 'Eye mask & earplugs', notes: 'Overnight flight June 16' },
+  { cat: 'Electronics', item: 'Travel pillow', notes: '8+ hours in the air each way' },
+  // Bags & Luggage
+  { cat: 'Bags & Luggage', item: 'Checked luggage', notes: '' },
+  { cat: 'Bags & Luggage', item: 'Carry-on bag', notes: 'Keep valuables & meds in here' },
+  { cat: 'Bags & Luggage', item: 'Anti-theft crossbody bag', notes: 'Barcelona, Rome & Cannes city days' },
+  { cat: 'Bags & Luggage', item: 'Day backpack for excursions', notes: 'Cinque Terre & Valldemossa tour' },
+  { cat: 'Bags & Luggage', item: 'Packing cubes', notes: 'Game changer for cruise cabin space!' },
+  { cat: 'Bags & Luggage', item: 'Reusable water bottle', notes: '' },
+];
+
+const makePackingList = (prefix) =>
+  PACKING_TEMPLATE.map((t, i) => ({ ...t, id: `${prefix}_${i}`, packed: false }));
+
 /* ─── INITIAL DATA ──────────────────────────────────────── */
 const INIT = {
   meta: {
@@ -283,54 +375,11 @@ const INIT = {
     { id: 'td24', cat: 'Packing',  task: 'Portable charger / power bank',                           done: false },
   ],
 
-  packing: [
-    { id: 'pk1',  cat: 'Documents',     item: 'Passport (valid 6+ months past June 28, 2026)',        packed: false, notes: '' },
-    { id: 'pk2',  cat: 'Documents',     item: 'Flight confirmations (CBWO8M, 8U8KBK, C7253B)',        packed: false, notes: 'Print or save to phone' },
-    { id: 'pk3',  cat: 'Documents',     item: 'Dog Admiral confirmation BB26031720350199',             packed: false, notes: '' },
-    { id: 'pk4',  cat: 'Documents',     item: 'H10 Art Gallery — see Alicyn\'s email',                packed: false, notes: '' },
-    { id: 'pk5',  cat: 'Documents',     item: 'Cruise confirmation 2478994',                          packed: false, notes: '' },
-    { id: 'pk6',  cat: 'Documents',     item: 'Travel insurance documents',                           packed: false, notes: '' },
-    { id: 'pk7',  cat: 'Money & Cards', item: 'Euros (€200+ per person recommended)',                 packed: false, notes: '€10 cash for Sóller tram (June 18)' },
-    { id: 'pk8',  cat: 'Money & Cards', item: 'Credit card with no foreign transaction fees',         packed: false, notes: '' },
-    { id: 'pk9',  cat: 'Money & Cards', item: 'Notify bank of travel dates before leaving',           packed: false, notes: '' },
-    { id: 'pk10', cat: 'Money & Cards', item: 'Emergency backup cash (hidden)',                       packed: false, notes: '' },
-    { id: 'pk11', cat: 'Cruise Attire', item: 'Scarlet / red outfit — Scarlet Night (June 20)',       packed: false, notes: 'Dress code: SCARLET / RED 🌹' },
-    { id: 'pk12', cat: 'Cruise Attire', item: 'Pajamas — PJ Night (June 26)',                         packed: false, notes: 'Themed party onboard 😴' },
-    { id: 'pk13', cat: 'Cruise Attire', item: 'Cocktail / dressy outfit for ship dining',             packed: false, notes: '' },
-    { id: 'pk14', cat: 'Cruise Attire', item: 'Smart casual outfits (5–6 sets)',                      packed: false, notes: '' },
-    { id: 'pk15', cat: 'Clothing',      item: 'Casual dresses / tops (5–6)',                          packed: false, notes: '' },
-    { id: 'pk16', cat: 'Clothing',      item: 'Lightweight pants / jeans (2 pairs)',                  packed: false, notes: '' },
-    { id: 'pk17', cat: 'Clothing',      item: 'Comfortable walking outfit (2)',                       packed: false, notes: 'Barcelona & Rome have cobblestones!' },
-    { id: 'pk18', cat: 'Clothing',      item: 'Light cardigan or wrap',                               packed: false, notes: 'Evening breeze on deck' },
-    { id: 'pk19', cat: 'Shoes',         item: 'Comfortable walking shoes',                            packed: false, notes: 'Essential for Barcelona & Rome!' },
-    { id: 'pk20', cat: 'Shoes',         item: 'Sandals / flats',                                      packed: false, notes: '' },
-    { id: 'pk21', cat: 'Shoes',         item: 'Heels / wedges for dining',                            packed: false, notes: '' },
-    { id: 'pk22', cat: 'Shoes',         item: 'Flip flops / slides (pool deck)',                      packed: false, notes: '' },
-    { id: 'pk23', cat: 'Beach & Pool',  item: 'Swimsuits (2–3)',                                      packed: false, notes: '' },
-    { id: 'pk24', cat: 'Beach & Pool',  item: 'Cover-up / sarong',                                    packed: false, notes: '' },
-    { id: 'pk25', cat: 'Beach & Pool',  item: 'Reef-safe sunscreen SPF 50+',                          packed: false, notes: 'Required at Cinque Terre & Cala Bassa' },
-    { id: 'pk26', cat: 'Beach & Pool',  item: 'Sunglasses',                                           packed: false, notes: '' },
-    { id: 'pk27', cat: 'Beach & Pool',  item: 'Waterproof phone pouch',                               packed: false, notes: 'Great for Cinque Terre & Cala Bassa' },
-    { id: 'pk28', cat: 'Toiletries',    item: 'Shampoo & conditioner (travel size)',                   packed: false, notes: 'Cruise cabin has basics' },
-    { id: 'pk29', cat: 'Toiletries',    item: 'Body wash & face wash',                                packed: false, notes: '' },
-    { id: 'pk30', cat: 'Toiletries',    item: 'Makeup & skincare',                                    packed: false, notes: '' },
-    { id: 'pk31', cat: 'Toiletries',    item: 'Deodorant & razor',                                    packed: false, notes: '' },
-    { id: 'pk32', cat: 'Toiletries',    item: 'Feminine hygiene products',                            packed: false, notes: '' },
-    { id: 'pk33', cat: 'Toiletries',    item: 'Hair tools (straightener / curling iron)',              packed: false, notes: 'Check voltage — needs adapter' },
-    { id: 'pk34', cat: 'Health',        item: 'Motion sickness medication',                           packed: false, notes: 'Sea days: June 21, 25 & 27–28' },
-    { id: 'pk35', cat: 'Health',        item: 'Pain reliever (ibuprofen / Tylenol)',                  packed: false, notes: '' },
-    { id: 'pk36', cat: 'Health',        item: 'Prescription medications (full supply + extra)',        packed: false, notes: 'Keep in carry-on' },
-    { id: 'pk37', cat: 'Health',        item: 'Band-aids & blister pads',                             packed: false, notes: 'Lots of walking!' },
-    { id: 'pk38', cat: 'Health',        item: 'Hand sanitizer',                                       packed: false, notes: '' },
-    { id: 'pk39', cat: 'Electronics',   item: 'Phone + charging cable',                               packed: false, notes: '' },
-    { id: 'pk40', cat: 'Electronics',   item: 'Universal power adapter (Type C/F)',                   packed: false, notes: 'Spain, France & Italy all need it' },
-    { id: 'pk41', cat: 'Electronics',   item: 'Portable power bank',                                  packed: false, notes: '' },
-    { id: 'pk42', cat: 'Electronics',   item: 'Headphones / earbuds',                                 packed: false, notes: '' },
-    { id: 'pk43', cat: 'Electronics',   item: 'Camera + extra memory card',                           packed: false, notes: 'Optional' },
-    { id: 'pk44', cat: 'Bags',          item: 'Day backpack / tote for excursions',                   packed: false, notes: '' },
-    { id: 'pk45', cat: 'Bags',          item: 'Anti-theft crossbody bag',                             packed: false, notes: 'Keep valuables safe in cities' },
-    { id: 'pk46', cat: 'Bags',          item: 'Packing cubes',                                        packed: false, notes: 'Game-changer for cruise cabin space!' },
-  ],
+  packing: {
+    alicyn:  makePackingList('pka'),
+    felicia: makePackingList('pkf'),
+    sabrina: makePackingList('pks'),
+  },
 
   budget: {
     totals: { felicia: 6237.24, alicyn: 6628.89 },
@@ -1337,32 +1386,65 @@ function TodoView({ data, onUpdate }) {
 }
 
 /* ─── PACKING VIEW ──────────────────────────────────────── */
-const PACK_CATS = ['Documents', 'Money & Cards', 'Cruise Attire', 'Clothing', 'Shoes', 'Beach & Pool', 'Toiletries', 'Health', 'Electronics', 'Bags', 'Other'];
-
 function PackingView({ data, onUpdate }) {
+  const [person, setPerson] = useState('alicyn');
   const [newItem, setNewItem] = useState('');
-  const [newCat, setNewCat] = useState('Clothing');
+  const [newCat, setNewCat] = useState(PACK_CATS[0]);
   const [filter, setFilter] = useState('all');
   const [confirm, confirmModal] = useConfirm();
 
-  const items = data.packing || [];
+  // Auto-migrate old flat-array format to per-person object
+  useEffect(() => {
+    if (Array.isArray(data.packing)) {
+      onUpdate(d => ({
+        ...d,
+        packing: { alicyn: makePackingList('pka'), felicia: makePackingList('pkf'), sabrina: makePackingList('pks') },
+        lastUpdated: new Date().toISOString(),
+      }));
+    }
+  }, []); // eslint-disable-line
+
+  const packing = data.packing;
+  if (Array.isArray(packing)) {
+    return <div style={{ textAlign: 'center', padding: 60, color: C.textMid, fontFamily: 'Inter,sans-serif' }}>Updating packing list…</div>;
+  }
+
+  const PEOPLE = [
+    { key: 'alicyn',  label: 'Alicyn',  emoji: '👩🏻' },
+    { key: 'felicia', label: 'Felicia', emoji: '👩🏽' },
+    { key: 'sabrina', label: 'Sabrina', emoji: '👩🏻‍🦱' },
+  ];
+
+  const items = packing[person] || [];
   const visible = filter === 'unpacked' ? items.filter(p => !p.packed) : items;
   const packedCount = items.filter(p => p.packed).length;
   const total = items.length;
   const pct = total ? Math.round((packedCount / total) * 100) : 0;
 
-  const toggle = (id) => onUpdate(d => ({ ...d, lastUpdated: new Date().toISOString(), packing: d.packing.map(p => p.id === id ? { ...p, packed: !p.packed } : p) }));
+  const toggle = (id) => onUpdate(d => ({
+    ...d, lastUpdated: new Date().toISOString(),
+    packing: { ...d.packing, [person]: (d.packing[person] || []).map(p => p.id === id ? { ...p, packed: !p.packed } : p) },
+  }));
   const del = async (id, item) => {
-    if (await confirm(`Remove "${item}" from packing list?`))
-      onUpdate(d => ({ ...d, packing: d.packing.filter(p => p.id !== id), lastUpdated: new Date().toISOString() }));
+    if (await confirm(`Remove "${item}" from ${PEOPLE.find(p => p.key === person)?.label}'s list?`))
+      onUpdate(d => ({
+        ...d, lastUpdated: new Date().toISOString(),
+        packing: { ...d.packing, [person]: (d.packing[person] || []).filter(p => p.id !== id) },
+      }));
   };
   const add = () => {
     if (!newItem.trim()) return;
-    onUpdate(d => ({ ...d, lastUpdated: new Date().toISOString(), packing: [...(d.packing || []), { id: uid(), cat: newCat, item: newItem.trim(), packed: false, notes: '' }] }));
+    onUpdate(d => ({
+      ...d, lastUpdated: new Date().toISOString(),
+      packing: { ...d.packing, [person]: [...(d.packing[person] || []), { id: uid(), cat: newCat, item: newItem.trim(), packed: false, notes: '' }] },
+    }));
     setNewItem('');
   };
 
-  const activeCats = [...PACK_CATS, ...visible.map(p => p.cat)].filter((c, i, a) => a.indexOf(c) === i).filter(cat => visible.some(p => p.cat === cat));
+  const activeCats = [
+    ...PACK_CATS.filter(c => visible.some(p => p.cat === c)),
+    ...[...new Set(visible.map(p => p.cat))].filter(c => !PACK_CATS.includes(c)),
+  ];
 
   return (
     <div>
@@ -1373,21 +1455,50 @@ function PackingView({ data, onUpdate }) {
         </div>
       } />
 
+      {/* Person selector */}
+      <div style={{ display: 'flex', gap: 10, marginBottom: 22 }}>
+        {PEOPLE.map(p => {
+          const arr = packing[p.key] || [];
+          const done = arr.filter(x => x.packed).length;
+          const tot = arr.length;
+          const ppct = tot ? Math.round((done / tot) * 100) : 0;
+          const active = person === p.key;
+          return (
+            <button key={p.key} onClick={() => setPerson(p.key)} style={{
+              flex: 1, padding: '14px 8px', cursor: 'pointer', transition: 'all .18s',
+              background: active ? C.navy : C.white,
+              border: `1px solid ${active ? C.navy : C.ivoryDark}`,
+              borderRadius: 14,
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5,
+            }}>
+              <span style={{ fontSize: 24 }}>{p.emoji}</span>
+              <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 13, fontWeight: 700, color: active ? C.white : C.navy }}>{p.label}</span>
+              <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 11, color: active ? C.goldL : C.textLight, fontWeight: 500 }}>{done}/{tot} · {ppct}%</span>
+              <div style={{ width: '70%', height: 3, borderRadius: 99, background: active ? 'rgba(255,255,255,.2)' : C.ivoryDark, overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${ppct}%`, background: ppct === 100 ? C.green : C.gold, transition: 'width .4s' }} />
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Overall progress */}
       <Card style={{ marginBottom: 22 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
           <div style={{ flex: 1 }}>
             <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 13, color: C.textMid, marginBottom: 8 }}>
               {packedCount} of {total} items packed
             </div>
-            <div style={{ height: 10, background: C.ivoryDark, borderRadius: 5, overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: `${pct}%`, background: pct === 100 ? `linear-gradient(90deg, ${C.green}, ${C.green})` : `linear-gradient(90deg, ${C.terracotta}, ${C.gold})`, borderRadius: 5, transition: 'width .4s ease' }} />
+            <div style={{ height: 8, background: C.ivoryDark, borderRadius: 5, overflow: 'hidden' }}>
+              <div style={{ height: '100%', width: `${pct}%`, background: pct === 100 ? `linear-gradient(90deg, ${C.green}, #4CAF7D)` : `linear-gradient(90deg, ${C.terracotta}, ${C.gold})`, borderRadius: 5, transition: 'width .4s ease' }} />
             </div>
           </div>
-          <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 32, color: pct === 100 ? C.green : C.terracotta, fontWeight: 700 }}>{pct}%</div>
+          <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 32, color: pct === 100 ? C.green : C.terracotta, fontWeight: 700 }}>{pct}%</div>
         </div>
         {pct === 100 && <div style={{ marginTop: 10, fontSize: 13, color: C.green, fontFamily: 'Inter,sans-serif', fontWeight: 600 }}>✈️ All packed — have an amazing trip!</div>}
       </Card>
 
+      {/* Items by category */}
       {activeCats.map(cat => {
         const catItems = visible.filter(p => p.cat === cat);
         const catPacked = items.filter(p => p.cat === cat && p.packed).length;
@@ -1395,7 +1506,7 @@ function PackingView({ data, onUpdate }) {
         return (
           <div key={cat} style={{ marginBottom: 20 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: C.terracotta, fontFamily: 'Inter,sans-serif', textTransform: 'uppercase', letterSpacing: 1.2 }}>{cat}</div>
+              <span style={{ fontSize: 11, fontWeight: 700, color: C.terracotta, fontFamily: 'Inter,sans-serif', textTransform: 'uppercase', letterSpacing: 1.2 }}>{cat}</span>
               <span style={{ fontSize: 11, fontFamily: 'Inter,sans-serif', fontWeight: 600, color: catPacked === catTotal ? C.green : C.textLight }}>{catPacked}/{catTotal}</span>
             </div>
             {catItems.map(p => (
@@ -1405,7 +1516,7 @@ function PackingView({ data, onUpdate }) {
                 background: p.packed ? C.ivoryMid : C.white,
                 border: `1px solid ${C.ivoryDark}`,
                 borderLeft: `4px solid ${p.packed ? C.green : C.ivoryDark}`,
-                borderRadius: 4, transition: 'all .2s',
+                borderRadius: 10, transition: 'all .2s',
               }}>
                 <input type="checkbox" checked={p.packed} onChange={() => toggle(p.id)}
                   style={{ width: 18, height: 18, cursor: 'pointer', accentColor: C.terracotta, flexShrink: 0, marginTop: 1 }} />
@@ -1413,15 +1524,18 @@ function PackingView({ data, onUpdate }) {
                   <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 14, color: p.packed ? C.textLight : C.text, textDecoration: p.packed ? 'line-through' : 'none' }}>{p.item}</div>
                   {p.notes && <div style={{ fontSize: 11, color: C.textLight, fontFamily: 'Inter,sans-serif', marginTop: 2, fontStyle: 'italic' }}>{p.notes}</div>}
                 </div>
-                <button onClick={() => del(p.id, p.item)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.textLight, fontSize: 18, flexShrink: 0, lineHeight: 1 }}>×</button>
+                <button onClick={() => del(p.id, p.item)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.textLight, fontSize: 18, flexShrink: 0, lineHeight: 1, padding: 0 }}>×</button>
               </div>
             ))}
           </div>
         );
       })}
 
+      {/* Add item */}
       <Card style={{ marginTop: 8 }}>
-        <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 14, color: C.navy, marginBottom: 10 }}>Add Item</div>
+        <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 14, color: C.navy, fontWeight: 600, marginBottom: 10 }}>
+          Add Item for {PEOPLE.find(p => p.key === person)?.label}
+        </div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <select value={newCat} onChange={e => setNewCat(e.target.value)}
             style={{ border: `1px solid ${C.ivoryDark}`, borderRadius: 4, padding: '8px 10px', fontFamily: 'Inter,sans-serif', fontSize: 12, background: C.white, color: C.text }}>
@@ -1442,8 +1556,62 @@ function PackingView({ data, onUpdate }) {
 const BUDGET_CATS = ['Flights', 'Accommodation', 'Cruise', 'Activities', 'Food & Dining', 'Transfers', 'Insurance', 'Other'];
 
 function BudgetView({ data, onUpdate }) {
+  const [unlocked, setUnlocked] = useState(() => {
+    try { return sessionStorage.getItem('budget_unlocked') === '1'; } catch { return false; }
+  });
+  const [pw, setPw] = useState('');
+  const [pwErr, setPwErr] = useState(false);
   const [editItem, setEditItem] = useState(null);
   const [confirm, confirmModal] = useConfirm();
+
+  const tryUnlock = () => {
+    if (pw === 'Sabrina26') {
+      try { sessionStorage.setItem('budget_unlocked', '1'); } catch {}
+      setUnlocked(true);
+    } else {
+      setPwErr(true);
+      setPw('');
+      setTimeout(() => setPwErr(false), 2500);
+    }
+  };
+
+  if (!unlocked) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 400, gap: 18, padding: '40px 16px' }}>
+        <div style={{ fontSize: 52 }}>🔒</div>
+        <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 26, color: C.navy, fontWeight: 700 }}>Financial Details</div>
+        <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 14, color: C.textMid, textAlign: 'center', maxWidth: 300, lineHeight: 1.6 }}>
+          This section is password protected. Enter the password to view budget details.
+        </div>
+        <div style={{ width: '100%', maxWidth: 320, display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <input
+            type="password"
+            value={pw}
+            onChange={e => { setPw(e.target.value); setPwErr(false); }}
+            onKeyDown={e => e.key === 'Enter' && tryUnlock()}
+            placeholder="Enter password"
+            autoFocus
+            style={{
+              border: `1px solid ${pwErr ? C.red : C.ivoryDark}`,
+              borderRadius: 8, padding: '12px 16px',
+              fontFamily: 'Inter,sans-serif', fontSize: 14,
+              background: C.white, color: C.text, outline: 'none',
+              width: '100%', boxSizing: 'border-box', transition: 'border-color .2s',
+            }}
+          />
+          {pwErr && (
+            <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 13, color: C.red, textAlign: 'center' }}>
+              Incorrect password — try again.
+            </div>
+          )}
+          <Btn variant="primary" onClick={tryUnlock} style={{ width: '100%', justifyContent: 'center', padding: '10px 16px' }}>
+            Unlock
+          </Btn>
+        </div>
+      </div>
+    );
+  }
+
   const blank = { description: '', category: 'Other', paidBy: 'Split', felicia: '', alicyn: '', notes: '' };
 
   const save = (item) => {
