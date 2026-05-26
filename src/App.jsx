@@ -1433,6 +1433,7 @@ function PackingView({ data, onUpdate }) {
   const [person, setPerson] = useState('alicyn');
   const [newItem, setNewItem] = useState('');
   const [newCat, setNewCat] = useState(PACK_CATS[0]);
+  const [catDraft, setCatDraft] = useState({});
   const [filter, setFilter] = useState('all');
   const [confirm, confirmModal] = useConfirm();
 
@@ -1484,6 +1485,15 @@ function PackingView({ data, onUpdate }) {
       packing: { ...d.packing, [person]: [...(d.packing[person] || []), { id: uid(), cat: newCat, item: newItem.trim(), packed: false, notes: '' }] },
     }));
     setNewItem('');
+  };
+  const addToCat = (cat) => {
+    const text = (catDraft[cat] || '').trim();
+    if (!text) return;
+    onUpdate(d => ({
+      ...d, lastUpdated: new Date().toISOString(),
+      packing: { ...d.packing, [person]: [...(d.packing[person] || []), { id: uid(), cat, item: text, packed: false, notes: '' }] },
+    }));
+    setCatDraft(d => ({ ...d, [cat]: '' }));
   };
 
   const activeCats = [
@@ -1587,14 +1597,25 @@ function PackingView({ data, onUpdate }) {
                 <button onClick={() => del(p.id, p.item)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.textLight, fontSize: 18, flexShrink: 0, lineHeight: 1, padding: 0 }}>×</button>
               </div>
             ))}
+            {/* Inline add for this category */}
+            <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
+              <input
+                value={catDraft[cat] || ''}
+                onChange={e => setCatDraft(d => ({ ...d, [cat]: e.target.value }))}
+                onKeyDown={e => e.key === 'Enter' && addToCat(cat)}
+                placeholder="Add item…"
+                style={{ flex: 1, border: `1px solid ${C.ivoryDark}`, borderRadius: 7, padding: '6px 11px', fontFamily: 'Inter,sans-serif', fontSize: 12, color: C.text, outline: 'none', background: C.white }}
+              />
+              <button onClick={() => addToCat(cat)} style={{ background: C.terracotta, color: C.white, border: 'none', borderRadius: 7, padding: '6px 14px', fontFamily: 'Inter,sans-serif', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>+ Add</button>
+            </div>
           </div>
         );
       })}
 
-      {/* Add item */}
+      {/* Add to a new custom category */}
       <Card style={{ marginTop: 8 }}>
-        <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 14, color: C.navy, fontWeight: 600, marginBottom: 10 }}>
-          Add Item for {PEOPLE.find(p => p.key === person)?.label}
+        <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 13, color: C.navy, fontWeight: 600, marginBottom: 10 }}>
+          Add to a different category
         </div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <select value={newCat} onChange={e => setNewCat(e.target.value)}
