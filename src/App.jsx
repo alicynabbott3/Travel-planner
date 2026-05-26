@@ -1076,7 +1076,7 @@ function DailyView({ data, onUpdate, mallorcaUnlocked, onMallorcaUnlock }) {
                       maxWidth: '100%',
                     }}>
                       {!mallorcaUnlocked && MALLORCA_DAY_DATES.includes(day.date)
-                        ? <span style={{ fontSize: 9, color: C.textLight }}>🔒</span>
+                        ? 'Barcelona'
                         : day.location.split(/[,→·]/)[0].trim()
                       }
                     </div>
@@ -1139,7 +1139,11 @@ function DailyView({ data, onUpdate, mallorcaUnlocked, onMallorcaUnlock }) {
                 )}
               </div>
               <div style={{ fontSize: 12, color: C.goldL, fontFamily: 'Inter,sans-serif', marginTop: 3 }}>
-                📍 {selDay.location} &nbsp;·&nbsp; <em>{selDay.subtitle}</em>
+                📍 {!mallorcaUnlocked && MALLORCA_DAY_DATES.includes(selDay.date) ? 'Barcelona' : selDay.location}
+                {(!mallorcaUnlocked && MALLORCA_DAY_DATES.includes(selDay.date))
+                  ? <> &nbsp;·&nbsp; <em>🌆 Exploring the City</em></>
+                  : <> &nbsp;·&nbsp; <em>{selDay.subtitle}</em></>
+                }
               </div>
             </div>
 
@@ -2233,7 +2237,7 @@ export default function App() {
   if (daysUntil > 0) {
     countdownMsg = `🌿  T-${daysUntil} day${daysUntil !== 1 ? 's' : ''} until we're FAR FAR AWAY — better start packing, Donkey!`;
   } else if (dayInTrip) {
-    countdownMsg = `🐉  Day ${dayInTrip} of 14 — ${todayDay ? todayDay.location : 'somewhere over the rainbow'}`;
+    countdownMsg = `🐉  Day ${dayInTrip} of 14 — ${todayDay ? (MALLORCA_DAY_DATES.includes(todayDay.date) && !mallorcaUnlocked ? 'Barcelona' : todayDay.location) : 'somewhere over the rainbow'}`;
     countdownBg  = C.green + 'CC';
   } else if (now > tripEnd) {
     countdownMsg = `🏠  Back in the swamp! What a fairytale adventure.`;
