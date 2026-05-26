@@ -81,7 +81,9 @@ const PACKING_TEMPLATE = [
   { cat: 'Cruise Essentials', item: 'Smart casual outfits (5–6 sets)', notes: '' },
   { cat: 'Cruise Essentials', item: 'Lanyard or card holder for ship key card', notes: 'Handy onboard' },
   // Clothing
-  { cat: 'Clothing', item: 'Casual sundresses (4–5)', notes: '' },
+  { cat: 'Clothing', item: 'Casual sundresses', notes: '' },
+  { cat: 'Clothing', item: 'Bras/Underwear (5–7+)', notes: '' },
+  { cat: 'Clothing', item: 'Socks (5–7+)', notes: '' },
   { cat: 'Clothing', item: 'Lightweight pants / jeans (2 pairs)', notes: '' },
   { cat: 'Clothing', item: 'Comfortable walking outfits (2)', notes: 'Cobblestones in Barcelona & Rome!' },
   { cat: 'Clothing', item: 'Light cardigan or wrap', notes: 'Evenings on deck can be breezy' },
@@ -670,26 +672,39 @@ function useConfirm() {
 
 /* ─── FLIGHTS VIEW ──────────────────────────────────────── */
 const MALLORCA_IDS = ['fl2', 'fl3'];
+const MALLORCA_HOTEL_IDS  = ['ht1'];
+const MALLORCA_DAY_DATES  = ['2026-06-17', '2026-06-18', '2026-06-19'];
+const MALLORCA_REST_IDS   = ['r1'];
+const MALLORCA_TODO_IDS   = ['td9', 'td15', 'td16'];
+const MALLORCA_EVENT_IDS  = ['e0615a']; // Air Europa check-in on June 15
 
-function FlightsView({ data, onUpdate }) {
+function MallorcaLock({ onUnlock }) {
+  const [pw, setPw] = useState('');
+  const [err, setErr] = useState(false);
+  const tryUnlock = () => {
+    if (pw === 'Sabrina26') { onUnlock(); }
+    else { setErr(true); setTimeout(() => setErr(false), 2500); }
+  };
+  return (
+    <Card style={{ textAlign: 'center', padding: '20px 18px', marginBottom: 14 }}>
+      <div style={{ fontSize: 28, marginBottom: 6 }}>🔒</div>
+      <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 15, color: C.navy, fontWeight: 700, marginBottom: 4 }}>Surprise content — coming soon! 🌴</div>
+      <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 12, color: C.textMid, marginBottom: 14 }}>Enter the password to reveal.</div>
+      <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+        <input type="password" value={pw} onChange={e => setPw(e.target.value)} onKeyDown={e => e.key === 'Enter' && tryUnlock()}
+          placeholder="Speak, friend, and enter…"
+          style={{ border: `1px solid ${err ? C.red : C.ivoryDark}`, borderRadius: 8, padding: '8px 12px', fontFamily: 'Inter,sans-serif', fontSize: 13, outline: 'none', width: 210, color: C.text }} />
+        <Btn variant="primary" onClick={tryUnlock}>🔓 Open Sesame</Btn>
+      </div>
+      {err && <div style={{ marginTop: 10, fontSize: 12, color: C.red, fontFamily: 'Inter,sans-serif', fontWeight: 600 }}>Wrong password! Do you know the Muffin Man?!</div>}
+    </Card>
+  );
+}
+
+function FlightsView({ data, onUpdate, mallorcaUnlocked, onMallorcaUnlock }) {
   const [editItem, setEditItem] = useState(null);
   const [confirm, confirmModal] = useConfirm();
-  const [flUnlocked, setFlUnlocked] = useState(() => {
-    try { return sessionStorage.getItem('flights_unlocked') === '1'; } catch { return false; }
-  });
-  const [flPw, setFlPw] = useState('');
-  const [flPwErr, setFlPwErr] = useState(false);
   const blank = { airline: '', numbers: '', route: '', date: '', departure: '', arrival: '', confirmation: '', passengers: '', status: 'confirmed', notes: '' };
-
-  const tryFlUnlock = () => {
-    if (flPw === 'Sabrina26') {
-      try { sessionStorage.setItem('flights_unlocked', '1'); } catch {}
-      setFlUnlocked(true); setFlPwErr(false);
-    } else {
-      setFlPwErr(true);
-      setTimeout(() => setFlPwErr(false), 2500);
-    }
-  };
 
   const save = (item) => {
     onUpdate(d => {
@@ -748,24 +763,10 @@ function FlightsView({ data, onUpdate }) {
         {publicFlights.map(renderFlight)}
 
         {/* Mallorca flights — password gated */}
-        {flUnlocked ? (
+        {mallorcaUnlocked ? (
           privateFlights.map(renderFlight)
         ) : (
-          <Card style={{ textAlign: 'center', padding: '20px 18px' }}>
-            <div style={{ fontSize: 28, marginBottom: 8 }}>🔒</div>
-            <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 16, color: C.navy, fontWeight: 700, marginBottom: 4 }}>Additional Flights</div>
-            <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 13, color: C.textMid, marginBottom: 16 }}>Enter the password to view.</div>
-            <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <input
-                type="password" value={flPw} onChange={e => setFlPw(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && tryFlUnlock()}
-                placeholder="Speak, friend, and enter…"
-                style={{ border: `1px solid ${flPwErr ? C.red : C.ivoryDark}`, borderRadius: 8, padding: '9px 14px', fontFamily: 'Inter,sans-serif', fontSize: 13, outline: 'none', width: 220, color: C.text }}
-              />
-              <Btn variant="primary" onClick={tryFlUnlock}>🔓 Open Sesame</Btn>
-            </div>
-            {flPwErr && <div style={{ marginTop: 10, fontSize: 12, color: C.red, fontFamily: 'Inter,sans-serif', fontWeight: 600 }}>Wrong password! Do you know the Muffin Man?!</div>}
-          </Card>
+          <MallorcaLock onUnlock={onMallorcaUnlock} />
         )}
       </div>
       {editItem && <FlightForm initial={editItem} onSave={save} onClose={() => setEditItem(null)} />}
@@ -798,7 +799,7 @@ function FlightForm({ initial, onSave, onClose }) {
 }
 
 /* ─── HOTELS VIEW ───────────────────────────────────────── */
-function HotelsView({ data, onUpdate }) {
+function HotelsView({ data, onUpdate, mallorcaUnlocked, onMallorcaUnlock }) {
   const [editItem, setEditItem] = useState(null);
   const [confirm, confirmModal] = useConfirm();
   const blank = { name: '', address: '', checkIn: '', checkOut: '', nights: '', room: '', guests: '', confirmation: '', status: 'confirmed', notes: '' };
@@ -820,7 +821,7 @@ function HotelsView({ data, onUpdate }) {
     <div>
       <SectionHead title="Swamp Stays & Castles" icon="🌿" action={<Btn variant="primary" small onClick={() => setEditItem(blank)}>+ Add</Btn>} />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-        {data.hotels.map(h => (
+        {data.hotels.filter(h => mallorcaUnlocked || !MALLORCA_HOTEL_IDS.includes(h.id)).map(h => (
           <Card key={h.id}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -851,6 +852,9 @@ function HotelsView({ data, onUpdate }) {
             </div>
           </Card>
         ))}
+        {!mallorcaUnlocked && data.hotels.some(h => MALLORCA_HOTEL_IDS.includes(h.id)) && (
+          <MallorcaLock onUnlock={onMallorcaUnlock} />
+        )}
       </div>
       {editItem && <HotelForm initial={editItem} onSave={save} onClose={() => setEditItem(null)} />}
       {confirmModal}
@@ -882,7 +886,7 @@ function HotelForm({ initial, onSave, onClose }) {
 }
 
 /* ─── DAILY ITINERARY ───────────────────────────────────── */
-function DailyView({ data, onUpdate }) {
+function DailyView({ data, onUpdate, mallorcaUnlocked, onMallorcaUnlock }) {
   const [dragSrc, setDragSrc]   = useState(null);
   const [dragOver, setDragOver] = useState(null);
   const [editEvt, setEditEvt]   = useState(null);
@@ -1071,7 +1075,10 @@ function DailyView({ data, onUpdate }) {
                       overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                       maxWidth: '100%',
                     }}>
-                      {day.location.split(/[,→·]/)[0].trim()}
+                      {!mallorcaUnlocked && MALLORCA_DAY_DATES.includes(day.date)
+                        ? <span style={{ fontSize: 9, color: C.textLight }}>🔒</span>
+                        : day.location.split(/[,→·]/)[0].trim()
+                      }
                     </div>
                   )}
 
@@ -1144,29 +1151,38 @@ function DailyView({ data, onUpdate }) {
 
           {/* Event list */}
           <div style={{ background: C.ivory, padding: '12px 12px 6px' }}>
-            {selDay.events.length === 0 && (
-              <div style={{ textAlign: 'center', padding: '28px 0 20px', color: C.textLight, fontFamily: 'Inter,sans-serif', fontSize: 14, fontStyle: 'italic' }}>
-                No events yet — add one below
-              </div>
-            )}
-            {selDay.events.map((evt, evtIdx) => (
-              <EventCard
-                key={evt.id} evt={evt}
-                isFirst={evtIdx === 0}
-                isLast={evtIdx === selDay.events.length - 1}
-                isDragging={dragSrc?.dayIdx === selIdx && dragSrc?.evtIdx === evtIdx}
-                isOver={dragOver?.dayIdx === selIdx && dragOver?.evtIdx === evtIdx}
-                onDragStart={() => setDragSrc({ dayIdx: selIdx, evtIdx })}
-                onDragOver={() => setDragOver({ dayIdx: selIdx, evtIdx })}
-                onDragLeave={() => setDragOver(null)}
-                onDrop={() => onDrop(selIdx, evtIdx)}
-                onEdit={() => setEditEvt({ dayIdx: selIdx, event: evt })}
-                onDelete={() => delEvt(selIdx, evt.id, evt.title)}
-                onCycle={() => cycleEvt(selIdx, evt.id)}
-                onMoveUp={() => moveEvt(selIdx, evtIdx, -1)}
-                onMoveDown={() => moveEvt(selIdx, evtIdx, 1)}
-              />
-            ))}
+            {!mallorcaUnlocked && MALLORCA_DAY_DATES.includes(selDay.date) ? (
+              <MallorcaLock onUnlock={onMallorcaUnlock} />
+            ) : (() => {
+              const visibleEvents = (selDay.events || []).filter(e => mallorcaUnlocked || !MALLORCA_EVENT_IDS.includes(e.id));
+              return (
+                <>
+                  {visibleEvents.length === 0 && (
+                    <div style={{ textAlign: 'center', padding: '28px 0 20px', color: C.textLight, fontFamily: 'Inter,sans-serif', fontSize: 14, fontStyle: 'italic' }}>
+                      No events yet — add one below
+                    </div>
+                  )}
+                  {visibleEvents.map((evt, evtIdx) => (
+                    <EventCard
+                      key={evt.id} evt={evt}
+                      isFirst={evtIdx === 0}
+                      isLast={evtIdx === visibleEvents.length - 1}
+                      isDragging={dragSrc?.dayIdx === selIdx && dragSrc?.evtIdx === evtIdx}
+                      isOver={dragOver?.dayIdx === selIdx && dragOver?.evtIdx === evtIdx}
+                      onDragStart={() => setDragSrc({ dayIdx: selIdx, evtIdx })}
+                      onDragOver={() => setDragOver({ dayIdx: selIdx, evtIdx })}
+                      onDragLeave={() => setDragOver(null)}
+                      onDrop={() => onDrop(selIdx, evtIdx)}
+                      onEdit={() => setEditEvt({ dayIdx: selIdx, event: evt })}
+                      onDelete={() => delEvt(selIdx, evt.id, evt.title)}
+                      onCycle={() => cycleEvt(selIdx, evt.id)}
+                      onMoveUp={() => moveEvt(selIdx, evtIdx, -1)}
+                      onMoveDown={() => moveEvt(selIdx, evtIdx, 1)}
+                    />
+                  ))}
+                </>
+              );
+            })()}
             <div
               onDragOver={e => { e.preventDefault(); setDragOver({ dayIdx: selIdx, evtIdx: selDay.events.length }); }}
               onDrop={e => { e.preventDefault(); onDrop(selIdx, selDay.events.length); }}
@@ -1280,7 +1296,7 @@ function EvtForm({ initial, title, onSave, onClose }) {
 }
 
 /* ─── RESTAURANTS VIEW ──────────────────────────────────── */
-function RestaurantsView({ data, onUpdate }) {
+function RestaurantsView({ data, onUpdate, mallorcaUnlocked, onMallorcaUnlock }) {
   const [editItem, setEditItem] = useState(null);
   const [confirm, confirmModal] = useConfirm();
   const blank = { name: '', cuisine: '', city: '', date: '', time: '', status: 'confirmed', notes: '' };
@@ -1302,7 +1318,7 @@ function RestaurantsView({ data, onUpdate }) {
     <div>
       <SectionHead title="Swamp Grub & Adventures" icon="🍽️" action={<Btn variant="primary" small onClick={() => setEditItem(blank)}>+ Add</Btn>} />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        {data.restaurants.map(r => (
+        {data.restaurants.filter(r => mallorcaUnlocked || !MALLORCA_REST_IDS.includes(r.id)).map(r => (
           <Card key={r.id} style={{ padding: '12px 16px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10, flexWrap: 'wrap' }}>
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -1327,6 +1343,9 @@ function RestaurantsView({ data, onUpdate }) {
             </div>
           </Card>
         ))}
+        {!mallorcaUnlocked && data.restaurants.some(r => MALLORCA_REST_IDS.includes(r.id)) && (
+          <MallorcaLock onUnlock={onMallorcaUnlock} />
+        )}
       </div>
       {editItem && <RestForm initial={editItem} onSave={save} onClose={() => setEditItem(null)} />}
       {confirmModal}
@@ -1355,12 +1374,15 @@ function RestForm({ initial, onSave, onClose }) {
 }
 
 /* ─── TODO VIEW ─────────────────────────────────────────── */
-function TodoView({ data, onUpdate }) {
+function TodoView({ data, onUpdate, mallorcaUnlocked }) {
   const [newTask, setNewTask] = useState('');
   const [newCat, setNewCat] = useState('General');
+  const [catDraft, setCatDraft] = useState({});
   const [confirm, confirmModal] = useConfirm();
 
-  const allCats = [...new Set([...(data.todos || []).map(t => t.cat), 'Documents', 'Money', 'Cruise', 'Activities', 'Packing', 'General'])].filter(Boolean);
+  const visibleTodos = (data.todos || []).filter(t => mallorcaUnlocked || !MALLORCA_TODO_IDS.includes(t.id));
+
+  const allCats = [...new Set([...visibleTodos.map(t => t.cat), 'Documents', 'Money', 'Cruise', 'Activities', 'Packing', 'General'])].filter(Boolean);
 
   const toggle = (id) => onUpdate(d => ({ ...d, lastUpdated: new Date().toISOString(), todos: d.todos.map(t => t.id === id ? { ...t, done: !t.done } : t) }));
   const del = async (id, task) => {
@@ -1372,14 +1394,20 @@ function TodoView({ data, onUpdate }) {
     onUpdate(d => ({ ...d, lastUpdated: new Date().toISOString(), todos: [...d.todos, { id: uid(), cat: newCat, task: newTask.trim(), done: false }] }));
     setNewTask('');
   };
+  const addToCat = (cat) => {
+    const text = (catDraft[cat] || '').trim();
+    if (!text) return;
+    onUpdate(d => ({ ...d, lastUpdated: new Date().toISOString(), todos: [...d.todos, { id: uid(), cat, task: text, done: false }] }));
+    setCatDraft(d => ({ ...d, [cat]: '' }));
+  };
 
-  const done = (data.todos || []).filter(t => t.done).length;
-  const total = (data.todos || []).length;
+  const done = visibleTodos.filter(t => t.done).length;
+  const total = visibleTodos.length;
   const pct = total ? Math.round((done / total) * 100) : 0;
 
   return (
     <div>
-      <SectionHead title="Ogre Orders" icon="📋" />
+      <SectionHead title="Ogre To-Do's" icon="📋" />
       <Card style={{ marginBottom: 22 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
           <div style={{ flex: 1 }}>
@@ -1392,10 +1420,10 @@ function TodoView({ data, onUpdate }) {
         </div>
       </Card>
 
-      {allCats.filter(cat => (data.todos || []).some(t => t.cat === cat)).map(cat => (
+      {allCats.filter(cat => visibleTodos.some(t => t.cat === cat)).map(cat => (
         <div key={cat} style={{ marginBottom: 18 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: C.terracotta, fontFamily: 'Inter,sans-serif', textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 8 }}>{cat}</div>
-          {(data.todos || []).filter(t => t.cat === cat).map(t => (
+          {visibleTodos.filter(t => t.cat === cat).map(t => (
             <div key={t.id} style={{
               display: 'flex', alignItems: 'center', gap: 12,
               padding: '10px 14px', background: t.done ? C.ivoryMid : C.white,
@@ -1407,11 +1435,22 @@ function TodoView({ data, onUpdate }) {
               <button onClick={() => del(t.id, t.task)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.textLight, fontSize: 18, flexShrink: 0 }}>×</button>
             </div>
           ))}
+          {/* Inline add for this category */}
+          <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
+            <input
+              value={catDraft[cat] || ''}
+              onChange={e => setCatDraft(d => ({ ...d, [cat]: e.target.value }))}
+              onKeyDown={e => e.key === 'Enter' && addToCat(cat)}
+              placeholder="Add task…"
+              style={{ flex: 1, border: `1px solid ${C.ivoryDark}`, borderRadius: 7, padding: '6px 11px', fontFamily: 'Inter,sans-serif', fontSize: 12, color: C.text, outline: 'none', background: C.white }}
+            />
+            <button onClick={() => addToCat(cat)} style={{ background: C.terracotta, color: C.white, border: 'none', borderRadius: 7, padding: '6px 14px', fontFamily: 'Inter,sans-serif', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>+ Add</button>
+          </div>
         </div>
       ))}
 
       <Card style={{ marginTop: 8 }}>
-        <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 14, color: C.navy, marginBottom: 10 }}>Add New Task</div>
+        <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 13, color: C.navy, fontWeight: 600, marginBottom: 10 }}>Add to a different category</div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <select value={newCat} onChange={e => setNewCat(e.target.value)}
             style={{ border: `1px solid ${C.ivoryDark}`, borderRadius: 8, padding: '8px 10px', fontFamily: 'Inter,sans-serif', fontSize: 12, background: C.white, color: C.text }}>
@@ -1432,8 +1471,10 @@ function TodoView({ data, onUpdate }) {
 function PackingView({ data, onUpdate }) {
   const [person, setPerson] = useState('alicyn');
   const [newItem, setNewItem] = useState('');
+  const [newNote, setNewNote] = useState('');
   const [newCat, setNewCat] = useState(PACK_CATS[0]);
   const [catDraft, setCatDraft] = useState({});
+  const [catNoteDraft, setCatNoteDraft] = useState({});
   const [filter, setFilter] = useState('all');
   const [confirm, confirmModal] = useConfirm();
 
@@ -1482,18 +1523,19 @@ function PackingView({ data, onUpdate }) {
     if (!newItem.trim()) return;
     onUpdate(d => ({
       ...d, lastUpdated: new Date().toISOString(),
-      packing: { ...d.packing, [person]: [...(d.packing[person] || []), { id: uid(), cat: newCat, item: newItem.trim(), packed: false, notes: '' }] },
+      packing: { ...d.packing, [person]: [...(d.packing[person] || []), { id: uid(), cat: newCat, item: newItem.trim(), packed: false, notes: newNote.trim() }] },
     }));
-    setNewItem('');
+    setNewItem(''); setNewNote('');
   };
   const addToCat = (cat) => {
     const text = (catDraft[cat] || '').trim();
     if (!text) return;
     onUpdate(d => ({
       ...d, lastUpdated: new Date().toISOString(),
-      packing: { ...d.packing, [person]: [...(d.packing[person] || []), { id: uid(), cat, item: text, packed: false, notes: '' }] },
+      packing: { ...d.packing, [person]: [...(d.packing[person] || []), { id: uid(), cat, item: text, packed: false, notes: (catNoteDraft[cat] || '').trim() }] },
     }));
     setCatDraft(d => ({ ...d, [cat]: '' }));
+    setCatNoteDraft(d => ({ ...d, [cat]: '' }));
   };
 
   const activeCats = [
@@ -1503,7 +1545,7 @@ function PackingView({ data, onUpdate }) {
 
   return (
     <div>
-      <SectionHead title="Donkey's Saddlebag" icon="🧳" action={
+      <SectionHead title="Donkey's Packing List" icon="🧳" action={
         <div style={{ display: 'flex', gap: 6 }}>
           <Btn small variant={filter === 'all' ? 'primary' : 'ghost'} onClick={() => setFilter('all')}>All</Btn>
           <Btn small variant={filter === 'unpacked' ? 'primary' : 'ghost'} onClick={() => setFilter('unpacked')}>Unpacked</Btn>
@@ -1598,15 +1640,24 @@ function PackingView({ data, onUpdate }) {
               </div>
             ))}
             {/* Inline add for this category */}
-            <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 4 }}>
+              <div style={{ display: 'flex', gap: 6 }}>
+                <input
+                  value={catDraft[cat] || ''}
+                  onChange={e => setCatDraft(d => ({ ...d, [cat]: e.target.value }))}
+                  onKeyDown={e => e.key === 'Enter' && addToCat(cat)}
+                  placeholder="Add item…"
+                  style={{ flex: 1, border: `1px solid ${C.ivoryDark}`, borderRadius: 7, padding: '6px 11px', fontFamily: 'Inter,sans-serif', fontSize: 12, color: C.text, outline: 'none', background: C.white }}
+                />
+                <button onClick={() => addToCat(cat)} style={{ background: C.terracotta, color: C.white, border: 'none', borderRadius: 7, padding: '6px 14px', fontFamily: 'Inter,sans-serif', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>+ Add</button>
+              </div>
               <input
-                value={catDraft[cat] || ''}
-                onChange={e => setCatDraft(d => ({ ...d, [cat]: e.target.value }))}
+                value={catNoteDraft[cat] || ''}
+                onChange={e => setCatNoteDraft(d => ({ ...d, [cat]: e.target.value }))}
                 onKeyDown={e => e.key === 'Enter' && addToCat(cat)}
-                placeholder="Add item…"
-                style={{ flex: 1, border: `1px solid ${C.ivoryDark}`, borderRadius: 7, padding: '6px 11px', fontFamily: 'Inter,sans-serif', fontSize: 12, color: C.text, outline: 'none', background: C.white }}
+                placeholder="Caption / note (optional)"
+                style={{ border: `1px solid ${C.ivoryDark}`, borderRadius: 7, padding: '5px 11px', fontFamily: 'Inter,sans-serif', fontSize: 11, color: C.textMid, outline: 'none', background: C.white, fontStyle: 'italic' }}
               />
-              <button onClick={() => addToCat(cat)} style={{ background: C.terracotta, color: C.white, border: 'none', borderRadius: 7, padding: '6px 14px', fontFamily: 'Inter,sans-serif', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>+ Add</button>
             </div>
           </div>
         );
@@ -1626,6 +1677,11 @@ function PackingView({ data, onUpdate }) {
             placeholder="Add an item… (press Enter)"
             style={{ flex: 1, minWidth: 160, border: `1px solid ${C.ivoryDark}`, borderRadius: 4, padding: '8px 12px', fontFamily: 'Inter,sans-serif', fontSize: 13, color: C.text, outline: 'none' }} />
           <Btn variant="primary" onClick={add}>Add</Btn>
+        </div>
+        <div style={{ marginTop: 6 }}>
+          <input value={newNote} onChange={e => setNewNote(e.target.value)} onKeyDown={e => e.key === 'Enter' && add()}
+            placeholder="Caption / note (optional)"
+            style={{ width: '100%', border: `1px solid ${C.ivoryDark}`, borderRadius: 4, padding: '6px 12px', fontFamily: 'Inter,sans-serif', fontSize: 12, color: C.textMid, outline: 'none', fontStyle: 'italic', boxSizing: 'border-box' }} />
         </div>
       </Card>
       {confirmModal}
@@ -1983,7 +2039,7 @@ const TABS = [
   { id: 'flights',    label: "Dragon's Wings",  icon: '🐉' },
   { id: 'hotels',     label: 'Swamp Stays',     icon: '🌿' },
   { id: 'dining',     label: 'Swamp Grub',      icon: '🍽️' },
-  { id: 'packing',    label: "Donkey's Bag",    icon: '🧳' },
+  { id: 'packing',    label: "Donkey's Packing List", icon: '🧳' },
   { id: 'todos',      label: "Ogre To-Do's",      icon: '📋' },
   { id: 'budget',     label: 'Royal Treasury',  icon: '💰' },
   { id: 'emergency',  label: 'Far Far Away SOS',icon: '🚨' },
@@ -2002,6 +2058,14 @@ export default function App() {
   const [data, setData] = useSharedStorage('girlstrip2026_v1', INIT);
   const [tab, setTab] = useState('itinerary');
   const isMobile = useIsMobile();
+
+  const [mallorcaUnlocked, setMallorcaUnlocked] = useState(() => {
+    try { return sessionStorage.getItem('mallorca_unlocked') === '1'; } catch { return false; }
+  });
+  const unlockMallorca = () => {
+    try { sessionStorage.setItem('mallorca_unlocked', '1'); } catch {}
+    setMallorcaUnlocked(true);
+  };
 
   useEffect(() => {
     const link = document.createElement('link');
@@ -2120,14 +2184,14 @@ export default function App() {
 
       {/* ── MAIN CONTENT ── */}
       <main style={{ maxWidth: 900, margin: '0 auto', padding: `28px 16px ${isMobile ? '90px' : '80px'}` }}>
-        {tab === 'itinerary' && <DailyView        data={data} onUpdate={setData} />}
-        {tab === 'flights'   && <FlightsView      data={data} onUpdate={setData} />}
-        {tab === 'hotels'    && <HotelsView        data={data} onUpdate={setData} />}
-        {tab === 'dining'    && <RestaurantsView   data={data} onUpdate={setData} />}
-        {tab === 'packing'   && <PackingView       data={data} onUpdate={setData} />}
-        {tab === 'todos'     && <TodoView          data={data} onUpdate={setData} />}
-        {tab === 'budget'    && <BudgetView        data={data} onUpdate={setData} />}
-        {tab === 'emergency' && <EmergencyView     data={data} onUpdate={setData} />}
+        {tab === 'itinerary' && <DailyView        data={data} onUpdate={setData} mallorcaUnlocked={mallorcaUnlocked} onMallorcaUnlock={unlockMallorca} />}
+        {tab === 'flights'   && <FlightsView      data={data} onUpdate={setData} mallorcaUnlocked={mallorcaUnlocked} onMallorcaUnlock={unlockMallorca} />}
+        {tab === 'hotels'    && <HotelsView       data={data} onUpdate={setData} mallorcaUnlocked={mallorcaUnlocked} onMallorcaUnlock={unlockMallorca} />}
+        {tab === 'dining'    && <RestaurantsView  data={data} onUpdate={setData} mallorcaUnlocked={mallorcaUnlocked} onMallorcaUnlock={unlockMallorca} />}
+        {tab === 'packing'   && <PackingView      data={data} onUpdate={setData} />}
+        {tab === 'todos'     && <TodoView         data={data} onUpdate={setData} mallorcaUnlocked={mallorcaUnlocked} />}
+        {tab === 'budget'    && <BudgetView       data={data} onUpdate={setData} />}
+        {tab === 'emergency' && <EmergencyView    data={data} onUpdate={setData} />}
       </main>
 
       {/* ── MOBILE BOTTOM NAV ── */}
