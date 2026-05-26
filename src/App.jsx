@@ -75,8 +75,8 @@ const PACKING_TEMPLATE = [
   { cat: 'Money & Cards', item: 'Emergency cash (hidden separately)', notes: '' },
   { cat: 'Money & Cards', item: 'Bank notified of travel dates', notes: '' },
   // Cruise Essentials
-  { cat: 'Cruise Essentials', item: 'Scarlet / red outfit for Scarlet Night (June 20)', notes: 'Dress code: SCARLET / RED 🌹' },
-  { cat: 'Cruise Essentials', item: 'Pajamas for PJ Night (June 26)', notes: 'Themed party onboard 😴' },
+  { cat: 'Cruise Essentials', item: 'Scarlet / red outfit for Scarlet Night (June 25)', notes: 'Dress code: SCARLET / RED 🌹' },
+  { cat: 'Cruise Essentials', item: 'Pajamas for PJ Night (June 21)', notes: 'Themed party onboard 😴' },
   { cat: 'Cruise Essentials', item: 'Dressy cocktail outfit for ship dining', notes: '' },
   { cat: 'Cruise Essentials', item: 'Smart casual outfits (5–6 sets)', notes: '' },
   { cat: 'Cruise Essentials', item: 'Lanyard or card holder for ship key card', notes: 'Handy onboard' },
@@ -251,7 +251,6 @@ const INIT = {
         { id: 'e0620b', time: '12:00 PM', title: 'Check Out — H10 Art Gallery', description: 'Check out or store luggage', location: 'H10 Art Gallery, Barcelona', type: 'hotel', status: 'confirmed', notes: '' },
         { id: 'e0620c', time: '~1:30 PM', title: 'Uber to Cruise Port', description: 'Moll Adossat Terminal A/B · ~€30', location: 'Port of Barcelona', type: 'transport', status: 'confirmed', notes: '' },
         { id: 'e0620d', time: '3:15 PM', title: 'Board Valiant Lady 🚢', description: 'Virgin Voyages — Italian Vistas to Spanish Sunsets', location: 'Moll Adossat Terminal A/B, Barcelona', type: 'cruise', status: 'confirmed', notes: 'Conf: 2478994 · Seaview Cabin ×3' },
-        { id: 'e0620e', time: '6:00 PM', title: 'Dinner — Gunbae (Scarlet Night 🌹)', description: 'Korean BBQ onboard — Scarlet Night theme!', location: 'Gunbae, Valiant Lady', type: 'food', status: 'confirmed', notes: 'Dress code: SCARLET / RED' },
         { id: 'e0620f', time: '9:00 PM', title: 'The Wake Show', description: 'Show & dining at The Wake', location: 'The Wake, Valiant Lady', type: 'activity', status: 'confirmed', notes: '' },
       ],
     },
@@ -263,6 +262,7 @@ const INIT = {
         { id: 'e0621b', time: '11:45 AM', title: 'Brunch — The Wake', description: 'Brunch on the ship', location: 'The Wake, Valiant Lady', type: 'food', status: 'confirmed', notes: 'Reservation 11:45 AM' },
         { id: 'e0621c', time: 'Afternoon', title: 'Pool Deck & Richard\'s Rooftop', description: 'Relax at The Perch or upper decks', location: 'Upper Deck, Valiant Lady', type: 'activity', status: 'confirmed', notes: '' },
         { id: 'e0621d', time: '8:30 PM', title: 'Dinner — Ariya', description: 'Pan-Asian restaurant onboard', location: 'Ariya, Valiant Lady', type: 'food', status: 'confirmed', notes: 'Reservation 8:30 PM' },
+        { id: 'e0621e', time: 'Night', title: 'PJ Night — Onboard Party 🎉', description: 'Themed party on Valiant Lady — PAJAMAS!', location: 'Valiant Lady', type: 'activity', status: 'confirmed', notes: 'Dress code: PAJAMAS 😴' },
       ],
     },
     {
@@ -302,6 +302,7 @@ const INIT = {
         { id: 'e0625a', time: 'Morning', title: 'Redemption Spa', description: 'Onboard spa — book in advance', location: 'Redemption Spa, Valiant Lady', type: 'activity', status: 'pending', notes: '' },
         { id: 'e0625b', time: 'Afternoon', title: "Richard's Rooftop & Pool", description: 'Soak up the sun', location: 'Top Deck, Valiant Lady', type: 'activity', status: 'confirmed', notes: '' },
         { id: 'e0625c', time: '8:45 PM', title: 'Dinner — The Wake', description: 'Dinner at The Wake', location: 'The Wake, Valiant Lady', type: 'food', status: 'confirmed', notes: 'Reservation 8:45 PM' },
+        { id: 'e0625d', time: 'Night', title: 'Dinner — Gunbae (Scarlet Night 🌹)', description: 'Korean BBQ onboard — Scarlet Night theme!', location: 'Gunbae, Valiant Lady', type: 'food', status: 'confirmed', notes: 'Dress code: SCARLET / RED' },
       ],
     },
     {
@@ -310,7 +311,6 @@ const INIT = {
       events: [
         { id: 'e0626a', time: '8:00 PM', title: 'Arrive Ibiza (Evening Port)', description: 'Evening arrival — Ibiza Town at night is magical', location: 'Ibiza Port', type: 'cruise', status: 'confirmed', notes: '' },
         { id: 'e0626b', time: 'Evening', title: 'Dalt Vila — UNESCO Old Town', description: 'Historic walled city, sunset views, tapas', location: 'Dalt Vila, Ibiza', type: 'activity', status: 'pending', notes: '' },
-        { id: 'e0626c', time: 'Night', title: 'PJ Night — Onboard Party 🎉', description: 'Themed party on Valiant Lady — PAJAMAS!', location: 'Valiant Lady', type: 'activity', status: 'confirmed', notes: 'Dress code: PAJAMAS 😴' },
       ],
     },
     {
@@ -338,7 +338,7 @@ const INIT = {
   restaurants: [
     { id: 'r1',  name: 'Pink Agave',             cuisine: 'Mexican',           city: 'Palma',         date: 'June 17', time: '6:00 PM',  status: 'confirmed', notes: 'Reservation 6:00 PM' },
     { id: 'r2',  name: 'Extra Virgin',            cuisine: 'Mediterranean',     city: 'Barcelona',     date: 'June 19', time: '6:45 PM',  status: 'confirmed', notes: 'Reservation 6:45 PM' },
-    { id: 'r3',  name: 'Gunbae',                  cuisine: 'Korean BBQ',        city: 'Valiant Lady',  date: 'June 20', time: '6:00 PM',  status: 'confirmed', notes: 'Scarlet Night theme — wear RED 🌹' },
+    { id: 'r3',  name: 'Gunbae',                  cuisine: 'Korean BBQ',        city: 'Valiant Lady',  date: 'June 25', time: '6:00 PM',  status: 'confirmed', notes: 'Scarlet Night theme — wear RED 🌹' },
     { id: 'r4',  name: 'The Wake (show)',          cuisine: 'American',          city: 'Valiant Lady',  date: 'June 20', time: '9:00 PM',  status: 'confirmed', notes: 'Show & dinner experience' },
     { id: 'r5',  name: 'Razzle Dazzle',           cuisine: 'Vegetarian',        city: 'Valiant Lady',  date: 'June 21', time: '8:15 AM',  status: 'confirmed', notes: 'Breakfast reservation' },
     { id: 'r6',  name: 'The Wake (brunch)',        cuisine: 'American',          city: 'Valiant Lady',  date: 'June 21', time: '11:45 AM', status: 'confirmed', notes: 'Brunch reservation' },
@@ -361,8 +361,8 @@ const INIT = {
     { id: 'td10', cat: 'Cruise',    task: 'Download Virgin Voyages app',                             done: false },
     { id: 'td11', cat: 'Cruise',    task: 'Set up Sailor Loot / onboard account',                   done: false },
     { id: 'td12', cat: 'Cruise',    task: 'Book Redemption Spa appointments',                        done: false },
-    { id: 'td13', cat: 'Cruise',    task: 'Pack scarlet/red outfit for Scarlet Night (June 20)',     done: false },
-    { id: 'td14', cat: 'Cruise',    task: 'Pack pajamas for PJ Night (June 26)',                     done: false },
+    { id: 'td13', cat: 'Cruise',    task: 'Pack scarlet/red outfit for Scarlet Night (June 25)',     done: false },
+    { id: 'td14', cat: 'Cruise',    task: 'Pack pajamas for PJ Night (June 21)',                     done: false },
     { id: 'td15', cat: 'Activities', task: 'Confirm Hammam Al Andalus booking (June 17, 5:30 PM)',  done: true  },
     { id: 'td16', cat: 'Activities', task: 'Confirm Valldemossa Tour (June 18, 9:30 AM at Cathedral)', done: true },
     { id: 'td17', cat: 'Activities', task: 'Book Parc Güell timed entry (June 20, 11 AM)',          done: false },
@@ -1456,6 +1456,21 @@ function PackingView({ data, onUpdate }) {
           <Btn small variant={filter === 'unpacked' ? 'primary' : 'ghost'} onClick={() => setFilter('unpacked')}>Unpacked</Btn>
         </div>
       } />
+
+      {/* Trip duration banner */}
+      <div style={{ background: C.navyMid, borderRadius: 12, padding: '12px 18px', marginBottom: 18, display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'center' }}>
+        <span style={{ fontFamily: 'Playfair Display,serif', fontSize: 15, color: C.white, fontWeight: 700 }}>🌿 June 16 – June 28, 2026</span>
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+          {[
+            { label: '13 nights', icon: '🌙' },
+            { label: '9 cruise nights', icon: '🚢' },
+            { label: '3 hotel nights', icon: '🏨' },
+            { label: '1 flight night', icon: '✈️' },
+          ].map(({ label, icon }) => (
+            <span key={label} style={{ fontFamily: 'Inter,sans-serif', fontSize: 12, color: C.goldL, fontWeight: 600 }}>{icon} {label}</span>
+          ))}
+        </div>
+      </div>
 
       {/* Person selector */}
       <div style={{ display: 'flex', gap: 10, marginBottom: 22 }}>
