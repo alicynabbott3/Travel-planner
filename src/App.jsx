@@ -1524,7 +1524,7 @@ function PackingView({ data, onUpdate }) {
 
   return (
     <div>
-      <SectionHead title="Donkey's Saddlebag" icon="🧳" action={
+      <SectionHead title="Donkey's Packing List" icon="🧳" action={
         <div style={{ display: 'flex', gap: 6 }}>
           <Btn small variant={filter === 'all' ? 'primary' : 'ghost'} onClick={() => setFilter('all')}>All</Btn>
           <Btn small variant={filter === 'unpacked' ? 'primary' : 'ghost'} onClick={() => setFilter('unpacked')}>Unpacked</Btn>
@@ -2018,7 +2018,7 @@ const TABS = [
   { id: 'flights',    label: "Dragon's Wings",  icon: '🐉' },
   { id: 'hotels',     label: 'Swamp Stays',     icon: '🌿' },
   { id: 'dining',     label: 'Swamp Grub',      icon: '🍽️' },
-  { id: 'packing',    label: "Donkey's Bag",    icon: '🧳' },
+  { id: 'packing',    label: "Donkey's Packing List", icon: '🧳' },
   { id: 'todos',      label: "Ogre To-Do's",      icon: '📋' },
   { id: 'budget',     label: 'Royal Treasury',  icon: '💰' },
   { id: 'emergency',  label: 'Far Far Away SOS',icon: '🚨' },
