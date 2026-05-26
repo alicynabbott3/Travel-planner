@@ -2168,17 +2168,21 @@ const TABS = [
 
 /* ─── ROOT APP ──────────────────────────────────────────── */
 const BOTTOM_TABS = [
-  { id: 'itinerary', label: 'The Quest',      icon: '🗺️' },
-  { id: 'flights',   label: "Dragon's Wings", icon: '🐉' },
-  { id: 'hotels',    label: 'Swamp Stays',    icon: '🌿' },
-  { id: 'packing',   label: "Donkey's List",  icon: '🧳' },
-  { id: 'budget',    label: 'Royal Treasury', icon: '💰' },
+  { id: 'itinerary', label: 'The Quest',        icon: '🗺️' },
+  { id: 'flights',   label: "Dragon's Wings",   icon: '🐉' },
+  { id: 'hotels',    label: 'Swamp Stays',       icon: '🌿' },
+  { id: 'dining',    label: 'Swamp Grub',        icon: '🍽️' },
+  { id: 'packing',   label: "Donkey's List",     icon: '🧳' },
+  { id: 'todos',     label: "Ogre To-Do's",      icon: '📋' },
+  { id: 'budget',    label: 'Royal Treasury',    icon: '💰' },
+  { id: 'emergency', label: 'Far Far Away SOS',  icon: '🚨' },
 ];
 
 export default function App() {
   const [data, setData] = useSharedStorage('girlstrip2026_v1', INIT);
   const [tab, setTab] = useState('itinerary');
   const isMobile = useIsMobile();
+  const tabBtnRefs = useRef({});
 
   const [mallorcaUnlocked, setMallorcaUnlocked] = useState(() => {
     try { return sessionStorage.getItem('mallorca_unlocked') === '1'; } catch { return false; }
@@ -2187,6 +2191,12 @@ export default function App() {
     try { sessionStorage.setItem('mallorca_unlocked', '1'); } catch {}
     setMallorcaUnlocked(true);
   };
+
+  useEffect(() => {
+    if (!isMobile) return;
+    const btn = tabBtnRefs.current[tab];
+    if (btn) btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  }, [tab, isMobile]);
 
   // One-time migration: add La Malvasia if missing from Firebase data
   useEffect(() => {
@@ -2339,50 +2349,32 @@ export default function App() {
           position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 300,
           background: C.white, borderTop: `1px solid ${C.ivoryDark}`,
           boxShadow: '0 -4px 20px rgba(28,45,80,.12)',
-          display: 'flex', justifyContent: 'space-around', alignItems: 'stretch',
           paddingBottom: 'env(safe-area-inset-bottom, 0px)',
         }}>
-          {BOTTOM_TABS.map(t => (
-            <button key={t.id} onClick={() => setTab(t.id)} style={{
-              flex: 1, background: 'none', border: 'none', cursor: 'pointer',
-              padding: '8px 4px 6px', display: 'flex', flexDirection: 'column',
-              alignItems: 'center', gap: 2, transition: 'all .15s',
-            }}>
-              <div style={{
-                width: 44, height: 32, borderRadius: 999,
-                background: tab === t.id ? C.terracotta + '20' : 'transparent',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                transition: 'background .15s',
-              }}>
-                <span style={{ fontSize: 20 }}>{t.icon}</span>
-              </div>
-              <span style={{ fontSize: 8, fontFamily: 'Inter,sans-serif', fontWeight: 700, color: tab === t.id ? C.terracotta : C.textLight, textTransform: 'uppercase', letterSpacing: '.4px', textAlign: 'center', lineHeight: 1.25 }}>{t.label}</span>
-            </button>
-          ))}
-          {/* More button cycles: dining → todos → emergency */}
-          {(() => {
-            const moreActive = tab === 'dining' || tab === 'todos' || tab === 'emergency';
-            const moreIcon  = tab === 'emergency' ? '🚨' : tab === 'todos' ? '✅' : '🍽️';
-            const moreLabel = tab === 'emergency' ? 'Far Far Away SOS' : tab === 'todos' ? "Ogre To-Do's" : 'Swamp Grub';
-            const nextTab   = tab === 'dining' ? 'todos' : tab === 'todos' ? 'emergency' : 'dining';
-            return (
-              <button onClick={() => setTab(nextTab)} style={{
-                flex: 1, background: 'none', border: 'none', cursor: 'pointer',
+          <style>{`.snav::-webkit-scrollbar{display:none}`}</style>
+          <div className="snav" style={{
+            display: 'flex', overflowX: 'auto',
+            scrollbarWidth: 'none', msOverflowStyle: 'none',
+            WebkitOverflowScrolling: 'touch',
+          }}>
+            {BOTTOM_TABS.map(t => (
+              <button key={t.id} ref={el => tabBtnRefs.current[t.id] = el} onClick={() => setTab(t.id)} style={{
+                flex: '0 0 auto', minWidth: 72, background: 'none', border: 'none', cursor: 'pointer',
                 padding: '8px 4px 6px', display: 'flex', flexDirection: 'column',
                 alignItems: 'center', gap: 2, transition: 'all .15s',
               }}>
                 <div style={{
                   width: 44, height: 32, borderRadius: 999,
-                  background: moreActive ? C.terracotta + '20' : 'transparent',
+                  background: tab === t.id ? C.terracotta + '20' : 'transparent',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   transition: 'background .15s',
                 }}>
-                  <span style={{ fontSize: 20 }}>{moreIcon}</span>
+                  <span style={{ fontSize: 20 }}>{t.icon}</span>
                 </div>
-                <span style={{ fontSize: 8, fontFamily: 'Inter,sans-serif', fontWeight: 700, color: moreActive ? C.terracotta : C.textLight, textTransform: 'uppercase', letterSpacing: '.4px', textAlign: 'center', lineHeight: 1.25 }}>{moreLabel}</span>
+                <span style={{ fontSize: 8, fontFamily: 'Inter,sans-serif', fontWeight: 700, color: tab === t.id ? C.terracotta : C.textLight, textTransform: 'uppercase', letterSpacing: '.4px', textAlign: 'center', lineHeight: 1.25 }}>{t.label}</span>
               </button>
-            );
-          })()}
+            ))}
+          </div>
         </nav>
       ) : (
         <div data-noprint style={{ height: 4, background: `linear-gradient(90deg, ${C.terracotta}, ${C.gold}, ${C.navyMid})`, position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 100 }} />
