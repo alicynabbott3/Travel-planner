@@ -1462,8 +1462,8 @@ function PackingView({ data, onUpdate }) {
         <span style={{ fontFamily: 'Playfair Display,serif', fontSize: 15, color: C.white, fontWeight: 700 }}>🌿 June 16 – June 28, 2026</span>
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
           {[
-            { label: '13 nights', icon: '🌙' },
-            { label: '9 cruise nights', icon: '🚢' },
+            { label: '12 nights', icon: '🌙' },
+            { label: '7 cruise nights', icon: '🚢' },
             { label: '3 hotel nights', icon: '🏨' },
             { label: '1 flight night', icon: '✈️' },
           ].map(({ label, icon }) => (
