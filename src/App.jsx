@@ -1358,6 +1358,7 @@ function RestForm({ initial, onSave, onClose }) {
 function TodoView({ data, onUpdate }) {
   const [newTask, setNewTask] = useState('');
   const [newCat, setNewCat] = useState('General');
+  const [catDraft, setCatDraft] = useState({});
   const [confirm, confirmModal] = useConfirm();
 
   const allCats = [...new Set([...(data.todos || []).map(t => t.cat), 'Documents', 'Money', 'Cruise', 'Activities', 'Packing', 'General'])].filter(Boolean);
@@ -1372,6 +1373,12 @@ function TodoView({ data, onUpdate }) {
     onUpdate(d => ({ ...d, lastUpdated: new Date().toISOString(), todos: [...d.todos, { id: uid(), cat: newCat, task: newTask.trim(), done: false }] }));
     setNewTask('');
   };
+  const addToCat = (cat) => {
+    const text = (catDraft[cat] || '').trim();
+    if (!text) return;
+    onUpdate(d => ({ ...d, lastUpdated: new Date().toISOString(), todos: [...d.todos, { id: uid(), cat, task: text, done: false }] }));
+    setCatDraft(d => ({ ...d, [cat]: '' }));
+  };
 
   const done = (data.todos || []).filter(t => t.done).length;
   const total = (data.todos || []).length;
@@ -1379,7 +1386,7 @@ function TodoView({ data, onUpdate }) {
 
   return (
     <div>
-      <SectionHead title="Ogre Orders" icon="📋" />
+      <SectionHead title="Ogre To-Do's" icon="📋" />
       <Card style={{ marginBottom: 22 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
           <div style={{ flex: 1 }}>
@@ -1407,11 +1414,22 @@ function TodoView({ data, onUpdate }) {
               <button onClick={() => del(t.id, t.task)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.textLight, fontSize: 18, flexShrink: 0 }}>×</button>
             </div>
           ))}
+          {/* Inline add for this category */}
+          <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
+            <input
+              value={catDraft[cat] || ''}
+              onChange={e => setCatDraft(d => ({ ...d, [cat]: e.target.value }))}
+              onKeyDown={e => e.key === 'Enter' && addToCat(cat)}
+              placeholder="Add task…"
+              style={{ flex: 1, border: `1px solid ${C.ivoryDark}`, borderRadius: 7, padding: '6px 11px', fontFamily: 'Inter,sans-serif', fontSize: 12, color: C.text, outline: 'none', background: C.white }}
+            />
+            <button onClick={() => addToCat(cat)} style={{ background: C.terracotta, color: C.white, border: 'none', borderRadius: 7, padding: '6px 14px', fontFamily: 'Inter,sans-serif', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>+ Add</button>
+          </div>
         </div>
       ))}
 
       <Card style={{ marginTop: 8 }}>
-        <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 14, color: C.navy, marginBottom: 10 }}>Add New Task</div>
+        <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 13, color: C.navy, fontWeight: 600, marginBottom: 10 }}>Add to a different category</div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <select value={newCat} onChange={e => setNewCat(e.target.value)}
             style={{ border: `1px solid ${C.ivoryDark}`, borderRadius: 8, padding: '8px 10px', fontFamily: 'Inter,sans-serif', fontSize: 12, background: C.white, color: C.text }}>
