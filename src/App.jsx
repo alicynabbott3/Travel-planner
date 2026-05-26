@@ -81,7 +81,9 @@ const PACKING_TEMPLATE = [
   { cat: 'Cruise Essentials', item: 'Smart casual outfits (5–6 sets)', notes: '' },
   { cat: 'Cruise Essentials', item: 'Lanyard or card holder for ship key card', notes: 'Handy onboard' },
   // Clothing
-  { cat: 'Clothing', item: 'Casual sundresses (4–5)', notes: '' },
+  { cat: 'Clothing', item: 'Casual sundresses', notes: '' },
+  { cat: 'Clothing', item: 'Bras/Underwear (5–7+)', notes: '' },
+  { cat: 'Clothing', item: 'Socks (5–7+)', notes: '' },
   { cat: 'Clothing', item: 'Lightweight pants / jeans (2 pairs)', notes: '' },
   { cat: 'Clothing', item: 'Comfortable walking outfits (2)', notes: 'Cobblestones in Barcelona & Rome!' },
   { cat: 'Clothing', item: 'Light cardigan or wrap', notes: 'Evenings on deck can be breezy' },
