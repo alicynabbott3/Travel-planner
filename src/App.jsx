@@ -222,6 +222,7 @@ const INIT = {
         { id: 'e0617e', time: '1:30 PM', title: 'Check In — Dog Admiral Urban Guest House', description: 'Flamingo Suite · Pay at location', location: 'Carrer del Conquistador 2, Palma', type: 'hotel', status: 'payAtLocation', notes: 'Conf: BB26031720350199' },
         { id: 'e0617f', time: '5:30 PM', title: 'Hammam Al Andalus', description: 'Traditional Arab bath experience', location: 'Hammam Al Andalus, Palma', type: 'activity', status: 'confirmed', notes: 'Pre-booked · Allow 1.5–2 hrs' },
         { id: 'e0617g', time: '6:00 PM', title: 'Dinner — Pink Agave', description: 'Mexican restaurant in Palma', location: 'Pink Agave, Palma', type: 'food', status: 'confirmed', notes: 'Reservation 6:00 PM' },
+        { id: 'e0617h', time: '8:45 PM', title: 'Dinner — La Malvasia', description: 'Mediterranean restaurant in Palma', location: 'La Malvasia, Palma de Mallorca', type: 'food', status: 'confirmed', notes: 'Reservation 8:45 PM' },
       ],
     },
     {
@@ -339,6 +340,7 @@ const INIT = {
 
   restaurants: [
     { id: 'r1',  name: 'Pink Agave',             cuisine: 'Mexican',           city: 'Palma',         date: 'June 17', time: '6:00 PM',  status: 'confirmed', notes: 'Reservation 6:00 PM' },
+    { id: 'r_lamalvasia', name: 'La Malvasia',  cuisine: 'Mediterranean',      city: 'Palma de Mallorca', date: 'June 17', time: '8:45 PM', status: 'confirmed', notes: 'Reservation 8:45 PM' },
     { id: 'r2',  name: 'Extra Virgin',            cuisine: 'Mediterranean',     city: 'Barcelona',     date: 'June 19', time: '6:45 PM',  status: 'confirmed', notes: 'Reservation 6:45 PM' },
     { id: 'r3',  name: 'Gunbae',                  cuisine: 'Korean BBQ',        city: 'Valiant Lady',  date: 'June 25', time: '6:00 PM',  status: 'confirmed', notes: 'Scarlet Night theme — wear RED 🌹' },
     { id: 'r4',  name: 'The Wake (show)',          cuisine: 'American',          city: 'Valiant Lady',  date: 'June 20', time: '9:00 PM',  status: 'confirmed', notes: 'Show & dinner experience' },
@@ -674,7 +676,7 @@ function useConfirm() {
 const MALLORCA_IDS = ['fl2', 'fl3'];
 const MALLORCA_HOTEL_IDS  = ['ht1'];
 const MALLORCA_DAY_DATES  = ['2026-06-17', '2026-06-18', '2026-06-19'];
-const MALLORCA_REST_IDS   = ['r1'];
+const MALLORCA_REST_IDS   = ['r1', 'r_lamalvasia'];
 const MALLORCA_TODO_IDS   = ['td9', 'td15', 'td16'];
 const MALLORCA_EVENT_IDS  = ['e0615a']; // Air Europa check-in on June 15
 
@@ -2185,6 +2187,24 @@ export default function App() {
     try { sessionStorage.setItem('mallorca_unlocked', '1'); } catch {}
     setMallorcaUnlocked(true);
   };
+
+  // One-time migration: add La Malvasia if missing from Firebase data
+  useEffect(() => {
+    if (!data) return;
+    if ((data.restaurants || []).some(r => r.id === 'r_lamalvasia')) return;
+    setData(d => ({
+      ...d,
+      restaurants: [...(d.restaurants || []),
+        { id: 'r_lamalvasia', name: 'La Malvasia', cuisine: 'Mediterranean', city: 'Palma de Mallorca', date: 'June 17', time: '8:45 PM', status: 'confirmed', notes: 'Reservation 8:45 PM' },
+      ],
+      days: (d.days || []).map(day =>
+        day.date === '2026-06-17'
+          ? { ...day, events: day.events.some(e => e.id === 'e0617h') ? day.events : [...day.events, { id: 'e0617h', time: '8:45 PM', title: 'Dinner — La Malvasia', description: 'Mediterranean restaurant in Palma', location: 'La Malvasia, Palma de Mallorca', type: 'food', status: 'confirmed', notes: 'Reservation 8:45 PM' }] }
+          : day
+      ),
+      lastUpdated: new Date().toISOString(),
+    }));
+  }, [data]);
 
   useEffect(() => {
     const link = document.createElement('link');
