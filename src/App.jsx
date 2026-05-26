@@ -75,8 +75,8 @@ const PACKING_TEMPLATE = [
   { cat: 'Money & Cards', item: 'Emergency cash (hidden separately)', notes: '' },
   { cat: 'Money & Cards', item: 'Bank notified of travel dates', notes: '' },
   // Cruise Essentials
-  { cat: 'Cruise Essentials', item: 'Scarlet / red outfit for Scarlet Night (June 20)', notes: 'Dress code: SCARLET / RED 🌹' },
-  { cat: 'Cruise Essentials', item: 'Pajamas for PJ Night (June 26)', notes: 'Themed party onboard 😴' },
+  { cat: 'Cruise Essentials', item: 'Scarlet / red outfit for Scarlet Night (June 25)', notes: 'Dress code: SCARLET / RED 🌹' },
+  { cat: 'Cruise Essentials', item: 'Pajamas for PJ Night (June 21)', notes: 'Themed party onboard 😴' },
   { cat: 'Cruise Essentials', item: 'Dressy cocktail outfit for ship dining', notes: '' },
   { cat: 'Cruise Essentials', item: 'Smart casual outfits (5–6 sets)', notes: '' },
   { cat: 'Cruise Essentials', item: 'Lanyard or card holder for ship key card', notes: 'Handy onboard' },
@@ -251,7 +251,6 @@ const INIT = {
         { id: 'e0620b', time: '12:00 PM', title: 'Check Out — H10 Art Gallery', description: 'Check out or store luggage', location: 'H10 Art Gallery, Barcelona', type: 'hotel', status: 'confirmed', notes: '' },
         { id: 'e0620c', time: '~1:30 PM', title: 'Uber to Cruise Port', description: 'Moll Adossat Terminal A/B · ~€30', location: 'Port of Barcelona', type: 'transport', status: 'confirmed', notes: '' },
         { id: 'e0620d', time: '3:15 PM', title: 'Board Valiant Lady 🚢', description: 'Virgin Voyages — Italian Vistas to Spanish Sunsets', location: 'Moll Adossat Terminal A/B, Barcelona', type: 'cruise', status: 'confirmed', notes: 'Conf: 2478994 · Seaview Cabin ×3' },
-        { id: 'e0620e', time: '6:00 PM', title: 'Dinner — Gunbae (Scarlet Night 🌹)', description: 'Korean BBQ onboard — Scarlet Night theme!', location: 'Gunbae, Valiant Lady', type: 'food', status: 'confirmed', notes: 'Dress code: SCARLET / RED' },
         { id: 'e0620f', time: '9:00 PM', title: 'The Wake Show', description: 'Show & dining at The Wake', location: 'The Wake, Valiant Lady', type: 'activity', status: 'confirmed', notes: '' },
       ],
     },
@@ -263,6 +262,7 @@ const INIT = {
         { id: 'e0621b', time: '11:45 AM', title: 'Brunch — The Wake', description: 'Brunch on the ship', location: 'The Wake, Valiant Lady', type: 'food', status: 'confirmed', notes: 'Reservation 11:45 AM' },
         { id: 'e0621c', time: 'Afternoon', title: 'Pool Deck & Richard\'s Rooftop', description: 'Relax at The Perch or upper decks', location: 'Upper Deck, Valiant Lady', type: 'activity', status: 'confirmed', notes: '' },
         { id: 'e0621d', time: '8:30 PM', title: 'Dinner — Ariya', description: 'Pan-Asian restaurant onboard', location: 'Ariya, Valiant Lady', type: 'food', status: 'confirmed', notes: 'Reservation 8:30 PM' },
+        { id: 'e0621e', time: 'Night', title: 'PJ Night — Onboard Party 🎉', description: 'Themed party on Valiant Lady — PAJAMAS!', location: 'Valiant Lady', type: 'activity', status: 'confirmed', notes: 'Dress code: PAJAMAS 😴' },
       ],
     },
     {
@@ -302,6 +302,7 @@ const INIT = {
         { id: 'e0625a', time: 'Morning', title: 'Redemption Spa', description: 'Onboard spa — book in advance', location: 'Redemption Spa, Valiant Lady', type: 'activity', status: 'pending', notes: '' },
         { id: 'e0625b', time: 'Afternoon', title: "Richard's Rooftop & Pool", description: 'Soak up the sun', location: 'Top Deck, Valiant Lady', type: 'activity', status: 'confirmed', notes: '' },
         { id: 'e0625c', time: '8:45 PM', title: 'Dinner — The Wake', description: 'Dinner at The Wake', location: 'The Wake, Valiant Lady', type: 'food', status: 'confirmed', notes: 'Reservation 8:45 PM' },
+        { id: 'e0625d', time: 'Night', title: 'Dinner — Gunbae (Scarlet Night 🌹)', description: 'Korean BBQ onboard — Scarlet Night theme!', location: 'Gunbae, Valiant Lady', type: 'food', status: 'confirmed', notes: 'Dress code: SCARLET / RED' },
       ],
     },
     {
@@ -310,7 +311,6 @@ const INIT = {
       events: [
         { id: 'e0626a', time: '8:00 PM', title: 'Arrive Ibiza (Evening Port)', description: 'Evening arrival — Ibiza Town at night is magical', location: 'Ibiza Port', type: 'cruise', status: 'confirmed', notes: '' },
         { id: 'e0626b', time: 'Evening', title: 'Dalt Vila — UNESCO Old Town', description: 'Historic walled city, sunset views, tapas', location: 'Dalt Vila, Ibiza', type: 'activity', status: 'pending', notes: '' },
-        { id: 'e0626c', time: 'Night', title: 'PJ Night — Onboard Party 🎉', description: 'Themed party on Valiant Lady — PAJAMAS!', location: 'Valiant Lady', type: 'activity', status: 'confirmed', notes: 'Dress code: PAJAMAS 😴' },
       ],
     },
     {
@@ -338,7 +338,7 @@ const INIT = {
   restaurants: [
     { id: 'r1',  name: 'Pink Agave',             cuisine: 'Mexican',           city: 'Palma',         date: 'June 17', time: '6:00 PM',  status: 'confirmed', notes: 'Reservation 6:00 PM' },
     { id: 'r2',  name: 'Extra Virgin',            cuisine: 'Mediterranean',     city: 'Barcelona',     date: 'June 19', time: '6:45 PM',  status: 'confirmed', notes: 'Reservation 6:45 PM' },
-    { id: 'r3',  name: 'Gunbae',                  cuisine: 'Korean BBQ',        city: 'Valiant Lady',  date: 'June 20', time: '6:00 PM',  status: 'confirmed', notes: 'Scarlet Night theme — wear RED 🌹' },
+    { id: 'r3',  name: 'Gunbae',                  cuisine: 'Korean BBQ',        city: 'Valiant Lady',  date: 'June 25', time: '6:00 PM',  status: 'confirmed', notes: 'Scarlet Night theme — wear RED 🌹' },
     { id: 'r4',  name: 'The Wake (show)',          cuisine: 'American',          city: 'Valiant Lady',  date: 'June 20', time: '9:00 PM',  status: 'confirmed', notes: 'Show & dinner experience' },
     { id: 'r5',  name: 'Razzle Dazzle',           cuisine: 'Vegetarian',        city: 'Valiant Lady',  date: 'June 21', time: '8:15 AM',  status: 'confirmed', notes: 'Breakfast reservation' },
     { id: 'r6',  name: 'The Wake (brunch)',        cuisine: 'American',          city: 'Valiant Lady',  date: 'June 21', time: '11:45 AM', status: 'confirmed', notes: 'Brunch reservation' },
@@ -361,8 +361,8 @@ const INIT = {
     { id: 'td10', cat: 'Cruise',    task: 'Download Virgin Voyages app',                             done: false },
     { id: 'td11', cat: 'Cruise',    task: 'Set up Sailor Loot / onboard account',                   done: false },
     { id: 'td12', cat: 'Cruise',    task: 'Book Redemption Spa appointments',                        done: false },
-    { id: 'td13', cat: 'Cruise',    task: 'Pack scarlet/red outfit for Scarlet Night (June 20)',     done: false },
-    { id: 'td14', cat: 'Cruise',    task: 'Pack pajamas for PJ Night (June 26)',                     done: false },
+    { id: 'td13', cat: 'Cruise',    task: 'Pack scarlet/red outfit for Scarlet Night (June 25)',     done: false },
+    { id: 'td14', cat: 'Cruise',    task: 'Pack pajamas for PJ Night (June 21)',                     done: false },
     { id: 'td15', cat: 'Activities', task: 'Confirm Hammam Al Andalus booking (June 17, 5:30 PM)',  done: true  },
     { id: 'td16', cat: 'Activities', task: 'Confirm Valldemossa Tour (June 18, 9:30 AM at Cathedral)', done: true },
     { id: 'td17', cat: 'Activities', task: 'Book Parc Güell timed entry (June 20, 11 AM)',          done: false },
@@ -669,10 +669,27 @@ function useConfirm() {
 }
 
 /* ─── FLIGHTS VIEW ──────────────────────────────────────── */
+const MALLORCA_IDS = ['fl2', 'fl3'];
+
 function FlightsView({ data, onUpdate }) {
   const [editItem, setEditItem] = useState(null);
   const [confirm, confirmModal] = useConfirm();
+  const [flUnlocked, setFlUnlocked] = useState(() => {
+    try { return sessionStorage.getItem('flights_unlocked') === '1'; } catch { return false; }
+  });
+  const [flPw, setFlPw] = useState('');
+  const [flPwErr, setFlPwErr] = useState(false);
   const blank = { airline: '', numbers: '', route: '', date: '', departure: '', arrival: '', confirmation: '', passengers: '', status: 'confirmed', notes: '' };
+
+  const tryFlUnlock = () => {
+    if (flPw === 'Sabrina26') {
+      try { sessionStorage.setItem('flights_unlocked', '1'); } catch {}
+      setFlUnlocked(true); setFlPwErr(false);
+    } else {
+      setFlPwErr(true);
+      setTimeout(() => setFlPwErr(false), 2500);
+    }
+  };
 
   const save = (item) => {
     onUpdate(d => {
@@ -689,41 +706,67 @@ function FlightsView({ data, onUpdate }) {
   };
   const cycle = (id) => onUpdate(d => ({ ...d, lastUpdated: new Date().toISOString(), flights: d.flights.map(f => f.id === id ? { ...f, status: nextStatus(f.status) } : f) }));
 
+  const renderFlight = (f) => (
+    <Card key={f.id}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2, flexWrap: 'wrap' }}>
+            <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 17, color: C.navy, fontWeight: 600 }}>{f.airline}</span>
+            <span style={{ fontSize: 12, color: C.textLight, fontFamily: 'Inter,sans-serif' }}>{f.numbers}</span>
+          </div>
+          <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 22, color: C.terracotta, fontWeight: 700, marginBottom: 8 }}>{f.route}</div>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
+            <Pill icon="📅" label={f.date} />
+            <Pill icon="🛫" label={f.departure} />
+            <Pill icon="🛬" label={f.arrival} />
+          </div>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+            <Pill icon="🔑" label={f.confirmation} mono />
+            {f.confirmation && <CopyBtn value={f.confirmation} />}
+            <Pill icon="👥" label={f.passengers} />
+          </div>
+          {f.notes && <div style={{ marginTop: 8, padding: '6px 10px', background: C.gold + '18', borderLeft: `3px solid ${C.gold}`, borderRadius: 6, fontSize: 12, color: C.textMid, fontFamily: 'Inter,sans-serif' }}>{f.notes}</div>}
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8, flexShrink: 0 }}>
+          <StatusBadge status={f.status} onClick={() => cycle(f.id)} />
+          <div style={{ display: 'flex', gap: 6 }}>
+            <Btn small variant="ghost" onClick={() => setEditItem(f)}>Edit</Btn>
+            <Btn small variant="danger" onClick={() => del(f.id, `${f.airline} ${f.route}`)}>Del</Btn>
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+
+  const publicFlights  = data.flights.filter(f => !MALLORCA_IDS.includes(f.id));
+  const privateFlights = data.flights.filter(f =>  MALLORCA_IDS.includes(f.id));
+
   return (
     <div>
       <SectionHead title="Dragon's Wings" icon="🐉" action={<Btn variant="primary" small onClick={() => setEditItem(blank)}>+ Add Flight</Btn>} />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-        {data.flights.map(f => (
-          <Card key={f.id}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2, flexWrap: 'wrap' }}>
-                  <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 17, color: C.navy, fontWeight: 600 }}>{f.airline}</span>
-                  <span style={{ fontSize: 12, color: C.textLight, fontFamily: 'Inter,sans-serif' }}>{f.numbers}</span>
-                </div>
-                <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 22, color: C.terracotta, fontWeight: 700, marginBottom: 8 }}>{f.route}</div>
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
-                  <Pill icon="📅" label={f.date} />
-                  <Pill icon="🛫" label={f.departure} />
-                  <Pill icon="🛬" label={f.arrival} />
-                </div>
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-                  <Pill icon="🔑" label={f.confirmation} mono />
-                  {f.confirmation && <CopyBtn value={f.confirmation} />}
-                  <Pill icon="👥" label={f.passengers} />
-                </div>
-                {f.notes && <div style={{ marginTop: 8, padding: '6px 10px', background: C.gold + '18', borderLeft: `3px solid ${C.gold}`, borderRadius: 6, fontSize: 12, color: C.textMid, fontFamily: 'Inter,sans-serif' }}>{f.notes}</div>}
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8, flexShrink: 0 }}>
-                <StatusBadge status={f.status} onClick={() => cycle(f.id)} />
-                <div style={{ display: 'flex', gap: 6 }}>
-                  <Btn small variant="ghost" onClick={() => setEditItem(f)}>Edit</Btn>
-                  <Btn small variant="danger" onClick={() => del(f.id, `${f.airline} ${f.route}`)}>Del</Btn>
-                </div>
-              </div>
+        {publicFlights.map(renderFlight)}
+
+        {/* Mallorca flights — password gated */}
+        {flUnlocked ? (
+          privateFlights.map(renderFlight)
+        ) : (
+          <Card style={{ textAlign: 'center', padding: '20px 18px' }}>
+            <div style={{ fontSize: 28, marginBottom: 8 }}>🔒</div>
+            <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 16, color: C.navy, fontWeight: 700, marginBottom: 4 }}>Additional Flights</div>
+            <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 13, color: C.textMid, marginBottom: 16 }}>Enter the password to view.</div>
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+              <input
+                type="password" value={flPw} onChange={e => setFlPw(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && tryFlUnlock()}
+                placeholder="Speak, friend, and enter…"
+                style={{ border: `1px solid ${flPwErr ? C.red : C.ivoryDark}`, borderRadius: 8, padding: '9px 14px', fontFamily: 'Inter,sans-serif', fontSize: 13, outline: 'none', width: 220, color: C.text }}
+              />
+              <Btn variant="primary" onClick={tryFlUnlock}>🔓 Open Sesame</Btn>
             </div>
+            {flPwErr && <div style={{ marginTop: 10, fontSize: 12, color: C.red, fontFamily: 'Inter,sans-serif', fontWeight: 600 }}>Wrong password! Do you know the Muffin Man?!</div>}
           </Card>
-        ))}
+        )}
       </div>
       {editItem && <FlightForm initial={editItem} onSave={save} onClose={() => setEditItem(null)} />}
       {confirmModal}
@@ -1390,6 +1433,7 @@ function PackingView({ data, onUpdate }) {
   const [person, setPerson] = useState('alicyn');
   const [newItem, setNewItem] = useState('');
   const [newCat, setNewCat] = useState(PACK_CATS[0]);
+  const [catDraft, setCatDraft] = useState({});
   const [filter, setFilter] = useState('all');
   const [confirm, confirmModal] = useConfirm();
 
@@ -1442,6 +1486,15 @@ function PackingView({ data, onUpdate }) {
     }));
     setNewItem('');
   };
+  const addToCat = (cat) => {
+    const text = (catDraft[cat] || '').trim();
+    if (!text) return;
+    onUpdate(d => ({
+      ...d, lastUpdated: new Date().toISOString(),
+      packing: { ...d.packing, [person]: [...(d.packing[person] || []), { id: uid(), cat, item: text, packed: false, notes: '' }] },
+    }));
+    setCatDraft(d => ({ ...d, [cat]: '' }));
+  };
 
   const activeCats = [
     ...PACK_CATS.filter(c => visible.some(p => p.cat === c)),
@@ -1456,6 +1509,21 @@ function PackingView({ data, onUpdate }) {
           <Btn small variant={filter === 'unpacked' ? 'primary' : 'ghost'} onClick={() => setFilter('unpacked')}>Unpacked</Btn>
         </div>
       } />
+
+      {/* Trip duration banner */}
+      <div style={{ background: C.navyMid, borderRadius: 12, padding: '12px 18px', marginBottom: 18, display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'center' }}>
+        <span style={{ fontFamily: 'Playfair Display,serif', fontSize: 15, color: C.white, fontWeight: 700 }}>🌿 June 16 – June 28, 2026</span>
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+          {[
+            { label: '13 days · 12 nights', icon: '🌙' },
+            { label: '7 cruise nights', icon: '🚢' },
+            { label: '4 hotel nights', icon: '🏨' },
+            { label: '1 flight night', icon: '✈️' },
+          ].map(({ label, icon }) => (
+            <span key={label} style={{ fontFamily: 'Inter,sans-serif', fontSize: 12, color: C.goldL, fontWeight: 600 }}>{icon} {label}</span>
+          ))}
+        </div>
+      </div>
 
       {/* Person selector */}
       <div style={{ display: 'flex', gap: 10, marginBottom: 22 }}>
@@ -1529,14 +1597,25 @@ function PackingView({ data, onUpdate }) {
                 <button onClick={() => del(p.id, p.item)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.textLight, fontSize: 18, flexShrink: 0, lineHeight: 1, padding: 0 }}>×</button>
               </div>
             ))}
+            {/* Inline add for this category */}
+            <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
+              <input
+                value={catDraft[cat] || ''}
+                onChange={e => setCatDraft(d => ({ ...d, [cat]: e.target.value }))}
+                onKeyDown={e => e.key === 'Enter' && addToCat(cat)}
+                placeholder="Add item…"
+                style={{ flex: 1, border: `1px solid ${C.ivoryDark}`, borderRadius: 7, padding: '6px 11px', fontFamily: 'Inter,sans-serif', fontSize: 12, color: C.text, outline: 'none', background: C.white }}
+              />
+              <button onClick={() => addToCat(cat)} style={{ background: C.terracotta, color: C.white, border: 'none', borderRadius: 7, padding: '6px 14px', fontFamily: 'Inter,sans-serif', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>+ Add</button>
+            </div>
           </div>
         );
       })}
 
-      {/* Add item */}
+      {/* Add to a new custom category */}
       <Card style={{ marginTop: 8 }}>
-        <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 14, color: C.navy, fontWeight: 600, marginBottom: 10 }}>
-          Add Item for {PEOPLE.find(p => p.key === person)?.label}
+        <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 13, color: C.navy, fontWeight: 600, marginBottom: 10 }}>
+          Add to a different category
         </div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <select value={newCat} onChange={e => setNewCat(e.target.value)}
@@ -1905,7 +1984,7 @@ const TABS = [
   { id: 'hotels',     label: 'Swamp Stays',     icon: '🌿' },
   { id: 'dining',     label: 'Swamp Grub',      icon: '🍽️' },
   { id: 'packing',    label: "Donkey's Bag",    icon: '🧳' },
-  { id: 'todos',      label: 'Ogre Orders',     icon: '📋' },
+  { id: 'todos',      label: "Ogre To-Do's",      icon: '📋' },
   { id: 'budget',     label: 'Royal Treasury',  icon: '💰' },
   { id: 'emergency',  label: 'Far Far Away SOS',icon: '🚨' },
 ];
