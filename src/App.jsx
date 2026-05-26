@@ -672,26 +672,39 @@ function useConfirm() {
 
 /* ─── FLIGHTS VIEW ──────────────────────────────────────── */
 const MALLORCA_IDS = ['fl2', 'fl3'];
+const MALLORCA_HOTEL_IDS  = ['ht1'];
+const MALLORCA_DAY_DATES  = ['2026-06-17', '2026-06-18', '2026-06-19'];
+const MALLORCA_REST_IDS   = ['r1'];
+const MALLORCA_TODO_IDS   = ['td9', 'td15', 'td16'];
+const MALLORCA_EVENT_IDS  = ['e0615a']; // Air Europa check-in on June 15
 
-function FlightsView({ data, onUpdate }) {
+function MallorcaLock({ onUnlock }) {
+  const [pw, setPw] = useState('');
+  const [err, setErr] = useState(false);
+  const tryUnlock = () => {
+    if (pw === 'Sabrina26') { onUnlock(); }
+    else { setErr(true); setTimeout(() => setErr(false), 2500); }
+  };
+  return (
+    <Card style={{ textAlign: 'center', padding: '20px 18px', marginBottom: 14 }}>
+      <div style={{ fontSize: 28, marginBottom: 6 }}>🔒</div>
+      <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 15, color: C.navy, fontWeight: 700, marginBottom: 4 }}>Surprise content — coming soon! 🌴</div>
+      <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 12, color: C.textMid, marginBottom: 14 }}>Enter the password to reveal.</div>
+      <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+        <input type="password" value={pw} onChange={e => setPw(e.target.value)} onKeyDown={e => e.key === 'Enter' && tryUnlock()}
+          placeholder="Speak, friend, and enter…"
+          style={{ border: `1px solid ${err ? C.red : C.ivoryDark}`, borderRadius: 8, padding: '8px 12px', fontFamily: 'Inter,sans-serif', fontSize: 13, outline: 'none', width: 210, color: C.text }} />
+        <Btn variant="primary" onClick={tryUnlock}>🔓 Open Sesame</Btn>
+      </div>
+      {err && <div style={{ marginTop: 10, fontSize: 12, color: C.red, fontFamily: 'Inter,sans-serif', fontWeight: 600 }}>Wrong password! Do you know the Muffin Man?!</div>}
+    </Card>
+  );
+}
+
+function FlightsView({ data, onUpdate, mallorcaUnlocked, onMallorcaUnlock }) {
   const [editItem, setEditItem] = useState(null);
   const [confirm, confirmModal] = useConfirm();
-  const [flUnlocked, setFlUnlocked] = useState(() => {
-    try { return sessionStorage.getItem('flights_unlocked') === '1'; } catch { return false; }
-  });
-  const [flPw, setFlPw] = useState('');
-  const [flPwErr, setFlPwErr] = useState(false);
   const blank = { airline: '', numbers: '', route: '', date: '', departure: '', arrival: '', confirmation: '', passengers: '', status: 'confirmed', notes: '' };
-
-  const tryFlUnlock = () => {
-    if (flPw === 'Sabrina26') {
-      try { sessionStorage.setItem('flights_unlocked', '1'); } catch {}
-      setFlUnlocked(true); setFlPwErr(false);
-    } else {
-      setFlPwErr(true);
-      setTimeout(() => setFlPwErr(false), 2500);
-    }
-  };
 
   const save = (item) => {
     onUpdate(d => {
@@ -750,24 +763,10 @@ function FlightsView({ data, onUpdate }) {
         {publicFlights.map(renderFlight)}
 
         {/* Mallorca flights — password gated */}
-        {flUnlocked ? (
+        {mallorcaUnlocked ? (
           privateFlights.map(renderFlight)
         ) : (
-          <Card style={{ textAlign: 'center', padding: '20px 18px' }}>
-            <div style={{ fontSize: 28, marginBottom: 8 }}>🔒</div>
-            <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 16, color: C.navy, fontWeight: 700, marginBottom: 4 }}>Additional Flights</div>
-            <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 13, color: C.textMid, marginBottom: 16 }}>Enter the password to view.</div>
-            <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <input
-                type="password" value={flPw} onChange={e => setFlPw(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && tryFlUnlock()}
-                placeholder="Speak, friend, and enter…"
-                style={{ border: `1px solid ${flPwErr ? C.red : C.ivoryDark}`, borderRadius: 8, padding: '9px 14px', fontFamily: 'Inter,sans-serif', fontSize: 13, outline: 'none', width: 220, color: C.text }}
-              />
-              <Btn variant="primary" onClick={tryFlUnlock}>🔓 Open Sesame</Btn>
-            </div>
-            {flPwErr && <div style={{ marginTop: 10, fontSize: 12, color: C.red, fontFamily: 'Inter,sans-serif', fontWeight: 600 }}>Wrong password! Do you know the Muffin Man?!</div>}
-          </Card>
+          <MallorcaLock onUnlock={onMallorcaUnlock} />
         )}
       </div>
       {editItem && <FlightForm initial={editItem} onSave={save} onClose={() => setEditItem(null)} />}
@@ -800,7 +799,7 @@ function FlightForm({ initial, onSave, onClose }) {
 }
 
 /* ─── HOTELS VIEW ───────────────────────────────────────── */
-function HotelsView({ data, onUpdate }) {
+function HotelsView({ data, onUpdate, mallorcaUnlocked, onMallorcaUnlock }) {
   const [editItem, setEditItem] = useState(null);
   const [confirm, confirmModal] = useConfirm();
   const blank = { name: '', address: '', checkIn: '', checkOut: '', nights: '', room: '', guests: '', confirmation: '', status: 'confirmed', notes: '' };
@@ -822,7 +821,7 @@ function HotelsView({ data, onUpdate }) {
     <div>
       <SectionHead title="Swamp Stays & Castles" icon="🌿" action={<Btn variant="primary" small onClick={() => setEditItem(blank)}>+ Add</Btn>} />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-        {data.hotels.map(h => (
+        {data.hotels.filter(h => mallorcaUnlocked || !MALLORCA_HOTEL_IDS.includes(h.id)).map(h => (
           <Card key={h.id}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -853,6 +852,9 @@ function HotelsView({ data, onUpdate }) {
             </div>
           </Card>
         ))}
+        {!mallorcaUnlocked && data.hotels.some(h => MALLORCA_HOTEL_IDS.includes(h.id)) && (
+          <MallorcaLock onUnlock={onMallorcaUnlock} />
+        )}
       </div>
       {editItem && <HotelForm initial={editItem} onSave={save} onClose={() => setEditItem(null)} />}
       {confirmModal}
@@ -884,7 +886,7 @@ function HotelForm({ initial, onSave, onClose }) {
 }
 
 /* ─── DAILY ITINERARY ───────────────────────────────────── */
-function DailyView({ data, onUpdate }) {
+function DailyView({ data, onUpdate, mallorcaUnlocked, onMallorcaUnlock }) {
   const [dragSrc, setDragSrc]   = useState(null);
   const [dragOver, setDragOver] = useState(null);
   const [editEvt, setEditEvt]   = useState(null);
