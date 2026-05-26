@@ -1400,6 +1400,13 @@ function TodoView({ data, onUpdate, mallorcaUnlocked }) {
     onUpdate(d => ({ ...d, lastUpdated: new Date().toISOString(), todos: [...d.todos, { id: uid(), cat, task: text, done: false }] }));
     setCatDraft(d => ({ ...d, [cat]: '' }));
   };
+  const [editingId, setEditingId] = useState(null);
+  const [editVal, setEditVal] = useState('');
+  const saveEdit = () => {
+    if (!editVal.trim()) return;
+    onUpdate(d => ({ ...d, lastUpdated: new Date().toISOString(), todos: d.todos.map(t => t.id === editingId ? { ...t, task: editVal.trim() } : t) }));
+    setEditingId(null);
+  };
 
   const done = visibleTodos.filter(t => t.done).length;
   const total = visibleTodos.length;
@@ -1431,7 +1438,15 @@ function TodoView({ data, onUpdate, mallorcaUnlocked }) {
             }}>
               <input type="checkbox" checked={t.done} onChange={() => toggle(t.id)}
                 style={{ width: 18, height: 18, cursor: 'pointer', accentColor: C.terracotta, flexShrink: 0 }} />
-              <span style={{ flex: 1, fontFamily: 'Inter,sans-serif', fontSize: 14, color: t.done ? C.textLight : C.text, textDecoration: t.done ? 'line-through' : 'none' }}>{t.task}</span>
+              {editingId === t.id ? (
+                <input autoFocus value={editVal} onChange={e => setEditVal(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') saveEdit(); if (e.key === 'Escape') setEditingId(null); }}
+                  onBlur={saveEdit}
+                  style={{ flex: 1, fontFamily: 'Inter,sans-serif', fontSize: 14, border: `1px solid ${C.terracotta}`, borderRadius: 5, padding: '2px 7px', outline: 'none', color: C.text }} />
+              ) : (
+                <span onClick={() => { setEditingId(t.id); setEditVal(t.task); }}
+                  style={{ flex: 1, fontFamily: 'Inter,sans-serif', fontSize: 14, color: t.done ? C.textLight : C.text, textDecoration: t.done ? 'line-through' : 'none', cursor: 'text' }}>{t.task}</span>
+              )}
               <button onClick={() => del(t.id, t.task)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.textLight, fontSize: 18, flexShrink: 0 }}>×</button>
             </div>
           ))}
@@ -1472,6 +1487,9 @@ function PackingView({ data, onUpdate }) {
   const [person, setPerson] = useState('alicyn');
   const [newItem, setNewItem] = useState('');
   const [newNote, setNewNote] = useState('');
+  const [editingId, setEditingId] = useState(null);
+  const [editVal, setEditVal] = useState('');
+  const [editNote, setEditNote] = useState('');
   const [newCat, setNewCat] = useState(PACK_CATS[0]);
   const [catDraft, setCatDraft] = useState({});
   const [catNoteDraft, setCatNoteDraft] = useState({});
@@ -1536,6 +1554,15 @@ function PackingView({ data, onUpdate }) {
     }));
     setCatDraft(d => ({ ...d, [cat]: '' }));
     setCatNoteDraft(d => ({ ...d, [cat]: '' }));
+  };
+  const startEdit = (p) => { setEditingId(p.id); setEditVal(p.item); setEditNote(p.notes || ''); };
+  const saveEdit = () => {
+    if (!editVal.trim()) return;
+    onUpdate(d => ({
+      ...d, lastUpdated: new Date().toISOString(),
+      packing: { ...d.packing, [person]: (d.packing[person] || []).map(p => p.id === editingId ? { ...p, item: editVal.trim(), notes: editNote.trim() } : p) },
+    }));
+    setEditingId(null);
   };
 
   const activeCats = [
@@ -1633,8 +1660,24 @@ function PackingView({ data, onUpdate }) {
                 <input type="checkbox" checked={p.packed} onChange={() => toggle(p.id)}
                   style={{ width: 18, height: 18, cursor: 'pointer', accentColor: C.terracotta, flexShrink: 0, marginTop: 1 }} />
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 14, color: p.packed ? C.textLight : C.text, textDecoration: p.packed ? 'line-through' : 'none' }}>{p.item}</div>
-                  {p.notes && <div style={{ fontSize: 11, color: C.textLight, fontFamily: 'Inter,sans-serif', marginTop: 2, fontStyle: 'italic' }}>{p.notes}</div>}
+                  {editingId === p.id ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      <input autoFocus value={editVal} onChange={e => setEditVal(e.target.value)}
+                        onKeyDown={e => { if (e.key === 'Enter') saveEdit(); if (e.key === 'Escape') setEditingId(null); }}
+                        onBlur={saveEdit}
+                        style={{ fontFamily: 'Inter,sans-serif', fontSize: 14, border: `1px solid ${C.terracotta}`, borderRadius: 5, padding: '2px 7px', outline: 'none', color: C.text, width: '100%', boxSizing: 'border-box' }} />
+                      <input value={editNote} onChange={e => setEditNote(e.target.value)}
+                        onKeyDown={e => { if (e.key === 'Enter') saveEdit(); if (e.key === 'Escape') setEditingId(null); }}
+                        onBlur={saveEdit}
+                        placeholder="Caption / note (optional)"
+                        style={{ fontFamily: 'Inter,sans-serif', fontSize: 11, border: `1px solid ${C.ivoryDark}`, borderRadius: 5, padding: '2px 7px', outline: 'none', color: C.textMid, fontStyle: 'italic', width: '100%', boxSizing: 'border-box' }} />
+                    </div>
+                  ) : (
+                    <div onClick={() => startEdit(p)} style={{ cursor: 'text' }}>
+                      <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 14, color: p.packed ? C.textLight : C.text, textDecoration: p.packed ? 'line-through' : 'none' }}>{p.item}</div>
+                      {p.notes && <div style={{ fontSize: 11, color: C.textLight, fontFamily: 'Inter,sans-serif', marginTop: 2, fontStyle: 'italic' }}>{p.notes}</div>}
+                    </div>
+                  )}
                 </div>
                 <button onClick={() => del(p.id, p.item)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.textLight, fontSize: 18, flexShrink: 0, lineHeight: 1, padding: 0 }}>×</button>
               </div>
