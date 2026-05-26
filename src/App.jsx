@@ -2166,11 +2166,11 @@ const TABS = [
 
 /* ─── ROOT APP ──────────────────────────────────────────── */
 const BOTTOM_TABS = [
-  { id: 'itinerary', label: 'Quest',   icon: '🗺️' },
-  { id: 'flights',   label: 'Dragon',  icon: '🐉' },
-  { id: 'hotels',    label: 'Swamp',   icon: '🌿' },
-  { id: 'packing',   label: 'Donkey',  icon: '🧳' },
-  { id: 'budget',    label: 'Gold',    icon: '💰' },
+  { id: 'itinerary', label: 'The Quest',      icon: '🗺️' },
+  { id: 'flights',   label: "Dragon's Wings", icon: '🐉' },
+  { id: 'hotels',    label: 'Swamp Stays',    icon: '🌿' },
+  { id: 'packing',   label: "Donkey's List",  icon: '🧳' },
+  { id: 'budget',    label: 'Royal Treasury', icon: '💰' },
 ];
 
 export default function App() {
@@ -2336,14 +2336,14 @@ export default function App() {
               }}>
                 <span style={{ fontSize: 20 }}>{t.icon}</span>
               </div>
-              <span style={{ fontSize: 9, fontFamily: 'Inter,sans-serif', fontWeight: 700, color: tab === t.id ? C.terracotta : C.textLight, textTransform: 'uppercase', letterSpacing: '.5px' }}>{t.label}</span>
+              <span style={{ fontSize: 8, fontFamily: 'Inter,sans-serif', fontWeight: 700, color: tab === t.id ? C.terracotta : C.textLight, textTransform: 'uppercase', letterSpacing: '.4px', textAlign: 'center', lineHeight: 1.25 }}>{t.label}</span>
             </button>
           ))}
           {/* More button cycles: dining → todos → emergency */}
           {(() => {
             const moreActive = tab === 'dining' || tab === 'todos' || tab === 'emergency';
             const moreIcon  = tab === 'emergency' ? '🚨' : tab === 'todos' ? '✅' : '🍽️';
-            const moreLabel = tab === 'emergency' ? 'SOS' : tab === 'todos' ? 'Orders' : 'Grub';
+            const moreLabel = tab === 'emergency' ? 'Far Far Away SOS' : tab === 'todos' ? "Ogre To-Do's" : 'Swamp Grub';
             const nextTab   = tab === 'dining' ? 'todos' : tab === 'todos' ? 'emergency' : 'dining';
             return (
               <button onClick={() => setTab(nextTab)} style={{
@@ -2359,7 +2359,7 @@ export default function App() {
                 }}>
                   <span style={{ fontSize: 20 }}>{moreIcon}</span>
                 </div>
-                <span style={{ fontSize: 9, fontFamily: 'Inter,sans-serif', fontWeight: 700, color: moreActive ? C.terracotta : C.textLight, textTransform: 'uppercase', letterSpacing: '.5px' }}>{moreLabel}</span>
+                <span style={{ fontSize: 8, fontFamily: 'Inter,sans-serif', fontWeight: 700, color: moreActive ? C.terracotta : C.textLight, textTransform: 'uppercase', letterSpacing: '.4px', textAlign: 'center', lineHeight: 1.25 }}>{moreLabel}</span>
               </button>
             );
           })()}
