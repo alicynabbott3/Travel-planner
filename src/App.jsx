@@ -669,10 +669,27 @@ function useConfirm() {
 }
 
 /* ─── FLIGHTS VIEW ──────────────────────────────────────── */
+const MALLORCA_IDS = ['fl2', 'fl3'];
+
 function FlightsView({ data, onUpdate }) {
   const [editItem, setEditItem] = useState(null);
   const [confirm, confirmModal] = useConfirm();
+  const [flUnlocked, setFlUnlocked] = useState(() => {
+    try { return sessionStorage.getItem('flights_unlocked') === '1'; } catch { return false; }
+  });
+  const [flPw, setFlPw] = useState('');
+  const [flPwErr, setFlPwErr] = useState(false);
   const blank = { airline: '', numbers: '', route: '', date: '', departure: '', arrival: '', confirmation: '', passengers: '', status: 'confirmed', notes: '' };
+
+  const tryFlUnlock = () => {
+    if (flPw === 'Sabrina26') {
+      try { sessionStorage.setItem('flights_unlocked', '1'); } catch {}
+      setFlUnlocked(true); setFlPwErr(false);
+    } else {
+      setFlPwErr(true);
+      setTimeout(() => setFlPwErr(false), 2500);
+    }
+  };
 
   const save = (item) => {
     onUpdate(d => {
@@ -689,41 +706,67 @@ function FlightsView({ data, onUpdate }) {
   };
   const cycle = (id) => onUpdate(d => ({ ...d, lastUpdated: new Date().toISOString(), flights: d.flights.map(f => f.id === id ? { ...f, status: nextStatus(f.status) } : f) }));
 
+  const renderFlight = (f) => (
+    <Card key={f.id}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2, flexWrap: 'wrap' }}>
+            <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 17, color: C.navy, fontWeight: 600 }}>{f.airline}</span>
+            <span style={{ fontSize: 12, color: C.textLight, fontFamily: 'Inter,sans-serif' }}>{f.numbers}</span>
+          </div>
+          <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 22, color: C.terracotta, fontWeight: 700, marginBottom: 8 }}>{f.route}</div>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
+            <Pill icon="📅" label={f.date} />
+            <Pill icon="🛫" label={f.departure} />
+            <Pill icon="🛬" label={f.arrival} />
+          </div>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+            <Pill icon="🔑" label={f.confirmation} mono />
+            {f.confirmation && <CopyBtn value={f.confirmation} />}
+            <Pill icon="👥" label={f.passengers} />
+          </div>
+          {f.notes && <div style={{ marginTop: 8, padding: '6px 10px', background: C.gold + '18', borderLeft: `3px solid ${C.gold}`, borderRadius: 6, fontSize: 12, color: C.textMid, fontFamily: 'Inter,sans-serif' }}>{f.notes}</div>}
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8, flexShrink: 0 }}>
+          <StatusBadge status={f.status} onClick={() => cycle(f.id)} />
+          <div style={{ display: 'flex', gap: 6 }}>
+            <Btn small variant="ghost" onClick={() => setEditItem(f)}>Edit</Btn>
+            <Btn small variant="danger" onClick={() => del(f.id, `${f.airline} ${f.route}`)}>Del</Btn>
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+
+  const publicFlights  = data.flights.filter(f => !MALLORCA_IDS.includes(f.id));
+  const privateFlights = data.flights.filter(f =>  MALLORCA_IDS.includes(f.id));
+
   return (
     <div>
       <SectionHead title="Dragon's Wings" icon="🐉" action={<Btn variant="primary" small onClick={() => setEditItem(blank)}>+ Add Flight</Btn>} />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-        {data.flights.map(f => (
-          <Card key={f.id}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2, flexWrap: 'wrap' }}>
-                  <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 17, color: C.navy, fontWeight: 600 }}>{f.airline}</span>
-                  <span style={{ fontSize: 12, color: C.textLight, fontFamily: 'Inter,sans-serif' }}>{f.numbers}</span>
-                </div>
-                <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 22, color: C.terracotta, fontWeight: 700, marginBottom: 8 }}>{f.route}</div>
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
-                  <Pill icon="📅" label={f.date} />
-                  <Pill icon="🛫" label={f.departure} />
-                  <Pill icon="🛬" label={f.arrival} />
-                </div>
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-                  <Pill icon="🔑" label={f.confirmation} mono />
-                  {f.confirmation && <CopyBtn value={f.confirmation} />}
-                  <Pill icon="👥" label={f.passengers} />
-                </div>
-                {f.notes && <div style={{ marginTop: 8, padding: '6px 10px', background: C.gold + '18', borderLeft: `3px solid ${C.gold}`, borderRadius: 6, fontSize: 12, color: C.textMid, fontFamily: 'Inter,sans-serif' }}>{f.notes}</div>}
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8, flexShrink: 0 }}>
-                <StatusBadge status={f.status} onClick={() => cycle(f.id)} />
-                <div style={{ display: 'flex', gap: 6 }}>
-                  <Btn small variant="ghost" onClick={() => setEditItem(f)}>Edit</Btn>
-                  <Btn small variant="danger" onClick={() => del(f.id, `${f.airline} ${f.route}`)}>Del</Btn>
-                </div>
-              </div>
+        {publicFlights.map(renderFlight)}
+
+        {/* Mallorca flights — password gated */}
+        {flUnlocked ? (
+          privateFlights.map(renderFlight)
+        ) : (
+          <Card style={{ textAlign: 'center', padding: '20px 18px' }}>
+            <div style={{ fontSize: 28, marginBottom: 8 }}>🔒</div>
+            <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 16, color: C.navy, fontWeight: 700, marginBottom: 4 }}>Additional Flights</div>
+            <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 13, color: C.textMid, marginBottom: 16 }}>Enter the password to view.</div>
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+              <input
+                type="password" value={flPw} onChange={e => setFlPw(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && tryFlUnlock()}
+                placeholder="Speak, friend, and enter…"
+                style={{ border: `1px solid ${flPwErr ? C.red : C.ivoryDark}`, borderRadius: 8, padding: '9px 14px', fontFamily: 'Inter,sans-serif', fontSize: 13, outline: 'none', width: 220, color: C.text }}
+              />
+              <Btn variant="primary" onClick={tryFlUnlock}>🔓 Open Sesame</Btn>
             </div>
+            {flPwErr && <div style={{ marginTop: 10, fontSize: 12, color: C.red, fontFamily: 'Inter,sans-serif', fontWeight: 600 }}>Wrong password! Do you know the Muffin Man?!</div>}
           </Card>
-        ))}
+        )}
       </div>
       {editItem && <FlightForm initial={editItem} onSave={save} onClose={() => setEditItem(null)} />}
       {confirmModal}
@@ -1462,9 +1505,9 @@ function PackingView({ data, onUpdate }) {
         <span style={{ fontFamily: 'Playfair Display,serif', fontSize: 15, color: C.white, fontWeight: 700 }}>🌿 June 16 – June 28, 2026</span>
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
           {[
-            { label: '12 nights', icon: '🌙' },
+            { label: '13 days · 12 nights', icon: '🌙' },
             { label: '7 cruise nights', icon: '🚢' },
-            { label: '3 hotel nights', icon: '🏨' },
+            { label: '4 hotel nights', icon: '🏨' },
             { label: '1 flight night', icon: '✈️' },
           ].map(({ label, icon }) => (
             <span key={label} style={{ fontFamily: 'Inter,sans-serif', fontSize: 12, color: C.goldL, fontWeight: 600 }}>{icon} {label}</span>
