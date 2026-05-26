@@ -1432,8 +1432,10 @@ function TodoView({ data, onUpdate }) {
 function PackingView({ data, onUpdate }) {
   const [person, setPerson] = useState('alicyn');
   const [newItem, setNewItem] = useState('');
+  const [newNote, setNewNote] = useState('');
   const [newCat, setNewCat] = useState(PACK_CATS[0]);
   const [catDraft, setCatDraft] = useState({});
+  const [catNoteDraft, setCatNoteDraft] = useState({});
   const [filter, setFilter] = useState('all');
   const [confirm, confirmModal] = useConfirm();
 
@@ -1482,18 +1484,19 @@ function PackingView({ data, onUpdate }) {
     if (!newItem.trim()) return;
     onUpdate(d => ({
       ...d, lastUpdated: new Date().toISOString(),
-      packing: { ...d.packing, [person]: [...(d.packing[person] || []), { id: uid(), cat: newCat, item: newItem.trim(), packed: false, notes: '' }] },
+      packing: { ...d.packing, [person]: [...(d.packing[person] || []), { id: uid(), cat: newCat, item: newItem.trim(), packed: false, notes: newNote.trim() }] },
     }));
-    setNewItem('');
+    setNewItem(''); setNewNote('');
   };
   const addToCat = (cat) => {
     const text = (catDraft[cat] || '').trim();
     if (!text) return;
     onUpdate(d => ({
       ...d, lastUpdated: new Date().toISOString(),
-      packing: { ...d.packing, [person]: [...(d.packing[person] || []), { id: uid(), cat, item: text, packed: false, notes: '' }] },
+      packing: { ...d.packing, [person]: [...(d.packing[person] || []), { id: uid(), cat, item: text, packed: false, notes: (catNoteDraft[cat] || '').trim() }] },
     }));
     setCatDraft(d => ({ ...d, [cat]: '' }));
+    setCatNoteDraft(d => ({ ...d, [cat]: '' }));
   };
 
   const activeCats = [
@@ -1598,15 +1601,24 @@ function PackingView({ data, onUpdate }) {
               </div>
             ))}
             {/* Inline add for this category */}
-            <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 4 }}>
+              <div style={{ display: 'flex', gap: 6 }}>
+                <input
+                  value={catDraft[cat] || ''}
+                  onChange={e => setCatDraft(d => ({ ...d, [cat]: e.target.value }))}
+                  onKeyDown={e => e.key === 'Enter' && addToCat(cat)}
+                  placeholder="Add item…"
+                  style={{ flex: 1, border: `1px solid ${C.ivoryDark}`, borderRadius: 7, padding: '6px 11px', fontFamily: 'Inter,sans-serif', fontSize: 12, color: C.text, outline: 'none', background: C.white }}
+                />
+                <button onClick={() => addToCat(cat)} style={{ background: C.terracotta, color: C.white, border: 'none', borderRadius: 7, padding: '6px 14px', fontFamily: 'Inter,sans-serif', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>+ Add</button>
+              </div>
               <input
-                value={catDraft[cat] || ''}
-                onChange={e => setCatDraft(d => ({ ...d, [cat]: e.target.value }))}
+                value={catNoteDraft[cat] || ''}
+                onChange={e => setCatNoteDraft(d => ({ ...d, [cat]: e.target.value }))}
                 onKeyDown={e => e.key === 'Enter' && addToCat(cat)}
-                placeholder="Add item…"
-                style={{ flex: 1, border: `1px solid ${C.ivoryDark}`, borderRadius: 7, padding: '6px 11px', fontFamily: 'Inter,sans-serif', fontSize: 12, color: C.text, outline: 'none', background: C.white }}
+                placeholder="Caption / note (optional)"
+                style={{ border: `1px solid ${C.ivoryDark}`, borderRadius: 7, padding: '5px 11px', fontFamily: 'Inter,sans-serif', fontSize: 11, color: C.textMid, outline: 'none', background: C.white, fontStyle: 'italic' }}
               />
-              <button onClick={() => addToCat(cat)} style={{ background: C.terracotta, color: C.white, border: 'none', borderRadius: 7, padding: '6px 14px', fontFamily: 'Inter,sans-serif', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>+ Add</button>
             </div>
           </div>
         );
@@ -1626,6 +1638,11 @@ function PackingView({ data, onUpdate }) {
             placeholder="Add an item… (press Enter)"
             style={{ flex: 1, minWidth: 160, border: `1px solid ${C.ivoryDark}`, borderRadius: 4, padding: '8px 12px', fontFamily: 'Inter,sans-serif', fontSize: 13, color: C.text, outline: 'none' }} />
           <Btn variant="primary" onClick={add}>Add</Btn>
+        </div>
+        <div style={{ marginTop: 6 }}>
+          <input value={newNote} onChange={e => setNewNote(e.target.value)} onKeyDown={e => e.key === 'Enter' && add()}
+            placeholder="Caption / note (optional)"
+            style={{ width: '100%', border: `1px solid ${C.ivoryDark}`, borderRadius: 4, padding: '6px 12px', fontFamily: 'Inter,sans-serif', fontSize: 12, color: C.textMid, outline: 'none', fontStyle: 'italic', boxSizing: 'border-box' }} />
         </div>
       </Card>
       {confirmModal}
