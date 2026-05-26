@@ -1296,17 +1296,52 @@ function EvtForm({ initial, title, onSave, onClose }) {
 }
 
 /* ─── RESTAURANTS VIEW ──────────────────────────────────── */
+const TRIP_DATES = ['June 15','June 16','June 17','June 18','June 19','June 20','June 21','June 22','June 23','June 24','June 25','June 26','June 27','June 28'];
+const tripDateToISO = (s) => { const d = parseInt((s || '').split(' ')[1]); return (s || '').startsWith('June') && d ? `2026-06-${String(d).padStart(2,'0')}` : null; };
+const entryToEvent = (r) => ({
+  id: uid(),
+  time: r.time || 'Evening',
+  title: r.name,
+  description: [r.cuisine, r.city].filter(Boolean).join(' · '),
+  location: [r.name, r.city].filter(Boolean).join(', '),
+  type: 'food',
+  status: r.status || 'confirmed',
+  notes: r.notes || '',
+});
+
 function RestaurantsView({ data, onUpdate, mallorcaUnlocked, onMallorcaUnlock }) {
   const [editItem, setEditItem] = useState(null);
   const [confirm, confirmModal] = useConfirm();
+  const emptyQuick = { name: '', cuisine: '', city: '', date: 'June 22', time: '', notes: '', status: 'confirmed' };
+  const [quick, setQuick] = useState(emptyQuick);
   const blank = { name: '', cuisine: '', city: '', date: '', time: '', status: 'confirmed', notes: '' };
 
-  const save = (item) => {
+  const saveEntry = (item) => {
+    const newId = item.id || uid();
+    const fullItem = { ...item, id: newId };
     onUpdate(d => {
-      const list = item.id ? d.restaurants.map(r => r.id === item.id ? item : r) : [...d.restaurants, { ...item, id: uid() }];
-      return { ...d, restaurants: list, lastUpdated: new Date().toISOString() };
+      const list = item.id
+        ? d.restaurants.map(r => r.id === item.id ? fullItem : r)
+        : [...d.restaurants, fullItem];
+      // Auto-sync new entry to matching itinerary day
+      let days = d.days;
+      if (!item.id && item.name && item.date) {
+        const iso = tripDateToISO(item.date);
+        if (iso) {
+          const evt = entryToEvent(fullItem);
+          days = (d.days || []).map(day =>
+            day.date === iso ? { ...day, events: [...(day.events || []), evt] } : day
+          );
+        }
+      }
+      return { ...d, restaurants: list, days, lastUpdated: new Date().toISOString() };
     });
-    setEditItem(null);
+  };
+  const save = (item) => { saveEntry(item); setEditItem(null); };
+  const addQuick = () => {
+    if (!quick.name.trim()) return;
+    saveEntry(quick);
+    setQuick(q => ({ ...emptyQuick, date: q.date }));
   };
   const del = async (id, name) => {
     if (await confirm(`Remove "${name}" from the list?`))
@@ -1347,6 +1382,43 @@ function RestaurantsView({ data, onUpdate, mallorcaUnlocked, onMallorcaUnlock })
           <MallorcaLock onUnlock={onMallorcaUnlock} />
         )}
       </div>
+      {/* Quick-add form */}
+      <Card style={{ marginTop: 18 }}>
+        <div style={{ fontFamily: 'Playfair Display,serif', fontSize: 15, color: C.navy, fontWeight: 700, marginBottom: 14 }}>
+          Add Reservation or Activity
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))', gap: 8, marginBottom: 10 }}>
+          {[
+            { label: 'Name *', key: 'name', placeholder: 'e.g. Nostromo' },
+            { label: 'Cuisine / Type', key: 'cuisine', placeholder: 'e.g. Seafood, Spa, Tour…' },
+            { label: 'City / Venue', key: 'city', placeholder: 'e.g. Barcelona' },
+            { label: 'Time', key: 'time', placeholder: 'e.g. 7:30 PM' },
+            { label: 'Notes', key: 'notes', placeholder: 'Reservation #, tips…' },
+          ].map(({ label, key, placeholder }) => (
+            <div key={key}>
+              <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 11, color: C.textMid, fontWeight: 600, marginBottom: 3 }}>{label}</div>
+              <input value={quick[key]} onChange={e => setQuick(q => ({ ...q, [key]: e.target.value }))}
+                onKeyDown={e => e.key === 'Enter' && addQuick()}
+                placeholder={placeholder}
+                style={{ width: '100%', boxSizing: 'border-box', border: `1px solid ${C.ivoryDark}`, borderRadius: 7, padding: '7px 10px', fontFamily: 'Inter,sans-serif', fontSize: 12, color: C.text, outline: 'none', background: C.white }} />
+            </div>
+          ))}
+          <div>
+            <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 11, color: C.textMid, fontWeight: 600, marginBottom: 3 }}>Date</div>
+            <select value={quick.date} onChange={e => setQuick(q => ({ ...q, date: e.target.value }))}
+              style={{ width: '100%', border: `1px solid ${C.ivoryDark}`, borderRadius: 7, padding: '7px 10px', fontFamily: 'Inter,sans-serif', fontSize: 12, background: C.white, color: C.text }}>
+              {TRIP_DATES.map(d => <option key={d}>{d}</option>)}
+            </select>
+          </div>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+          <span style={{ fontFamily: 'Inter,sans-serif', fontSize: 11, color: C.textLight, fontStyle: 'italic' }}>
+            🗺️ Also auto-adds to The Quest itinerary for the selected date
+          </span>
+          <Btn variant="primary" onClick={addQuick}>+ Add & Sync to Quest</Btn>
+        </div>
+      </Card>
+
       {editItem && <RestForm initial={editItem} onSave={save} onClose={() => setEditItem(null)} />}
       {confirmModal}
     </div>
@@ -1361,7 +1433,7 @@ function RestForm({ initial, onSave, onClose }) {
       <Field label="Name" name="name" value={form.name} onChange={ch} />
       <Field label="Cuisine / Type" name="cuisine" value={form.cuisine} onChange={ch} />
       <Field label="City / Venue" name="city" value={form.city} onChange={ch} />
-      <Field label="Date" name="date" value={form.date} onChange={ch} />
+      <Field label="Date" name="date" value={form.date} onChange={ch} options={TRIP_DATES.map(d => ({ value: d, label: d }))} />
       <Field label="Time" name="time" value={form.time} onChange={ch} />
       <Field label="Status" name="status" value={form.status} onChange={ch} options={STATUSES.map(s => ({ value: s, label: STATUS[s].label }))} />
       <Field label="Notes" name="notes" value={form.notes} onChange={ch} rows={2} />
