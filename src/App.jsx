@@ -2395,7 +2395,7 @@ export default function App() {
         <img
           src="/bachelorette-banner.jpg"
           alt="Sabrina's Bachelorette '26 — Swamp Party"
-          style={{ width: '100%', maxHeight: isMobile ? 180 : 280, objectFit: 'cover', objectPosition: 'center 30%', display: 'block' }}
+          style={{ width: '100%', display: 'block' }}
         />
       </div>
 
