@@ -2380,11 +2380,11 @@ export default function App() {
       </header>
 
       {/* ── BACHELORETTE BANNER (scrolls away) ── */}
-      <div data-noprint style={{ width: '100%', lineHeight: 0 }}>
+      <div data-noprint>
         <img
           src="/bachelorette-banner.jpg"
           alt="Sabrina's Bachelorette '26 — Swamp Party"
-          style={{ width: '100%', display: 'block' }}
+          style={{ width: '100%', height: 'auto', display: 'block' }}
         />
       </div>
 
