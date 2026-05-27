@@ -32,8 +32,8 @@ export default defineConfig({
             handler: 'NetworkOnly',
           },
           {
-            // Never cache Firebase Auth or other Google APIs
-            urlPattern: /^https:\/\/.*\.googleapis\.com\/.*(?<!fonts).*/i,
+            // Never cache Firebase Auth or other Google APIs (exclude fonts subdomain)
+            urlPattern: /^https:\/\/(?!fonts\.)[\w-]+\.googleapis\.com\/.*/i,
             handler: 'NetworkOnly',
           },
           {
