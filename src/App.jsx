@@ -2389,6 +2389,15 @@ export default function App() {
         )}
       </header>
 
+      {/* ── BACHELORETTE BANNER ── */}
+      <div data-noprint style={{ width: '100%', lineHeight: 0 }}>
+        <img
+          src="/bachelorette-banner.jpg"
+          alt="Sabrina's Bachelorette '26 — Swamp Party"
+          style={{ width: '100%', maxHeight: isMobile ? 180 : 280, objectFit: 'cover', objectPosition: 'center 30%', display: 'block' }}
+        />
+      </div>
+
       {/* ── MAIN CONTENT ── */}
       <main style={{ maxWidth: 900, margin: '0 auto', padding: `28px 16px ${isMobile ? '90px' : '80px'}` }}>
         {tab === 'itinerary' && <DailyView        data={data} onUpdate={setData} mallorcaUnlocked={mallorcaUnlocked} onMallorcaUnlock={unlockMallorca} />}
