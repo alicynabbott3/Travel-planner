@@ -2208,6 +2208,8 @@ export default function App() {
   const didMigrateRestaurants = useRef(false);
   const didMigrateV2 = useRef(false);
 
+  const syncState = useSyncStatus();
+
   const [mallorcaUnlocked, setMallorcaUnlocked] = useState(() => {
     try { return sessionStorage.getItem('mallorca_unlocked') === '1'; } catch { return false; }
   });
@@ -2304,7 +2306,6 @@ export default function App() {
   }
 
   const lu = data.lastUpdated ? new Date(data.lastUpdated).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : null;
-  const syncState = useSyncStatus();
 
   // Countdown
   const now = new Date();
