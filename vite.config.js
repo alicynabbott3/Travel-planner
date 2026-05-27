@@ -24,7 +24,18 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        navigateFallback: 'index.html',
         runtimeCaching: [
+          {
+            // Never cache Firebase — always fetch live so sync works across devices
+            urlPattern: /^https:\/\/.*\.firebaseio\.com\/.*/i,
+            handler: 'NetworkOnly',
+          },
+          {
+            // Never cache Firebase Auth or other Google APIs
+            urlPattern: /^https:\/\/.*\.googleapis\.com\/.*(?<!fonts).*/i,
+            handler: 'NetworkOnly',
+          },
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
             handler: 'CacheFirst',
