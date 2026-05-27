@@ -442,6 +442,15 @@ const INIT = {
 };
 
 /* ─── STORAGE HOOK ──────────────────────────────────────── */
+export let syncStatus = 'loading'; // 'firebase' | 'localStorage' | 'error'
+const syncListeners = new Set();
+function setSyncStatus(s) { syncStatus = s; syncListeners.forEach(fn => fn(s)); }
+function useSyncStatus() {
+  const [s, setS] = useState(syncStatus);
+  useEffect(() => { syncListeners.add(setS); return () => syncListeners.delete(setS); }, []);
+  return s;
+}
+
 function useSharedStorage(key, fallback) {
   // null = still loading; real data once hydrated
   const [data, setData] = useState(null);
@@ -449,6 +458,7 @@ function useSharedStorage(key, fallback) {
   useEffect(() => {
     if (!configured) {
       // localStorage fallback (single-device)
+      setSyncStatus('localStorage');
       try {
         const raw = localStorage.getItem(key);
         setData(raw ? JSON.parse(raw) : fallback);
@@ -463,6 +473,7 @@ function useSharedStorage(key, fallback) {
     const unsub = onValue(
       r,
       (snap) => {
+        setSyncStatus('firebase');
         if (snap.exists()) {
           setData(snap.val());
         } else {
@@ -471,7 +482,7 @@ function useSharedStorage(key, fallback) {
           setData(fallback);
         }
       },
-      () => setData(fallback), // error fallback
+      () => { setSyncStatus('error'); setData(fallback); }, // error fallback
     );
     return unsub;
   }, [key]); // eslint-disable-line
@@ -2293,6 +2304,7 @@ export default function App() {
   }
 
   const lu = data.lastUpdated ? new Date(data.lastUpdated).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : null;
+  const syncState = useSyncStatus();
 
   // Countdown
   const now = new Date();
@@ -2347,7 +2359,12 @@ export default function App() {
                 </span>
               ))}
             </div>
-            {lu && <div style={{ fontSize: 10, color: C.white + '66', fontFamily: 'Inter,sans-serif' }}>{configured ? '🌿 synced' : '💾 saved'} {lu}</div>}
+            <div style={{ fontSize: 10, fontFamily: 'Inter,sans-serif', display: 'flex', alignItems: 'center', gap: 5 }}>
+              {syncState === 'firebase'    && <><span style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ade80', display: 'inline-block' }} />  <span style={{ color: C.white + '99' }}>live sync{lu ? ` · ${lu}` : ''}</span></>}
+              {syncState === 'localStorage'&& <><span style={{ width: 6, height: 6, borderRadius: '50%', background: C.goldL, display: 'inline-block' }} />  <span style={{ color: C.goldL }}>offline mode — not syncing</span></>}
+              {syncState === 'error'       && <><span style={{ width: 6, height: 6, borderRadius: '50%', background: C.red,   display: 'inline-block' }} />  <span style={{ color: C.red + 'cc' }}>sync error — check Firebase rules</span></>}
+              {syncState === 'loading'     && <span style={{ color: C.white + '44' }}>connecting…</span>}
+            </div>
           </div>
         </div>
 
