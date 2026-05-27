@@ -2205,6 +2205,8 @@ export default function App() {
   const [tab, setTab] = useState('itinerary');
   const isMobile = useIsMobile();
   const tabBtnRefs = useRef({});
+  const titleBarRef = useRef(null);
+  const [titleBarH, setTitleBarH] = useState(72);
   const didMigrateRestaurants = useRef(false);
   const didMigrateV2 = useRef(false);
 
@@ -2217,6 +2219,14 @@ export default function App() {
     try { sessionStorage.setItem('mallorca_unlocked', '1'); } catch {}
     setMallorcaUnlocked(true);
   };
+
+  useEffect(() => {
+    if (!titleBarRef.current) return;
+    const obs = new ResizeObserver(() => setTitleBarH(titleBarRef.current.offsetHeight));
+    obs.observe(titleBarRef.current);
+    setTitleBarH(titleBarRef.current.offsetHeight);
+    return () => obs.disconnect();
+  }, []);
 
   useEffect(() => {
     if (!isMobile) return;
@@ -2336,12 +2346,11 @@ export default function App() {
         </div>
       )}
 
-      {/* ── HEADER ── */}
-      <header data-noprint style={{
+      {/* ── TITLE BAR (sticky) ── */}
+      <header data-noprint ref={titleBarRef} style={{
         background: `linear-gradient(160deg, ${C.navy} 0%, #1A3C08 60%, ${C.navyMid} 100%)`,
-        position: 'sticky', top: 0, zIndex: 200,
-        borderBottom: `1px solid rgba(255,255,255,.06)`,
-        boxShadow: '0 4px 32px rgba(13,27,42,.35)',
+        position: 'sticky', top: 0, zIndex: 201,
+        boxShadow: '0 2px 12px rgba(13,27,42,.25)',
       }}>
         <div style={{ padding: '16px 20px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
           <div>
@@ -2368,18 +2377,25 @@ export default function App() {
             </div>
           </div>
         </div>
+      </header>
 
-        {/* ── BACHELORETTE BANNER ── */}
-        <div data-noprint style={{ width: '100%', lineHeight: 0 }}>
-          <img
-            src="/bachelorette-banner.jpg"
-            alt="Sabrina's Bachelorette '26 — Swamp Party"
-            style={{ width: '100%', display: 'block' }}
-          />
-        </div>
+      {/* ── BACHELORETTE BANNER (scrolls away) ── */}
+      <div data-noprint style={{ width: '100%', lineHeight: 0 }}>
+        <img
+          src="/bachelorette-banner.jpg"
+          alt="Sabrina's Bachelorette '26 — Swamp Party"
+          style={{ width: '100%', display: 'block' }}
+        />
+      </div>
 
-        {/* Tab bar — hidden on mobile (use bottom nav instead) */}
-        {!isMobile && (
+      {/* ── TAB BAR (sticky below title bar, desktop only) ── */}
+      {!isMobile && (
+        <div data-noprint style={{
+          position: 'sticky', top: titleBarH, zIndex: 200,
+          background: `linear-gradient(160deg, ${C.navy} 0%, #1A3C08 60%, ${C.navyMid} 100%)`,
+          borderBottom: `1px solid rgba(255,255,255,.06)`,
+          boxShadow: '0 4px 32px rgba(13,27,42,.35)',
+        }}>
           <div style={{ display: 'flex', overflowX: 'auto', padding: '8px 10px 6px', scrollbarWidth: 'none', gap: 2 }}>
             {TABS.map(t => (
               <button key={t.id} onClick={() => setTab(t.id)} style={{
@@ -2396,8 +2412,8 @@ export default function App() {
               </button>
             ))}
           </div>
-        )}
-      </header>
+        </div>
+      )}
 
       {/* ── MAIN CONTENT ── */}
       <main style={{ maxWidth: 900, margin: '0 auto', padding: `28px 16px ${isMobile ? '90px' : '80px'}` }}>
