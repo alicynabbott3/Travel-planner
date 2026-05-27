@@ -2194,6 +2194,8 @@ export default function App() {
   const [tab, setTab] = useState('itinerary');
   const isMobile = useIsMobile();
   const tabBtnRefs = useRef({});
+  const didMigrateRestaurants = useRef(false);
+  const didMigrateV2 = useRef(false);
 
   const [mallorcaUnlocked, setMallorcaUnlocked] = useState(() => {
     try { return sessionStorage.getItem('mallorca_unlocked') === '1'; } catch { return false; }
@@ -2211,10 +2213,10 @@ export default function App() {
 
   // One-time migration: add La Malvasia / Nessun Dorma if missing from Firebase data
   useEffect(() => {
-    if (!data) return;
+    if (!data || didMigrateRestaurants.current) return;
     const hasLaMalvasia = (data.restaurants || []).some(r => r.id === 'r_lamalvasia');
     const hasNessun = (data.restaurants || []).some(r => r.id === 'r_nessun');
-    if (hasLaMalvasia && hasNessun) return;
+    if (hasLaMalvasia && hasNessun) { didMigrateRestaurants.current = true; return; }
     setData(d => {
       const updatedRestaurants = [...(d.restaurants || [])];
       if (!updatedRestaurants.some(r => r.id === 'r_lamalvasia')) {
@@ -2238,12 +2240,14 @@ export default function App() {
         lastUpdated: new Date().toISOString(),
       };
     });
+    didMigrateRestaurants.current = true;
   }, [data]);
 
   // V2 migration: fix cruise schedule (embarkation June 21, not June 20) and correct all port days
   useEffect(() => {
-    if (!data) return;
-    if (data._v2) return;
+    if (!data || didMigrateV2.current) return;
+    if (data._v2) { didMigrateV2.current = true; return; }
+    didMigrateV2.current = true;
     setData(d => ({
       ...d,
       days: DAYS_V2,
