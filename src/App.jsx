@@ -144,6 +144,172 @@ const PACKING_TEMPLATE = [
 const makePackingList = (prefix) =>
   PACKING_TEMPLATE.map((t, i) => ({ ...t, id: `${prefix}_${i}`, packed: false }));
 
+/* ─── V2 CORRECTED DATA (migration) ────────────────────── */
+const DAYS_V2 = [
+  {
+    date: '2026-06-15', label: 'Monday, June 15',
+    location: 'Los Angeles', subtitle: 'Pre-Departure',
+    events: [
+      { id: 'e0615a', time: '3:00 AM', title: 'Online Check-in for Air Europa UX6037', description: 'Check-in opens for June 17 BCN→PMI flight', location: 'Online', type: 'flight', status: 'confirmed', notes: '' },
+      { id: 'e0615b', time: 'Evening', title: 'Final Pack & Prep', description: 'Passport · adapter · euros · print confirmations', location: 'Home', type: 'activity', status: 'confirmed', notes: '' },
+    ],
+  },
+  {
+    date: '2026-06-16', label: 'Tuesday, June 16',
+    location: 'Los Angeles → (In Air)', subtitle: '✈️ Travel Day',
+    events: [
+      { id: 'e0616a0', time: '5:15 AM', title: 'Arrive at LAX', description: 'Get to airport early for international departure', location: 'LAX Airport', type: 'transport', status: 'confirmed', notes: '' },
+      { id: 'e0616a', time: '8:15 AM', title: 'Depart LAX — Air Canada AC774', description: 'LAX → YUL (Montreal)', location: 'LAX Terminal B', type: 'flight', status: 'confirmed', notes: 'Conf: CBWO8M · 3 pax' },
+      { id: 'e0616b', time: '4:40 PM', title: 'Arrive Montreal YUL — 1hr 55min Layover', description: 'Connect to AC822 → Barcelona · departs 6:30 PM', location: 'Montreal YUL', type: 'flight', status: 'confirmed', notes: '1 hr 55 min layover' },
+      { id: 'e0616c', time: '6:30 PM', title: 'Depart Montreal — Overnight Flight to Barcelona', description: 'AC822 YUL → BCN · 7.5 hr flight · Arrives 8 AM June 17', location: 'In Air', type: 'flight', status: 'confirmed', notes: 'Sleep 💤' },
+    ],
+  },
+  {
+    date: '2026-06-17', label: 'Wednesday, June 17',
+    location: 'Barcelona → Palma de Mallorca', subtitle: '🌴 Palma Arrival',
+    events: [
+      { id: 'e0617a', time: '8:00 AM', title: 'Arrive Barcelona El Prat (BCN)', description: 'Arrive from Montreal. Freshen up & breakfast at airport.', location: 'BCN Airport', type: 'flight', status: 'confirmed', notes: '' },
+      { id: 'e0617b', time: '11:55 AM', title: 'Fly BCN → PMI — Air Europa UX6037', description: 'Barcelona to Palma de Mallorca', location: 'BCN Terminal 1', type: 'flight', status: 'confirmed', notes: 'Conf: 8U8KBK' },
+      { id: 'e0617c', time: '12:40 PM', title: 'Arrive Palma (PMI)', description: 'Land in Mallorca 🌞', location: 'Palma Airport PMI', type: 'flight', status: 'confirmed', notes: '' },
+      { id: 'e0617d', time: '1:00 PM', title: 'Taxi to Dog Admiral', description: '~12 min · ~€15 from airport', location: 'Carrer del Conquistador 2', type: 'transport', status: 'confirmed', notes: '' },
+      { id: 'e0617e', time: '1:30 PM', title: 'Check In — Dog Admiral Urban Guest House', description: 'Flamingo Suite · Pay at location', location: 'Carrer del Conquistador 2, Palma', type: 'hotel', status: 'payAtLocation', notes: 'Conf: BB26031720350199' },
+      { id: 'e0617f', time: '5:30 PM', title: 'Hammam Al Andalus', description: 'Traditional Arab bath experience', location: 'Hammam Al Andalus, Palma', type: 'activity', status: 'confirmed', notes: 'Pre-booked · Allow 1.5–2 hrs' },
+      { id: 'e0617h', time: '8:45 PM', title: 'Dinner — La Malvasia', description: 'Mediterranean restaurant in Palma', location: 'La Malvasia, Palma de Mallorca', type: 'food', status: 'confirmed', notes: 'Reservation 8:45 PM' },
+    ],
+  },
+  {
+    date: '2026-06-18', label: 'Thursday, June 18',
+    location: 'Palma de Mallorca', subtitle: '🏔️ Valldemossa · Deià · Sóller',
+    events: [
+      { id: 'e0618a', time: '9:30 AM', title: 'Valldemossa / Deià / Sóller VIP Tour', description: 'Meet at Cathedral Basilica de Santa Maria de Mallorca (5 min walk from hotel)', location: 'Cathedral Basilica de Santa Maria de Mallorca', type: 'activity', status: 'confirmed', notes: '⚠️ Bring €10 cash for tram in Sóller!' },
+      { id: 'e0618b', time: '5:00 PM', title: 'Return to Palma', description: 'Tour ends ~5 PM', location: 'Palma', type: 'transport', status: 'confirmed', notes: '' },
+      { id: 'e0618c', time: 'Evening', title: 'Free Evening in Palma', description: 'Old town, tapas, sunset walks', location: 'Palma Old Town', type: 'food', status: 'pending', notes: 'No reservation' },
+    ],
+  },
+  {
+    date: '2026-06-19', label: 'Friday, June 19',
+    location: 'Palma → Barcelona', subtitle: '🌆 Barcelona Bound',
+    events: [
+      { id: 'e0619a', time: 'Morning', title: 'Check Out — Dog Admiral', description: 'Pack up, settle bill', location: 'Dog Admiral, Palma', type: 'hotel', status: 'confirmed', notes: '' },
+      { id: 'e0619b', time: '12:10 PM', title: 'Fly PMI → BCN — Ryanair FR6379', description: 'Palma to Barcelona', location: 'Palma Airport', type: 'flight', status: 'confirmed', notes: 'Conf: C7253B · Gate closes 30 min early!' },
+      { id: 'e0619c', time: '1:05 PM', title: 'Arrive Barcelona BCN', description: 'Land at El Prat', location: 'Barcelona Airport', type: 'flight', status: 'confirmed', notes: '' },
+      { id: 'e0619d', time: '~1:30 PM', title: 'Uber to H10 Art Gallery', description: '~20 min Uber from airport', location: 'Enric Granados 62–64', type: 'transport', status: 'confirmed', notes: '' },
+      { id: 'e0619e', time: '3:00 PM', title: 'Check In — H10 Art Gallery Hotel', description: 'Atrium Room · pre-paid by Alicyn', location: 'Enric Granados 62–64, Barcelona', type: 'hotel', status: 'confirmed', notes: 'Paid by Alicyn' },
+      { id: 'e0619f', time: '6:45 PM', title: 'Dinner — Extra Virgin', description: 'Restaurant in Eixample, Barcelona', location: 'Extra Virgin, Barcelona', type: 'food', status: 'confirmed', notes: 'Reservation 6:45 PM' },
+    ],
+  },
+  {
+    date: '2026-06-20', label: 'Saturday, June 20',
+    location: 'Barcelona', subtitle: '🏙️ City Day',
+    events: [
+      { id: 'e0620a', time: '11:00 AM', title: 'Parc Güell', description: "Gaudí's iconic park — pre-booked timed entry", location: 'Parc Güell, Barcelona', type: 'activity', status: 'confirmed', notes: 'Book tickets in advance!' },
+      { id: 'e0620e', time: 'Afternoon', title: 'Cruise Health Check', description: 'Complete health screening before embarkation', location: 'Online / App', type: 'activity', status: 'confirmed', notes: '' },
+    ],
+  },
+  {
+    date: '2026-06-21', label: 'Sunday, June 21',
+    location: 'Barcelona → Valiant Lady', subtitle: '🚢 Embarkation Day!',
+    events: [
+      { id: 'e0621_checkout', time: '12:00 PM', title: 'Check Out — H10 Art Gallery Hotel', description: 'Pack up and check out', location: 'H10 Art Gallery, Barcelona', type: 'hotel', status: 'confirmed', notes: '' },
+      { id: 'e0621_uber', time: '~12:30 PM', title: 'Uber to Cruise Port', description: '~20 min to Moll Adossat Terminal A/B · ~€30', location: 'Port of Barcelona', type: 'transport', status: 'confirmed', notes: '' },
+      { id: 'e0621_board', time: '3:15 PM', title: 'Board Valiant Lady 🚢', description: 'Virgin Voyages — Italian Vistas to Spanish Sunsets', location: 'Moll Adossat Terminal A/B, Barcelona', type: 'cruise', status: 'confirmed', notes: 'Conf: 2478994 · Seaview Cabin ×3' },
+      { id: 'e0621_agave', time: '6:00 PM', title: 'Dinner — Pink Agave', description: 'Mexican restaurant on Valiant Lady', location: 'Pink Agave, Valiant Lady', type: 'food', status: 'confirmed', notes: 'Reservation 6:00 PM' },
+      { id: 'e0621e', time: 'Night', title: 'PJ Night — Onboard Party 🎉', description: 'Themed party on Valiant Lady — PAJAMAS!', location: 'Valiant Lady', type: 'activity', status: 'confirmed', notes: 'Dress code: PAJAMAS 😴' },
+    ],
+  },
+  {
+    date: '2026-06-22', label: 'Monday, June 22',
+    location: 'At Sea', subtitle: '⚓ Sailing Day',
+    events: [
+      { id: 'e0622_rdz', time: '8:15 AM', title: 'Breakfast — Razzle Dazzle', description: 'Vegetarian-forward breakfast restaurant', location: 'Razzle Dazzle, Valiant Lady', type: 'food', status: 'confirmed', notes: 'Reservation 8:15 AM' },
+      { id: 'e0622_pool', time: 'Afternoon', title: "Pool Deck & Richard's Rooftop", description: 'Relax and enjoy sea day vibes', location: 'Upper Deck, Valiant Lady', type: 'activity', status: 'confirmed', notes: '' },
+      { id: 'e0622_gunbae', time: '6:00 PM', title: 'Dinner — Gunbae', description: 'Korean BBQ on Valiant Lady', location: 'Gunbae, Valiant Lady', type: 'food', status: 'confirmed', notes: 'Reservation 6:00 PM' },
+    ],
+  },
+  {
+    date: '2026-06-23', label: 'Tuesday, June 23',
+    location: 'Civitavecchia / Rome, Italy', subtitle: '🏛️ Eternal City',
+    events: [
+      { id: 'e0623a', time: '7:00 AM', title: 'Arrive Civitavecchia', description: 'Train/shuttle to Rome ~45 min · ~€8 each way', location: 'Civitavecchia Port, Italy', type: 'cruise', status: 'confirmed', notes: 'Train to Roma Termini' },
+      { id: 'e0623_rome', time: '9:00 AM', title: 'Explore Rome', description: 'Colosseum, Roman Forum, Trevi Fountain, Vatican', location: 'Rome, Italy', type: 'activity', status: 'pending', notes: 'Book Colosseum tickets in advance!' },
+      { id: 'e0623_lunch', time: 'Afternoon', title: 'Lunch & Gelato in Rome', description: "Piazza Navona, Campo de' Fiori", location: 'Rome, Italy', type: 'food', status: 'pending', notes: '' },
+      { id: 'e0623_return', time: 'Evening', title: 'Return to Civitavecchia', description: 'Back to port — check all-aboard time!', location: 'Civitavecchia Port', type: 'transport', status: 'confirmed', notes: '' },
+      { id: 'e0623_wake', time: '9:00 PM', title: 'Dinner — The Wake', description: 'Show & dining at The Wake', location: 'The Wake, Valiant Lady', type: 'food', status: 'confirmed', notes: 'Reservation 9:00 PM' },
+    ],
+  },
+  {
+    date: '2026-06-24', label: 'Wednesday, June 24',
+    location: 'Cinque Terre, Italy', subtitle: '🌊 Italian Riviera',
+    events: [
+      { id: 'e0624a', time: '8:30 AM', title: 'Arrive Cinque Terre (Tender Port)', description: 'Take ship tender to shore — line up early!', location: 'Cinque Terre, Italy', type: 'cruise', status: 'confirmed', notes: '' },
+      { id: 'e0624_explore', time: 'Morning', title: 'Explore the Five Villages', description: 'Vernazza, Monterosso, Riomaggiore — hike or ferry', location: 'Cinque Terre, Italy', type: 'activity', status: 'pending', notes: 'Ferry between villages ~€10' },
+      { id: 'e0624_beach', time: 'Afternoon', title: 'Beach & Lunch', description: 'Swim in the Ligurian Sea · cliffside lunch', location: 'Cinque Terre, Italy', type: 'food', status: 'pending', notes: '' },
+      { id: 'e0624_ariya', time: '8:30 PM', title: 'Dinner — Ariya', description: 'Pan-Asian restaurant on Valiant Lady', location: 'Ariya, Valiant Lady', type: 'food', status: 'confirmed', notes: 'Reservation 8:30 PM' },
+    ],
+  },
+  {
+    date: '2026-06-25', label: 'Thursday, June 25',
+    location: 'Cannes, France', subtitle: '🎬 French Riviera + Scarlet Night 🌹',
+    events: [
+      { id: 'e0625_arrive', time: '8:00 AM', title: 'Arrive Cannes', description: 'Tender to shore', location: 'Cannes, France', type: 'cruise', status: 'confirmed', notes: '' },
+      { id: 'e0625_cannes', time: 'Morning', title: 'La Croisette & Old Port', description: 'Promenade, Palais des Festivals, luxury boutiques', location: 'Cannes, France', type: 'activity', status: 'pending', notes: '' },
+      { id: 'e0625_island', time: 'Afternoon', title: 'Île Sainte-Marguerite (optional)', description: 'Boat to island, swim, walk', location: 'Cannes Islands', type: 'activity', status: 'pending', notes: 'Ferry from old port' },
+      { id: 'e0625_ev', time: '6:45 PM', title: 'Dinner — Extra Virgin', description: 'Italian restaurant on Valiant Lady', location: 'Extra Virgin, Valiant Lady', type: 'food', status: 'confirmed', notes: 'Reservation 6:45 PM · Scarlet Night — wear RED 🌹' },
+      { id: 'e0625_scarlet', time: 'Night', title: 'Scarlet Night 🌹', description: 'Virgin Voyages signature red-dress party!', location: 'Valiant Lady', type: 'activity', status: 'confirmed', notes: 'Dress code: SCARLET / RED' },
+      { id: 'e0625_tk', time: '9:15 PM', title: 'Dinner — Test Kitchen', description: 'Experimental dining on the ship', location: 'Test Kitchen, Valiant Lady', type: 'food', status: 'confirmed', notes: 'Reservation 9:15 PM' },
+    ],
+  },
+  {
+    date: '2026-06-26', label: 'Friday, June 26',
+    location: 'At Sea → Ibiza', subtitle: '⚓ Sea Day + Ibiza Arrival',
+    events: [
+      { id: 'e0626_spa', time: 'Morning', title: 'Redemption Spa', description: 'Onboard spa — book in advance', location: 'Redemption Spa, Valiant Lady', type: 'activity', status: 'pending', notes: '' },
+      { id: 'e0626_brunch', time: '11:45 AM', title: 'Brunch — The Wake', description: 'Brunch on the ship', location: 'The Wake, Valiant Lady', type: 'food', status: 'confirmed', notes: 'Reservation 11:45 AM' },
+      { id: 'e0626_pool', time: 'Afternoon', title: "Richard's Rooftop & Pool", description: 'Soak up the sun on the last sea day', location: 'Top Deck, Valiant Lady', type: 'activity', status: 'confirmed', notes: '' },
+      { id: 'e0626a', time: '8:00 PM', title: 'Arrive Ibiza (Evening Port)', description: 'Evening arrival — Ibiza Town at night is magical', location: 'Ibiza Port', type: 'cruise', status: 'confirmed', notes: '' },
+      { id: 'e0626b', time: 'Evening', title: 'Dalt Vila — UNESCO Old Town', description: 'Historic walled city, sunset views, tapas', location: 'Dalt Vila, Ibiza', type: 'activity', status: 'pending', notes: '' },
+    ],
+  },
+  {
+    date: '2026-06-27', label: 'Saturday, June 27',
+    location: 'Ibiza — Cala Bassa', subtitle: '🏖️ Beach Club Day',
+    events: [
+      { id: 'e0627a', time: 'Morning', title: 'Cala Bassa Beach Club ⭐ PREPAID', description: '3 sunbeds + champagne, all prepaid! Taxi ~€15', location: 'Cala Bassa Beach Club, Ibiza', type: 'beach', status: 'confirmed', notes: 'PREPAID: 3 sunbeds + champagne 🥂' },
+      { id: 'e0627b', time: 'All Day', title: 'Sun, Sea & Vibes at CBBC', description: 'Crystal-clear Ibiza waters, live music', location: 'Cala Bassa, Ibiza', type: 'beach', status: 'confirmed', notes: '' },
+      { id: 'e0627_wake', time: '8:45 PM', title: 'Dinner — The Wake', description: 'Dinner at The Wake on last Ibiza night', location: 'The Wake, Valiant Lady', type: 'food', status: 'confirmed', notes: 'Reservation 8:45 PM' },
+      { id: 'e0627c', time: 'Evening', title: 'Last Night on Valiant Lady 🥂', description: 'Final evening at sea!', location: 'Ibiza Port → Valiant Lady', type: 'transport', status: 'confirmed', notes: "Don't miss all-aboard time!" },
+    ],
+  },
+  {
+    date: '2026-06-28', label: 'Sunday, June 28',
+    location: 'Barcelona → Los Angeles', subtitle: '✈️ Homeward Bound',
+    events: [
+      { id: 'e0628a', time: '6:00–8:00 AM', title: 'Dock & Disembark — Barcelona', description: 'Have luggage outside cabin the night before!', location: 'Moll Adossat Terminal A/B, Barcelona', type: 'cruise', status: 'confirmed', notes: 'Luggage outside cabin night before' },
+      { id: 'e0628_drive', time: '~8:30 AM', title: '30-min Drive to Barcelona Airport', description: 'Taxi or Uber from cruise port', location: 'Barcelona El Prat Airport', type: 'transport', status: 'confirmed', notes: '' },
+      { id: 'e0628_arrive', time: '10:15 AM', title: 'Arrive at BCN Airport', description: 'Check in for return flight', location: 'Barcelona El Prat Airport', type: 'transport', status: 'confirmed', notes: '' },
+      { id: 'e0628d', time: '1:15 PM', title: 'Depart BCN — Air Canada AC821', description: 'Barcelona → Toronto (YYZ) · 9 hr flight', location: 'Barcelona Airport', type: 'flight', status: 'confirmed', notes: 'Conf: CBWO8M' },
+      { id: 'e0628_yyz', time: '4:00 PM', title: 'Arrive Toronto YYZ — 2hr 35min Layover', description: 'Connect to AC795 → LAX · departs 6:30 PM', location: 'Toronto YYZ', type: 'flight', status: 'confirmed', notes: '2 hr 35 min layover' },
+      { id: 'e0628_yyz2', time: '6:30 PM', title: 'Depart Toronto — Air Canada AC795', description: 'YYZ → LAX · 5.5 hr flight', location: 'In Air', type: 'flight', status: 'confirmed', notes: '' },
+      { id: 'e0628e', time: '9:00 PM', title: 'Arrive LAX 🏠', description: 'Home sweet home!', location: 'LAX Airport', type: 'flight', status: 'confirmed', notes: '' },
+    ],
+  },
+];
+
+const RESTAURANTS_V2 = [
+  { id: 'r_lamalvasia', name: 'La Malvasia', cuisine: 'Mediterranean', city: 'Palma de Mallorca', date: 'June 17', time: '8:45 PM', status: 'confirmed', notes: 'Reservation 8:45 PM' },
+  { id: 'r2', name: 'Extra Virgin', cuisine: 'Italian', city: 'Barcelona', date: 'June 19', time: '6:45 PM', status: 'confirmed', notes: 'Reservation 6:45 PM' },
+  { id: 'r_agave21', name: 'Pink Agave', cuisine: 'Mexican', city: 'Valiant Lady', date: 'June 21', time: '6:00 PM', status: 'confirmed', notes: 'Reservation 6:00 PM — Virgin Voyages restaurant' },
+  { id: 'r_rdz22', name: 'Razzle Dazzle', cuisine: 'Vegetarian', city: 'Valiant Lady', date: 'June 22', time: '8:15 AM', status: 'confirmed', notes: 'Breakfast reservation' },
+  { id: 'r_gunbae22', name: 'Gunbae', cuisine: 'Korean BBQ', city: 'Valiant Lady', date: 'June 22', time: '6:00 PM', status: 'confirmed', notes: 'Dinner reservation' },
+  { id: 'r_wake23', name: 'The Wake', cuisine: 'American', city: 'Valiant Lady', date: 'June 23', time: '9:00 PM', status: 'confirmed', notes: 'Show & dinner experience' },
+  { id: 'r_ariya24', name: 'Ariya', cuisine: 'Pan-Asian', city: 'Valiant Lady', date: 'June 24', time: '8:30 PM', status: 'confirmed', notes: 'Dinner reservation' },
+  { id: 'r_ev25', name: 'Extra Virgin', cuisine: 'Italian', city: 'Valiant Lady', date: 'June 25', time: '6:45 PM', status: 'confirmed', notes: 'Scarlet Night dinner — wear RED 🌹' },
+  { id: 'r_tk25', name: 'Test Kitchen', cuisine: 'Experimental', city: 'Valiant Lady', date: 'June 25', time: '9:15 PM', status: 'confirmed', notes: 'After Cannes day' },
+  { id: 'r_wakebrunch26', name: 'The Wake (brunch)', cuisine: 'American', city: 'Valiant Lady', date: 'June 26', time: '11:45 AM', status: 'confirmed', notes: 'Brunch reservation' },
+  { id: 'r10', name: 'Cala Bassa Beach Club', cuisine: 'Mediterranean', city: 'Ibiza', date: 'June 27', time: 'All Day', status: 'confirmed', notes: 'PREPAID: 3 sunbeds + champagne 🥂' },
+  { id: 'r_wake27', name: 'The Wake', cuisine: 'American', city: 'Valiant Lady', date: 'June 27', time: '8:45 PM', status: 'confirmed', notes: 'Dinner reservation' },
+];
+
 /* ─── INITIAL DATA ──────────────────────────────────────── */
 const INIT = {
   meta: {
@@ -181,176 +347,21 @@ const INIT = {
       notes: 'Pay at location upon arrival' },
     { id: 'ht2', name: 'H10 Art Gallery Hotel',
       address: 'Enric Granados 62–64, Barcelona',
-      checkIn: 'June 19, 2026', checkOut: 'June 20, 2026', nights: 1,
+      checkIn: 'June 19, 2026', checkOut: 'June 21, 2026', nights: 2,
       room: 'Atrium Room', guests: 3,
       confirmation: "See Alicyn's email", status: 'confirmed',
       notes: 'Paid by Alicyn' },
     { id: 'ht3', name: 'Virgin Voyages — Valiant Lady 🚢',
       address: 'Port of Barcelona, Moll Adossat Terminal A/B',
-      checkIn: 'June 20, 2026 (3:15 PM)', checkOut: 'June 28, 2026 (6–8 AM)', nights: 7,
+      checkIn: 'June 21, 2026 (3:15 PM)', checkOut: 'June 28, 2026 (6–8 AM)', nights: 7,
       room: 'Seaview Cabin (3 pax)', guests: 3,
       confirmation: '2478994', status: 'confirmed',
       notes: '"Italian Vistas to Spanish Sunsets" — Ports: Rome, Cinque Terre, Cannes, Ibiza' },
   ],
 
-  days: [
-    {
-      date: '2026-06-15', label: 'Monday, June 15',
-      location: 'Los Angeles', subtitle: 'Pre-Departure',
-      events: [
-        { id: 'e0615a', time: '3:00 AM', title: 'Online Check-in for Air Europa UX6037', description: 'Check-in opens for June 17 BCN→PMI flight', location: 'Online', type: 'flight', status: 'confirmed', notes: '' },
-        { id: 'e0615b', time: 'Evening', title: 'Final Pack & Prep', description: 'Passport · adapter · euros · print confirmations', location: 'Home', type: 'activity', status: 'confirmed', notes: '' },
-      ],
-    },
-    {
-      date: '2026-06-16', label: 'Tuesday, June 16',
-      location: 'Los Angeles → (In Air)', subtitle: '✈️ Travel Day',
-      events: [
-        { id: 'e0616a', time: '8:15 AM', title: 'Depart LAX — Air Canada AC774', description: 'LAX → YUL (Montreal)', location: 'LAX Terminal B', type: 'flight', status: 'confirmed', notes: 'Conf: CBWO8M · 3 pax' },
-        { id: 'e0616b', time: '4:40 PM', title: 'Arrive Montreal YUL — 1hr 55min Layover', description: 'Connect to AC822 → Barcelona · departs 6:30 PM', location: 'Montreal YUL', type: 'flight', status: 'confirmed', notes: '1 hr 55 min layover' },
-        { id: 'e0616c', time: '6:30 PM', title: 'Depart Montreal — Overnight Flight to Barcelona', description: 'AC822 YUL → BCN · 7.5 hr flight · Arrives 8 AM June 17', location: 'In Air', type: 'flight', status: 'confirmed', notes: 'Sleep 💤' },
-      ],
-    },
-    {
-      date: '2026-06-17', label: 'Wednesday, June 17',
-      location: 'Barcelona → Palma de Mallorca', subtitle: '🌴 Palma Arrival',
-      events: [
-        { id: 'e0617a', time: '8:00 AM', title: 'Arrive Barcelona El Prat (BCN)', description: 'Arrive from Montreal. Freshen up & breakfast at airport.', location: 'BCN Airport', type: 'flight', status: 'confirmed', notes: '' },
-        { id: 'e0617b', time: '11:55 AM', title: 'Fly BCN → PMI — Air Europa UX6037', description: 'Barcelona to Palma de Mallorca', location: 'BCN Terminal 1', type: 'flight', status: 'confirmed', notes: 'Conf: 8U8KBK' },
-        { id: 'e0617c', time: '12:40 PM', title: 'Arrive Palma (PMI)', description: 'Land in Mallorca 🌞', location: 'Palma Airport PMI', type: 'flight', status: 'confirmed', notes: '' },
-        { id: 'e0617d', time: '1:00 PM', title: 'Taxi to Dog Admiral', description: '~12 min · ~€15 from airport', location: 'Carrer del Conquistador 2', type: 'transport', status: 'confirmed', notes: '' },
-        { id: 'e0617e', time: '1:30 PM', title: 'Check In — Dog Admiral Urban Guest House', description: 'Flamingo Suite · Pay at location', location: 'Carrer del Conquistador 2, Palma', type: 'hotel', status: 'payAtLocation', notes: 'Conf: BB26031720350199' },
-        { id: 'e0617f', time: '5:30 PM', title: 'Hammam Al Andalus', description: 'Traditional Arab bath experience', location: 'Hammam Al Andalus, Palma', type: 'activity', status: 'confirmed', notes: 'Pre-booked · Allow 1.5–2 hrs' },
-        { id: 'e0617g', time: '6:00 PM', title: 'Dinner — Pink Agave', description: 'Mexican restaurant in Palma', location: 'Pink Agave, Palma', type: 'food', status: 'confirmed', notes: 'Reservation 6:00 PM' },
-        { id: 'e0617h', time: '8:45 PM', title: 'Dinner — La Malvasia', description: 'Mediterranean restaurant in Palma', location: 'La Malvasia, Palma de Mallorca', type: 'food', status: 'confirmed', notes: 'Reservation 8:45 PM' },
-      ],
-    },
-    {
-      date: '2026-06-18', label: 'Thursday, June 18',
-      location: 'Palma de Mallorca', subtitle: '🏔️ Valldemossa · Deià · Sóller',
-      events: [
-        { id: 'e0618a', time: '9:30 AM', title: 'Valldemossa / Deià / Sóller VIP Tour', description: 'Meet at Cathedral Basilica de Santa Maria de Mallorca (5 min walk from hotel)', location: 'Cathedral Basilica de Santa Maria de Mallorca', type: 'activity', status: 'confirmed', notes: '⚠️ Bring €10 cash for tram in Sóller!' },
-        { id: 'e0618b', time: '5:00 PM', title: 'Return to Palma', description: 'Tour ends ~5 PM', location: 'Palma', type: 'transport', status: 'confirmed', notes: '' },
-        { id: 'e0618c', time: 'Evening', title: 'Free Evening in Palma', description: 'Old town, tapas, sunset walks', location: 'Palma Old Town', type: 'food', status: 'pending', notes: 'No reservation' },
-      ],
-    },
-    {
-      date: '2026-06-19', label: 'Friday, June 19',
-      location: 'Palma → Barcelona', subtitle: '🌆 Barcelona Bound',
-      events: [
-        { id: 'e0619a', time: 'Morning', title: 'Check Out — Dog Admiral', description: 'Pack up, settle bill', location: 'Dog Admiral, Palma', type: 'hotel', status: 'confirmed', notes: '' },
-        { id: 'e0619b', time: '12:10 PM', title: 'Fly PMI → BCN — Ryanair FR6379', description: 'Palma to Barcelona', location: 'Palma Airport', type: 'flight', status: 'confirmed', notes: 'Conf: C7253B · Gate closes 30 min early!' },
-        { id: 'e0619c', time: '1:05 PM', title: 'Arrive Barcelona BCN', description: 'Land at El Prat', location: 'Barcelona Airport', type: 'flight', status: 'confirmed', notes: '' },
-        { id: 'e0619d', time: '~1:30 PM', title: 'Uber to H10 Art Gallery', description: '~20 min Uber from airport', location: 'Enric Granados 62–64', type: 'transport', status: 'confirmed', notes: '' },
-        { id: 'e0619e', time: '3:00 PM', title: 'Check In — H10 Art Gallery Hotel', description: 'Atrium Room · pre-paid by Alicyn', location: 'Enric Granados 62–64, Barcelona', type: 'hotel', status: 'confirmed', notes: 'Paid by Alicyn' },
-        { id: 'e0619f', time: '6:45 PM', title: 'Dinner — Extra Virgin', description: 'Restaurant in Eixample, Barcelona', location: 'Extra Virgin, Barcelona', type: 'food', status: 'confirmed', notes: 'Reservation 6:45 PM' },
-      ],
-    },
-    {
-      date: '2026-06-20', label: 'Saturday, June 20',
-      location: 'Barcelona → Cruise', subtitle: '🚢 Embarkation Day!',
-      events: [
-        { id: 'e0620a', time: '11:00 AM', title: 'Parc Güell', description: "Gaudí's iconic park — pre-booked timed entry", location: 'Parc Güell, Barcelona', type: 'activity', status: 'confirmed', notes: 'Book tickets in advance!' },
-        { id: 'e0620b', time: '12:00 PM', title: 'Check Out — H10 Art Gallery', description: 'Check out or store luggage', location: 'H10 Art Gallery, Barcelona', type: 'hotel', status: 'confirmed', notes: '' },
-        { id: 'e0620c', time: '~1:30 PM', title: 'Uber to Cruise Port', description: 'Moll Adossat Terminal A/B · ~€30', location: 'Port of Barcelona', type: 'transport', status: 'confirmed', notes: '' },
-        { id: 'e0620d', time: '3:15 PM', title: 'Board Valiant Lady 🚢', description: 'Virgin Voyages — Italian Vistas to Spanish Sunsets', location: 'Moll Adossat Terminal A/B, Barcelona', type: 'cruise', status: 'confirmed', notes: 'Conf: 2478994 · Seaview Cabin ×3' },
-        { id: 'e0620f', time: '9:00 PM', title: 'The Wake Show', description: 'Show & dining at The Wake', location: 'The Wake, Valiant Lady', type: 'activity', status: 'confirmed', notes: '' },
-      ],
-    },
-    {
-      date: '2026-06-21', label: 'Sunday, June 21',
-      location: 'At Sea', subtitle: '⚓ Sailing Day',
-      events: [
-        { id: 'e0621a', time: '8:15 AM', title: 'Breakfast — Razzle Dazzle', description: 'Vegetarian-forward breakfast restaurant', location: 'Razzle Dazzle, Valiant Lady', type: 'food', status: 'confirmed', notes: 'Reservation 8:15 AM' },
-        { id: 'e0621b', time: '11:45 AM', title: 'Brunch — The Wake', description: 'Brunch on the ship', location: 'The Wake, Valiant Lady', type: 'food', status: 'confirmed', notes: 'Reservation 11:45 AM' },
-        { id: 'e0621c', time: 'Afternoon', title: 'Pool Deck & Richard\'s Rooftop', description: 'Relax at The Perch or upper decks', location: 'Upper Deck, Valiant Lady', type: 'activity', status: 'confirmed', notes: '' },
-        { id: 'e0621d', time: '8:30 PM', title: 'Dinner — Ariya', description: 'Pan-Asian restaurant onboard', location: 'Ariya, Valiant Lady', type: 'food', status: 'confirmed', notes: 'Reservation 8:30 PM' },
-        { id: 'e0621e', time: 'Night', title: 'PJ Night — Onboard Party 🎉', description: 'Themed party on Valiant Lady — PAJAMAS!', location: 'Valiant Lady', type: 'activity', status: 'confirmed', notes: 'Dress code: PAJAMAS 😴' },
-      ],
-    },
-    {
-      date: '2026-06-22', label: 'Monday, June 22',
-      location: 'Civitavecchia / Rome, Italy', subtitle: '🏛️ Eternal City',
-      events: [
-        { id: 'e0622a', time: '7:00 AM', title: 'Arrive Civitavecchia', description: 'Train/shuttle to Rome ~45 min · ~€8 each way', location: 'Civitavecchia Port, Italy', type: 'cruise', status: 'confirmed', notes: 'Train to Roma Termini' },
-        { id: 'e0622b', time: '9:00 AM', title: 'Explore Rome', description: 'Colosseum, Roman Forum, Trevi Fountain, Vatican', location: 'Rome, Italy', type: 'activity', status: 'pending', notes: 'Book Colosseum tickets in advance!' },
-        { id: 'e0622c', time: 'Afternoon', title: 'Lunch & Gelato', description: 'Piazza Navona, Campo de\' Fiori, shopping', location: 'Rome, Italy', type: 'food', status: 'pending', notes: '' },
-        { id: 'e0622d', time: 'Evening', title: 'Return to Civitavecchia', description: 'Back to port — check all-aboard time!', location: 'Civitavecchia Port', type: 'transport', status: 'confirmed', notes: 'All-aboard time TBD' },
-      ],
-    },
-    {
-      date: '2026-06-23', label: 'Tuesday, June 23',
-      location: 'Cinque Terre, Italy', subtitle: '🌊 Italian Riviera',
-      events: [
-        { id: 'e0623a', time: '8:30 AM', title: 'Arrive Cinque Terre (Tender Port)', description: 'Take ship tender to shore — line up early!', location: 'Cinque Terre, Italy', type: 'cruise', status: 'confirmed', notes: '' },
-        { id: 'e0623b', time: 'Morning', title: 'Explore the Five Villages', description: 'Vernazza, Monterosso, Riomaggiore — hike or ferry', location: 'Cinque Terre, Italy', type: 'activity', status: 'pending', notes: 'Ferry between villages ~€10' },
-        { id: 'e0623c', time: 'Afternoon', title: 'Beach & Lunch', description: 'Swim in the Ligurian Sea · cliffside lunch', location: 'Cinque Terre, Italy', type: 'food', status: 'pending', notes: '' },
-        { id: 'e0623d', time: '9:15 PM', title: 'Dinner — Test Kitchen', description: 'Experimental dining on the ship', location: 'Test Kitchen, Valiant Lady', type: 'food', status: 'confirmed', notes: 'Reservation 9:15 PM' },
-      ],
-    },
-    {
-      date: '2026-06-24', label: 'Wednesday, June 24',
-      location: 'Cannes, France', subtitle: '🎬 French Riviera',
-      events: [
-        { id: 'e0624a', time: '8:00 AM', title: 'Arrive Cannes', description: 'Tender to shore', location: 'Cannes, France', type: 'cruise', status: 'confirmed', notes: '' },
-        { id: 'e0624b', time: 'Morning', title: 'La Croisette & Old Port', description: 'Promenade, Palais des Festivals, luxury boutiques', location: 'Cannes, France', type: 'activity', status: 'pending', notes: '' },
-        { id: 'e0624c', time: 'Afternoon', title: 'Île Sainte-Marguerite (optional)', description: 'Boat to island, swim, walk', location: 'Cannes Islands', type: 'activity', status: 'pending', notes: 'Ferry from old port' },
-        { id: 'e0624d', time: 'Evening', title: 'Dinner on Ship', description: 'Onboard dining of choice', location: 'Valiant Lady', type: 'food', status: 'pending', notes: '' },
-      ],
-    },
-    {
-      date: '2026-06-25', label: 'Thursday, June 25',
-      location: 'At Sea', subtitle: '⚓ Sea Day',
-      events: [
-        { id: 'e0625a', time: 'Morning', title: 'Redemption Spa', description: 'Onboard spa — book in advance', location: 'Redemption Spa, Valiant Lady', type: 'activity', status: 'pending', notes: '' },
-        { id: 'e0625b', time: 'Afternoon', title: "Richard's Rooftop & Pool", description: 'Soak up the sun', location: 'Top Deck, Valiant Lady', type: 'activity', status: 'confirmed', notes: '' },
-        { id: 'e0625c', time: '8:45 PM', title: 'Dinner — The Wake', description: 'Dinner at The Wake', location: 'The Wake, Valiant Lady', type: 'food', status: 'confirmed', notes: 'Reservation 8:45 PM' },
-        { id: 'e0625d', time: 'Night', title: 'Dinner — Gunbae (Scarlet Night 🌹)', description: 'Korean BBQ onboard — Scarlet Night theme!', location: 'Gunbae, Valiant Lady', type: 'food', status: 'confirmed', notes: 'Dress code: SCARLET / RED' },
-      ],
-    },
-    {
-      date: '2026-06-26', label: 'Friday, June 26',
-      location: 'Ibiza, Spain', subtitle: '🌅 Ibiza Night',
-      events: [
-        { id: 'e0626a', time: '8:00 PM', title: 'Arrive Ibiza (Evening Port)', description: 'Evening arrival — Ibiza Town at night is magical', location: 'Ibiza Port', type: 'cruise', status: 'confirmed', notes: '' },
-        { id: 'e0626b', time: 'Evening', title: 'Dalt Vila — UNESCO Old Town', description: 'Historic walled city, sunset views, tapas', location: 'Dalt Vila, Ibiza', type: 'activity', status: 'pending', notes: '' },
-      ],
-    },
-    {
-      date: '2026-06-27', label: 'Saturday, June 27',
-      location: 'Ibiza — Cala Bassa', subtitle: '🏖️ Beach Club Day',
-      events: [
-        { id: 'e0627a', time: 'Morning', title: 'Cala Bassa Beach Club ⭐ PREPAID', description: '3 sunbeds + champagne, all prepaid! Taxi ~€15', location: 'Cala Bassa Beach Club, Ibiza', type: 'beach', status: 'confirmed', notes: 'PREPAID: 3 sunbeds + champagne 🥂' },
-        { id: 'e0627b', time: 'All Day', title: 'Sun, Sea & Vibes at CBBC', description: 'Crystal-clear Ibiza waters, live music', location: 'Cala Bassa, Ibiza', type: 'beach', status: 'confirmed', notes: '' },
-        { id: 'e0627c', time: 'Evening', title: 'Last Night on Valiant Lady 🥂', description: 'Final evening at sea!', location: 'Ibiza Port → Valiant Lady', type: 'transport', status: 'confirmed', notes: "Don't miss all-aboard time!" },
-      ],
-    },
-    {
-      date: '2026-06-28', label: 'Sunday, June 28',
-      location: 'Barcelona → Los Angeles', subtitle: '✈️ Homeward Bound',
-      events: [
-        { id: 'e0628a', time: '6:00–8:00 AM', title: 'Dock & Disembark — Barcelona', description: 'Have luggage outside cabin the night before!', location: 'Moll Adossat Terminal A/B, Barcelona', type: 'cruise', status: 'confirmed', notes: 'Luggage outside cabin night before' },
-        { id: 'e0628b', time: '9:00 AM', title: 'Breakfast near Port / Barceloneta', description: 'Coffee & breakfast while waiting', location: 'Barceloneta, Barcelona', type: 'food', status: 'pending', notes: '' },
-        { id: 'e0628c', time: '11:00 AM', title: 'Transfer to Barcelona Airport', description: 'Allow 2+ hours for check-in · ~30 min Uber', location: 'Barcelona El Prat Airport', type: 'transport', status: 'confirmed', notes: '' },
-        { id: 'e0628d', time: '1:15 PM', title: 'Depart BCN — Air Canada AC821', description: 'Barcelona → Toronto (YYZ) → LAX', location: 'Barcelona Airport', type: 'flight', status: 'confirmed', notes: 'Conf: CBWO8M' },
-        { id: 'e0628e', time: '9:00 PM', title: 'Arrive LAX 🏠', description: 'Home sweet home!', location: 'LAX Airport', type: 'flight', status: 'confirmed', notes: 'Connection in Toronto YYZ' },
-      ],
-    },
-  ],
+  days: DAYS_V2,
 
-  restaurants: [
-    { id: 'r1',  name: 'Pink Agave',             cuisine: 'Mexican',           city: 'Palma',         date: 'June 17', time: '6:00 PM',  status: 'confirmed', notes: 'Reservation 6:00 PM' },
-    { id: 'r_lamalvasia', name: 'La Malvasia',  cuisine: 'Mediterranean',      city: 'Palma de Mallorca', date: 'June 17', time: '8:45 PM', status: 'confirmed', notes: 'Reservation 8:45 PM' },
-    { id: 'r2',  name: 'Extra Virgin',            cuisine: 'Mediterranean',     city: 'Barcelona',     date: 'June 19', time: '6:45 PM',  status: 'confirmed', notes: 'Reservation 6:45 PM' },
-    { id: 'r3',  name: 'Gunbae',                  cuisine: 'Korean BBQ',        city: 'Valiant Lady',  date: 'June 25', time: '6:00 PM',  status: 'confirmed', notes: 'Scarlet Night theme — wear RED 🌹' },
-    { id: 'r4',  name: 'The Wake (show)',          cuisine: 'American',          city: 'Valiant Lady',  date: 'June 20', time: '9:00 PM',  status: 'confirmed', notes: 'Show & dinner experience' },
-    { id: 'r5',  name: 'Razzle Dazzle',           cuisine: 'Vegetarian',        city: 'Valiant Lady',  date: 'June 21', time: '8:15 AM',  status: 'confirmed', notes: 'Breakfast reservation' },
-    { id: 'r6',  name: 'The Wake (brunch)',        cuisine: 'American',          city: 'Valiant Lady',  date: 'June 21', time: '11:45 AM', status: 'confirmed', notes: 'Brunch reservation' },
-    { id: 'r7',  name: 'Ariya',                   cuisine: 'Pan-Asian',         city: 'Valiant Lady',  date: 'June 21', time: '8:30 PM',  status: 'confirmed', notes: 'Dinner reservation' },
-    { id: 'r8',  name: 'Test Kitchen',            cuisine: 'Experimental',      city: 'Valiant Lady',  date: 'June 23', time: '9:15 PM',  status: 'confirmed', notes: 'After Cinque Terre day' },
-    { id: 'r9',  name: 'The Wake (sea day)',       cuisine: 'American',          city: 'Valiant Lady',  date: 'June 25', time: '8:45 PM',  status: 'confirmed', notes: 'Sea day dinner' },
-    { id: 'r10', name: 'Cala Bassa Beach Club',   cuisine: 'Mediterranean',     city: 'Ibiza',         date: 'June 27', time: 'All Day',  status: 'confirmed', notes: 'PREPAID: 3 sunbeds + champagne 🥂' },
-  ],
+  restaurants: RESTAURANTS_V2,
 
   todos: [
     { id: 'td1',  cat: 'Documents', task: 'Passport packed & valid 6+ months past return',           done: true  },
@@ -2198,20 +2209,46 @@ export default function App() {
     if (btn) btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
   }, [tab, isMobile]);
 
-  // One-time migration: add La Malvasia if missing from Firebase data
+  // One-time migration: add La Malvasia / Nessun Dorma if missing from Firebase data
   useEffect(() => {
     if (!data) return;
-    if ((data.restaurants || []).some(r => r.id === 'r_lamalvasia')) return;
+    const hasLaMalvasia = (data.restaurants || []).some(r => r.id === 'r_lamalvasia');
+    const hasNessun = (data.restaurants || []).some(r => r.id === 'r_nessun');
+    if (hasLaMalvasia && hasNessun) return;
+    setData(d => {
+      const updatedRestaurants = [...(d.restaurants || [])];
+      if (!updatedRestaurants.some(r => r.id === 'r_lamalvasia')) {
+        updatedRestaurants.push({ id: 'r_lamalvasia', name: 'La Malvasia', cuisine: 'Mediterranean', city: 'Palma de Mallorca', date: 'June 17', time: '8:15 PM', status: 'confirmed', notes: 'Reservation 8:15 PM' });
+      }
+      if (!updatedRestaurants.some(r => r.id === 'r_nessun')) {
+        updatedRestaurants.push({ id: 'r_nessun', name: 'Nessun Dorma', cuisine: 'Italian', city: 'Rome', date: 'June 23', time: '1:00 PM', status: 'confirmed', notes: 'Rome port day lunch' });
+      }
+      return {
+        ...d,
+        restaurants: updatedRestaurants,
+        days: (d.days || []).map(day => {
+          if (day.date === '2026-06-17') {
+            return { ...day, events: day.events.some(e => e.id === 'e0617h') ? day.events.map(e => e.id === 'e0617h' ? { ...e, time: '8:15 PM', notes: 'Reservation 8:15 PM' } : e) : [...day.events, { id: 'e0617h', time: '8:15 PM', title: 'Dinner — La Malvasia', description: 'Mediterranean restaurant in Palma', location: 'La Malvasia, Palma de Mallorca', type: 'food', status: 'confirmed', notes: 'Reservation 8:15 PM' }] };
+          }
+          if (day.date === '2026-06-23') {
+            return { ...day, events: day.events.some(e => e.id === 'e0623_nessun') ? day.events : [...day.events, { id: 'e0623_nessun', time: '1:00 PM', title: 'Lunch — Nessun Dorma', description: 'Lunch in Rome', location: 'Nessun Dorma, Rome', type: 'food', status: 'confirmed', notes: '' }] };
+          }
+          return day;
+        }),
+        lastUpdated: new Date().toISOString(),
+      };
+    });
+  }, [data]);
+
+  // V2 migration: fix cruise schedule (embarkation June 21, not June 20) and correct all port days
+  useEffect(() => {
+    if (!data) return;
+    if (data._v2) return;
     setData(d => ({
       ...d,
-      restaurants: [...(d.restaurants || []),
-        { id: 'r_lamalvasia', name: 'La Malvasia', cuisine: 'Mediterranean', city: 'Palma de Mallorca', date: 'June 17', time: '8:45 PM', status: 'confirmed', notes: 'Reservation 8:45 PM' },
-      ],
-      days: (d.days || []).map(day =>
-        day.date === '2026-06-17'
-          ? { ...day, events: day.events.some(e => e.id === 'e0617h') ? day.events : [...day.events, { id: 'e0617h', time: '8:45 PM', title: 'Dinner — La Malvasia', description: 'Mediterranean restaurant in Palma', location: 'La Malvasia, Palma de Mallorca', type: 'food', status: 'confirmed', notes: 'Reservation 8:45 PM' }] }
-          : day
-      ),
+      days: DAYS_V2,
+      restaurants: RESTAURANTS_V2,
+      _v2: true,
       lastUpdated: new Date().toISOString(),
     }));
   }, [data]);
