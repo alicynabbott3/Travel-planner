@@ -2369,6 +2369,15 @@ export default function App() {
           </div>
         </div>
 
+        {/* ── BACHELORETTE BANNER ── */}
+        <div data-noprint style={{ width: '100%', lineHeight: 0 }}>
+          <img
+            src="/bachelorette-banner.jpg"
+            alt="Sabrina's Bachelorette '26 — Swamp Party"
+            style={{ width: '100%', display: 'block' }}
+          />
+        </div>
+
         {/* Tab bar — hidden on mobile (use bottom nav instead) */}
         {!isMobile && (
           <div style={{ display: 'flex', overflowX: 'auto', padding: '8px 10px 6px', scrollbarWidth: 'none', gap: 2 }}>
@@ -2389,15 +2398,6 @@ export default function App() {
           </div>
         )}
       </header>
-
-      {/* ── BACHELORETTE BANNER ── */}
-      <div data-noprint style={{ width: '100%', lineHeight: 0 }}>
-        <img
-          src="/bachelorette-banner.jpg"
-          alt="Sabrina's Bachelorette '26 — Swamp Party"
-          style={{ width: '100%', display: 'block' }}
-        />
-      </div>
 
       {/* ── MAIN CONTENT ── */}
       <main style={{ maxWidth: 900, margin: '0 auto', padding: `28px 16px ${isMobile ? '90px' : '80px'}` }}>
