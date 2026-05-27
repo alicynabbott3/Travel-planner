@@ -222,7 +222,7 @@ const INIT = {
         { id: 'e0617e', time: '1:30 PM', title: 'Check In — Dog Admiral Urban Guest House', description: 'Flamingo Suite · Pay at location', location: 'Carrer del Conquistador 2, Palma', type: 'hotel', status: 'payAtLocation', notes: 'Conf: BB26031720350199' },
         { id: 'e0617f', time: '5:30 PM', title: 'Hammam Al Andalus', description: 'Traditional Arab bath experience', location: 'Hammam Al Andalus, Palma', type: 'activity', status: 'confirmed', notes: 'Pre-booked · Allow 1.5–2 hrs' },
         { id: 'e0617g', time: '6:00 PM', title: 'Dinner — Pink Agave', description: 'Mexican restaurant in Palma', location: 'Pink Agave, Palma', type: 'food', status: 'confirmed', notes: 'Reservation 6:00 PM' },
-        { id: 'e0617h', time: '8:45 PM', title: 'Dinner — La Malvasia', description: 'Mediterranean restaurant in Palma', location: 'La Malvasia, Palma de Mallorca', type: 'food', status: 'confirmed', notes: 'Reservation 8:45 PM' },
+        { id: 'e0617h', time: '8:15 PM', title: 'Dinner — La Malvasia', description: 'Mediterranean restaurant in Palma', location: 'La Malvasia, Palma de Mallorca', type: 'food', status: 'confirmed', notes: 'Reservation 8:15 PM' },
       ],
     },
     {
@@ -285,6 +285,7 @@ const INIT = {
         { id: 'e0623a', time: '8:30 AM', title: 'Arrive Cinque Terre (Tender Port)', description: 'Take ship tender to shore — line up early!', location: 'Cinque Terre, Italy', type: 'cruise', status: 'confirmed', notes: '' },
         { id: 'e0623b', time: 'Morning', title: 'Explore the Five Villages', description: 'Vernazza, Monterosso, Riomaggiore — hike or ferry', location: 'Cinque Terre, Italy', type: 'activity', status: 'pending', notes: 'Ferry between villages ~€10' },
         { id: 'e0623c', time: 'Afternoon', title: 'Beach & Lunch', description: 'Swim in the Ligurian Sea · cliffside lunch', location: 'Cinque Terre, Italy', type: 'food', status: 'pending', notes: '' },
+        { id: 'e0623_nessun', time: '1:00 PM', title: 'Lunch — Nessun Dorma', description: 'Lunch in Rome', location: 'Nessun Dorma, Rome', type: 'food', status: 'confirmed', notes: '' },
         { id: 'e0623d', time: '9:15 PM', title: 'Dinner — Test Kitchen', description: 'Experimental dining on the ship', location: 'Test Kitchen, Valiant Lady', type: 'food', status: 'confirmed', notes: 'Reservation 9:15 PM' },
       ],
     },
@@ -340,7 +341,7 @@ const INIT = {
 
   restaurants: [
     { id: 'r1',  name: 'Pink Agave',             cuisine: 'Mexican',           city: 'Palma',         date: 'June 17', time: '6:00 PM',  status: 'confirmed', notes: 'Reservation 6:00 PM' },
-    { id: 'r_lamalvasia', name: 'La Malvasia',  cuisine: 'Mediterranean',      city: 'Palma de Mallorca', date: 'June 17', time: '8:45 PM', status: 'confirmed', notes: 'Reservation 8:45 PM' },
+    { id: 'r_lamalvasia', name: 'La Malvasia',  cuisine: 'Mediterranean',      city: 'Palma de Mallorca', date: 'June 17', time: '8:15 PM', status: 'confirmed', notes: 'Reservation 8:15 PM' },
     { id: 'r2',  name: 'Extra Virgin',            cuisine: 'Mediterranean',     city: 'Barcelona',     date: 'June 19', time: '6:45 PM',  status: 'confirmed', notes: 'Reservation 6:45 PM' },
     { id: 'r3',  name: 'Gunbae',                  cuisine: 'Korean BBQ',        city: 'Valiant Lady',  date: 'June 25', time: '6:00 PM',  status: 'confirmed', notes: 'Scarlet Night theme — wear RED 🌹' },
     { id: 'r4',  name: 'The Wake (show)',          cuisine: 'American',          city: 'Valiant Lady',  date: 'June 20', time: '9:00 PM',  status: 'confirmed', notes: 'Show & dinner experience' },
@@ -348,6 +349,7 @@ const INIT = {
     { id: 'r6',  name: 'The Wake (brunch)',        cuisine: 'American',          city: 'Valiant Lady',  date: 'June 21', time: '11:45 AM', status: 'confirmed', notes: 'Brunch reservation' },
     { id: 'r7',  name: 'Ariya',                   cuisine: 'Pan-Asian',         city: 'Valiant Lady',  date: 'June 21', time: '8:30 PM',  status: 'confirmed', notes: 'Dinner reservation' },
     { id: 'r8',  name: 'Test Kitchen',            cuisine: 'Experimental',      city: 'Valiant Lady',  date: 'June 23', time: '9:15 PM',  status: 'confirmed', notes: 'After Cinque Terre day' },
+    { id: 'r_nessun', name: 'Nessun Dorma',      cuisine: 'Italian',           city: 'Rome',          date: 'June 23', time: '1:00 PM',  status: 'confirmed', notes: 'Rome port day lunch' },
     { id: 'r9',  name: 'The Wake (sea day)',       cuisine: 'American',          city: 'Valiant Lady',  date: 'June 25', time: '8:45 PM',  status: 'confirmed', notes: 'Sea day dinner' },
     { id: 'r10', name: 'Cala Bassa Beach Club',   cuisine: 'Mediterranean',     city: 'Ibiza',         date: 'June 27', time: 'All Day',  status: 'confirmed', notes: 'PREPAID: 3 sunbeds + champagne 🥂' },
   ],
@@ -2198,22 +2200,35 @@ export default function App() {
     if (btn) btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
   }, [tab, isMobile]);
 
-  // One-time migration: add La Malvasia if missing from Firebase data
+  // One-time migration: add La Malvasia / Nessun Dorma if missing from Firebase data
   useEffect(() => {
     if (!data) return;
-    if ((data.restaurants || []).some(r => r.id === 'r_lamalvasia')) return;
-    setData(d => ({
-      ...d,
-      restaurants: [...(d.restaurants || []),
-        { id: 'r_lamalvasia', name: 'La Malvasia', cuisine: 'Mediterranean', city: 'Palma de Mallorca', date: 'June 17', time: '8:45 PM', status: 'confirmed', notes: 'Reservation 8:45 PM' },
-      ],
-      days: (d.days || []).map(day =>
-        day.date === '2026-06-17'
-          ? { ...day, events: day.events.some(e => e.id === 'e0617h') ? day.events : [...day.events, { id: 'e0617h', time: '8:45 PM', title: 'Dinner — La Malvasia', description: 'Mediterranean restaurant in Palma', location: 'La Malvasia, Palma de Mallorca', type: 'food', status: 'confirmed', notes: 'Reservation 8:45 PM' }] }
-          : day
-      ),
-      lastUpdated: new Date().toISOString(),
-    }));
+    const hasLaMalvasia = (data.restaurants || []).some(r => r.id === 'r_lamalvasia');
+    const hasNessun = (data.restaurants || []).some(r => r.id === 'r_nessun');
+    if (hasLaMalvasia && hasNessun) return;
+    setData(d => {
+      const updatedRestaurants = [...(d.restaurants || [])];
+      if (!updatedRestaurants.some(r => r.id === 'r_lamalvasia')) {
+        updatedRestaurants.push({ id: 'r_lamalvasia', name: 'La Malvasia', cuisine: 'Mediterranean', city: 'Palma de Mallorca', date: 'June 17', time: '8:15 PM', status: 'confirmed', notes: 'Reservation 8:15 PM' });
+      }
+      if (!updatedRestaurants.some(r => r.id === 'r_nessun')) {
+        updatedRestaurants.push({ id: 'r_nessun', name: 'Nessun Dorma', cuisine: 'Italian', city: 'Rome', date: 'June 23', time: '1:00 PM', status: 'confirmed', notes: 'Rome port day lunch' });
+      }
+      return {
+        ...d,
+        restaurants: updatedRestaurants,
+        days: (d.days || []).map(day => {
+          if (day.date === '2026-06-17') {
+            return { ...day, events: day.events.some(e => e.id === 'e0617h') ? day.events.map(e => e.id === 'e0617h' ? { ...e, time: '8:15 PM', notes: 'Reservation 8:15 PM' } : e) : [...day.events, { id: 'e0617h', time: '8:15 PM', title: 'Dinner — La Malvasia', description: 'Mediterranean restaurant in Palma', location: 'La Malvasia, Palma de Mallorca', type: 'food', status: 'confirmed', notes: 'Reservation 8:15 PM' }] };
+          }
+          if (day.date === '2026-06-23') {
+            return { ...day, events: day.events.some(e => e.id === 'e0623_nessun') ? day.events : [...day.events, { id: 'e0623_nessun', time: '1:00 PM', title: 'Lunch — Nessun Dorma', description: 'Lunch in Rome', location: 'Nessun Dorma, Rome', type: 'food', status: 'confirmed', notes: '' }] };
+          }
+          return day;
+        }),
+        lastUpdated: new Date().toISOString(),
+      };
+    });
   }, [data]);
 
   useEffect(() => {
