@@ -469,22 +469,43 @@ function useSharedStorage(key, fallback) {
     }
 
     // Firebase Realtime Database — live sync across all devices
+    // If Firebase doesn't respond within 5s (e.g. no internet), fall back to localStorage
+    let resolved = false;
+    const timeout = setTimeout(() => {
+      if (!resolved) {
+        setSyncStatus('localStorage');
+        try {
+          const raw = localStorage.getItem(key);
+          setData(raw ? JSON.parse(raw) : fallback);
+        } catch { setData(fallback); }
+      }
+    }, 5000);
+
     const r = fbRef(db, key);
     const unsub = onValue(
       r,
       (snap) => {
+        resolved = true;
+        clearTimeout(timeout);
         setSyncStatus('firebase');
         if (snap.exists()) {
-          setData(snap.val());
+          const val = snap.val();
+          try { localStorage.setItem(key, JSON.stringify(val)); } catch {}
+          setData(val);
         } else {
           // First run: seed with default data
           fbSet(r, fallback).catch(() => {});
           setData(fallback);
         }
       },
-      () => { setSyncStatus('error'); setData(fallback); }, // error fallback
+      () => {
+        resolved = true;
+        clearTimeout(timeout);
+        setSyncStatus('error');
+        setData(fallback);
+      },
     );
-    return unsub;
+    return () => { clearTimeout(timeout); unsub(); };
   }, [key]); // eslint-disable-line
 
   const save = useCallback((updater) => {
@@ -496,6 +517,8 @@ function useSharedStorage(key, fallback) {
       } else {
         try { localStorage.setItem(key, JSON.stringify(next)); } catch {}
       }
+      // Always cache locally so offline fallback has fresh data
+      try { localStorage.setItem(key, JSON.stringify(next)); } catch {}
       return next;
     });
   }, [key]); // eslint-disable-line
