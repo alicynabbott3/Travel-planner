@@ -2231,6 +2231,7 @@ export default function App() {
   const [titleBarH, setTitleBarH] = useState(72);
   const didMigrateRestaurants = useRef(false);
   const didMigrateV2 = useRef(false);
+  const didMigrateV3 = useRef(false);
 
   const syncState = useSyncStatus();
 
@@ -2300,6 +2301,30 @@ export default function App() {
       _v2: true,
       lastUpdated: new Date().toISOString(),
     }));
+  }, [data]);
+
+  // V3 migration: fix restaurant reservations (remove wrong entries, correct times/dates)
+  useEffect(() => {
+    if (!data || didMigrateV3.current) return;
+    if (data._v3) { didMigrateV3.current = true; return; }
+    didMigrateV3.current = true;
+    setData(d => {
+      const REMOVE_IDS = ['r2', 'r_ariya24', 'r_ev25', 'r_wakebrunch26'];
+      let restaurants = (d.restaurants || []).filter(r => !REMOVE_IDS.includes(r.id));
+      restaurants = restaurants.map(r =>
+        r.id === 'r_gunbae22' ? { ...r, time: '6:15 PM' } : r
+      );
+      if (!restaurants.some(r => r.id === 'r_rdz24'))
+        restaurants.push({ id: 'r_rdz24', name: 'Razzle Dazzle', cuisine: 'Vegetarian', city: 'Valiant Lady', date: 'June 24', time: '8:30 PM', status: 'confirmed', notes: 'Dinner reservation' });
+      if (!restaurants.some(r => r.id === 'r_ev26'))
+        restaurants.push({ id: 'r_ev26', name: 'Extra Virgin', cuisine: 'Italian', city: 'Valiant Lady', date: 'June 26', time: '6:45 PM', status: 'confirmed', notes: 'Dinner reservation' });
+      const days = (d.days || []).map(day =>
+        day.date === '2026-06-19'
+          ? { ...day, events: day.events.filter(e => e.id !== 'e0619f') }
+          : day
+      );
+      return { ...d, restaurants, days, _v3: true, lastUpdated: new Date().toISOString() };
+    });
   }, [data]);
 
   useEffect(() => {
