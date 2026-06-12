@@ -719,9 +719,9 @@ function useConfirm() {
 
 /* ─── FLIGHTS VIEW ──────────────────────────────────────── */
 const MALLORCA_IDS = ['fl2', 'fl3'];
-const MALLORCA_HOTEL_IDS  = ['ht1'];
-const MALLORCA_DAY_DATES  = ['2026-06-17', '2026-06-18', '2026-06-19'];
-const MALLORCA_REST_IDS   = ['r1', 'r_lamalvasia'];
+const MALLORCA_HOTEL_IDS  = ['ht1', 'ht2'];
+const MALLORCA_DAY_DATES  = ['2026-06-17', '2026-06-18', '2026-06-19', '2026-06-20', '2026-06-21'];
+const MALLORCA_REST_IDS   = ['r2', 'r_lamalvasia'];
 const MALLORCA_TODO_IDS   = ['td9', 'td15', 'td16'];
 const MALLORCA_EVENT_IDS  = ['e0615a']; // Air Europa check-in on June 15
 
@@ -1078,8 +1078,10 @@ function DailyView({ data, onUpdate, mallorcaUnlocked, onMallorcaUnlock }) {
               const isSel      = globalIdx === selIdx;
               const isPast     = day.date < todayStr && !isToday;
               const maxIcons   = isMobile ? 3 : 5;
-              const typeIcons  = [...new Set(day.events.map(e => (TYPE[e.type] || TYPE.other).icon))].slice(0, maxIcons);
-              const overflow   = day.events.length > maxIcons ? day.events.length - maxIcons : 0;
+              const isLockedDay = !mallorcaUnlocked && MALLORCA_DAY_DATES.includes(day.date);
+              const tileEvents = isLockedDay ? [] : day.events;
+              const typeIcons  = [...new Set(tileEvents.map(e => (TYPE[e.type] || TYPE.other).icon))].slice(0, maxIcons);
+              const overflow   = tileEvents.length > maxIcons ? tileEvents.length - maxIcons : 0;
               const isWeekend  = dIdx >= 5;
 
               return (
@@ -1140,7 +1142,7 @@ function DailyView({ data, onUpdate, mallorcaUnlocked, onMallorcaUnlock }) {
                   </div>
 
                   {/* Event count dot */}
-                  {day.events.length > 0 && (
+                  {!isLockedDay && day.events.length > 0 && (
                     <div style={{
                       position: 'absolute', top: 5, right: 5,
                       width: 16, height: 16, borderRadius: '50%',
