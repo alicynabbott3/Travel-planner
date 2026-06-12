@@ -195,7 +195,6 @@ const DAYS_V2 = [
       { id: 'e0619c', time: '1:05 PM', title: 'Arrive Barcelona BCN', description: 'Land at El Prat', location: 'Barcelona Airport', type: 'flight', status: 'confirmed', notes: '' },
       { id: 'e0619d', time: '~1:30 PM', title: 'Uber to H10 Art Gallery', description: '~20 min Uber from airport', location: 'Enric Granados 62–64', type: 'transport', status: 'confirmed', notes: '' },
       { id: 'e0619e', time: '3:00 PM', title: 'Check In — H10 Art Gallery Hotel', description: 'Atrium Room · pre-paid by Alicyn', location: 'Enric Granados 62–64, Barcelona', type: 'hotel', status: 'confirmed', notes: 'Paid by Alicyn' },
-      { id: 'e0619f', time: '6:45 PM', title: 'Dinner — Extra Virgin', description: 'Restaurant in Eixample, Barcelona', location: 'Extra Virgin, Barcelona', type: 'food', status: 'confirmed', notes: 'Reservation 6:45 PM' },
     ],
   },
   {
@@ -297,15 +296,13 @@ const DAYS_V2 = [
 
 const RESTAURANTS_V2 = [
   { id: 'r_lamalvasia', name: 'La Malvasia', cuisine: 'Mediterranean', city: 'Palma de Mallorca', date: 'June 17', time: '8:45 PM', status: 'confirmed', notes: 'Reservation 8:45 PM' },
-  { id: 'r2', name: 'Extra Virgin', cuisine: 'Italian', city: 'Barcelona', date: 'June 19', time: '6:45 PM', status: 'confirmed', notes: 'Reservation 6:45 PM' },
   { id: 'r_agave21', name: 'Pink Agave', cuisine: 'Mexican', city: 'Valiant Lady', date: 'June 21', time: '6:00 PM', status: 'confirmed', notes: 'Reservation 6:00 PM — Virgin Voyages restaurant' },
   { id: 'r_rdz22', name: 'Razzle Dazzle', cuisine: 'Vegetarian', city: 'Valiant Lady', date: 'June 22', time: '8:15 AM', status: 'confirmed', notes: 'Breakfast reservation' },
-  { id: 'r_gunbae22', name: 'Gunbae', cuisine: 'Korean BBQ', city: 'Valiant Lady', date: 'June 22', time: '6:00 PM', status: 'confirmed', notes: 'Dinner reservation' },
+  { id: 'r_gunbae22', name: 'Gunbae', cuisine: 'Korean BBQ', city: 'Valiant Lady', date: 'June 22', time: '6:15 PM', status: 'confirmed', notes: 'Dinner reservation' },
   { id: 'r_wake23', name: 'The Wake', cuisine: 'American', city: 'Valiant Lady', date: 'June 23', time: '9:00 PM', status: 'confirmed', notes: 'Show & dinner experience' },
-  { id: 'r_ariya24', name: 'Ariya', cuisine: 'Pan-Asian', city: 'Valiant Lady', date: 'June 24', time: '8:30 PM', status: 'confirmed', notes: 'Dinner reservation' },
-  { id: 'r_ev25', name: 'Extra Virgin', cuisine: 'Italian', city: 'Valiant Lady', date: 'June 25', time: '6:45 PM', status: 'confirmed', notes: 'Scarlet Night dinner — wear RED 🌹' },
+  { id: 'r_rdz24', name: 'Razzle Dazzle', cuisine: 'Vegetarian', city: 'Valiant Lady', date: 'June 24', time: '8:30 PM', status: 'confirmed', notes: 'Dinner reservation' },
   { id: 'r_tk25', name: 'Test Kitchen', cuisine: 'Experimental', city: 'Valiant Lady', date: 'June 25', time: '9:15 PM', status: 'confirmed', notes: 'After Cannes day' },
-  { id: 'r_wakebrunch26', name: 'The Wake (brunch)', cuisine: 'American', city: 'Valiant Lady', date: 'June 26', time: '11:45 AM', status: 'confirmed', notes: 'Brunch reservation' },
+  { id: 'r_ev26', name: 'Extra Virgin', cuisine: 'Italian', city: 'Valiant Lady', date: 'June 26', time: '6:45 PM', status: 'confirmed', notes: 'Dinner reservation' },
   { id: 'r10', name: 'Cala Bassa Beach Club', cuisine: 'Mediterranean', city: 'Ibiza', date: 'June 27', time: 'All Day', status: 'confirmed', notes: 'PREPAID: 3 sunbeds + champagne 🥂' },
   { id: 'r_wake27', name: 'The Wake', cuisine: 'American', city: 'Valiant Lady', date: 'June 27', time: '8:45 PM', status: 'confirmed', notes: 'Dinner reservation' },
 ];
@@ -721,7 +718,7 @@ function useConfirm() {
 const MALLORCA_IDS = ['fl2', 'fl3'];
 const MALLORCA_HOTEL_IDS  = ['ht1', 'ht2'];
 const MALLORCA_DAY_DATES  = ['2026-06-17', '2026-06-18', '2026-06-19', '2026-06-20', '2026-06-21'];
-const MALLORCA_REST_IDS   = ['r2', 'r_lamalvasia'];
+const MALLORCA_REST_IDS   = ['r_lamalvasia'];
 const MALLORCA_TODO_IDS   = ['td9', 'td15', 'td16'];
 const MALLORCA_EVENT_IDS  = ['e0615a']; // Air Europa check-in on June 15
 
