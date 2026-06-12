@@ -716,7 +716,7 @@ function useConfirm() {
 
 /* ─── FLIGHTS VIEW ──────────────────────────────────────── */
 const MALLORCA_IDS = ['fl2', 'fl3'];
-const MALLORCA_HOTEL_IDS  = ['ht1', 'ht2'];
+const MALLORCA_HOTEL_IDS  = ['ht1'];
 const MALLORCA_DAY_DATES  = ['2026-06-17', '2026-06-18', '2026-06-19', '2026-06-20', '2026-06-21'];
 const MALLORCA_REST_IDS   = ['r_lamalvasia'];
 const MALLORCA_TODO_IDS   = ['td9', 'td15', 'td16'];
@@ -865,7 +865,10 @@ function HotelsView({ data, onUpdate, mallorcaUnlocked, onMallorcaUnlock }) {
     <div>
       <SectionHead title="Swamp Stays & Castles" icon="🌿" action={<Btn variant="primary" small onClick={() => setEditItem(blank)}>+ Add</Btn>} />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-        {data.hotels.filter(h => mallorcaUnlocked || !MALLORCA_HOTEL_IDS.includes(h.id)).map(h => (
+        {data.hotels.filter(h => mallorcaUnlocked || !MALLORCA_HOTEL_IDS.includes(h.id)).map(h => {
+          const locked = !mallorcaUnlocked && h.id === 'ht2';
+          const displayH = locked ? { ...h, checkIn: 'June 18, 2026', checkOut: 'June 21, 2026', nights: 3 } : h;
+          return (
           <Card key={h.id}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -875,8 +878,8 @@ function HotelsView({ data, onUpdate, mallorcaUnlocked, onMallorcaUnlock }) {
                 </div>
                 <div style={{ fontSize: 13, color: C.textMid, fontFamily: 'Inter,sans-serif', marginBottom: 10 }}>📍 {h.address}</div>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
-                  <Pill icon="📅" label={`${h.checkIn} → ${h.checkOut}`} />
-                  <Pill icon="🌙" label={`${h.nights} nights`} />
+                  <Pill icon="📅" label={`${displayH.checkIn} → ${displayH.checkOut}`} />
+                  <Pill icon="🌙" label={`${displayH.nights} nights`} />
                   <Pill icon="🛏️" label={h.room} />
                   <Pill icon="👥" label={`${h.guests} guests`} />
                 </div>
@@ -895,7 +898,8 @@ function HotelsView({ data, onUpdate, mallorcaUnlocked, onMallorcaUnlock }) {
               </div>
             </div>
           </Card>
-        ))}
+          );
+        })}
         {!mallorcaUnlocked && data.hotels.some(h => MALLORCA_HOTEL_IDS.includes(h.id)) && (
           <MallorcaLock onUnlock={onMallorcaUnlock} />
         )}
