@@ -867,7 +867,7 @@ function HotelsView({ data, onUpdate, mallorcaUnlocked, onMallorcaUnlock }) {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         {data.hotels.filter(h => mallorcaUnlocked || !MALLORCA_HOTEL_IDS.includes(h.id)).map(h => {
           const locked = !mallorcaUnlocked && h.id === 'ht2';
-          const displayH = locked ? { ...h, checkIn: 'June 18, 2026', checkOut: 'June 21, 2026', nights: 3 } : h;
+          const displayH = locked ? { ...h, checkIn: 'June 17, 2026', checkOut: 'June 21, 2026', nights: 4 } : h;
           return (
           <Card key={h.id}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
